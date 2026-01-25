@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Disallow old HTML files (we use clean URLs now)
+Disallow: /about.html
+Disallow: /services.html
+Disallow: /calculator.html
+Disallow: /contact.html
+Disallow: /gallery.html
+Disallow: /privacy.html
+Disallow: /temp_page.html
+
+# Allow CSS, JS, and images
+Allow: /css/
+Allow: /js/
+Allow: /assets/
+
+# Sitemap
+Sitemap: https://miltegona.lt/sitemap.xml
