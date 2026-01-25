@@ -1,0 +1,435 @@
+/* Calculator Page Styles */
+
+.calculator-section {
+    padding: 80px 0;
+    background: var(--bg-white);
+    overflow-x: hidden;
+}
+
+.calculator-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+    align-items: start;
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+.calculator-form {
+    background: #1a1d23;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+}
+
+.calculator-form h2 {
+    color: #ffffff;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.calculator-note {
+    color: #9ca3af;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.form-section h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    color: var(--text-dark);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.875rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-white);
+    color: var(--text-dark);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #1a1d23;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    color: var(--text-dark);
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.checkbox-label:hover {
+    background: rgba(252, 157, 23, 0.1);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.75rem;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+/* Complexity Options Styling */
+.complexity-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.complexity-option {
+    padding: 0;
+    margin: 0;
+}
+
+.complexity-option input[type="radio"] {
+    display: none;
+}
+
+.complexity-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    background: var(--bg-white);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 100%;
+}
+
+.complexity-option:hover .complexity-card {
+    border-color: var(--primary-color);
+    background: rgba(252, 157, 23, 0.05);
+}
+
+.complexity-option input[type="radio"]:checked + .complexity-card {
+    border-color: var(--primary-color);
+    background: rgba(252, 157, 23, 0.1);
+    box-shadow: 0 0 0 3px rgba(252, 157, 23, 0.2);
+}
+
+.complexity-icon {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    transition: transform 0.3s;
+}
+
+.complexity-option:hover .complexity-icon {
+    transform: scale(1.1);
+}
+
+.complexity-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    text-align: center;
+}
+
+.complexity-option input[type="radio"]:checked + .complexity-card .complexity-text {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 1rem;
+}
+
+.btn-primary:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(252, 157, 23, 0.3);
+}
+
+/* Result Section */
+.calculator-result {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: sticky;
+    top: 100px;
+}
+
+.result-card,
+.info-card {
+    background: #1a1d23;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+}
+
+.result-card h2 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.price-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(252, 157, 23, 0.1) 0%, rgba(255, 185, 75, 0.1) 100%);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 2px solid var(--primary-color);
+}
+
+.price-label {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.price-amount {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.price-breakdown {
+    padding: 1.5rem;
+    background: var(--bg-white);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.price-breakdown h4 {
+    color: #ffffff;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.price-item strong {
+    color: #ffffff;
+}
+
+.result-note {
+    color: #9ca3af;
+    text-align: center;
+    font-style: italic;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.result-actions {
+    margin-top: 1rem;
+}
+
+.btn-secondary {
+    display: block;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.info-card h3 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.info-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-card ul li {
+    color: var(--text-dark);
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.6;
+}
+
+.info-card ul li::before {
+    content: "•";
+    color: var(--primary-color);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.info-card strong {
+    color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .calculator-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .calculator-result {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .calculator-section {
+        padding: 30px 0;
+    }
+    
+    .calculator-container {
+        gap: 1.5rem;
+        padding: 0 10px;
+    }
+    
+    .calculator-form,
+    .result-card,
+    .info-card {
+        padding: 1.25rem;
+    }
+
+    .calculator-form h2 {
+        font-size: 1.4rem;
+        line-height: 1.3;
+    }
+    
+    .calculator-note {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    .form-group label {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 0.75rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .complexity-group {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .complexity-card {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .complexity-text {
+        font-size: 0.75rem;
+    }
+
+    .complexity-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .price-amount {
+        font-size: 1.8rem;
+        word-break: break-word;
+    }
+    
+    .result-note {
+        font-size: 0.8rem;
+        line-height: 1.4;
+        padding: 0 0.5rem;
+    }
+    
+    .price-breakdown {
+        padding: 1rem;
+    }
+    
+    .price-item {
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+    }
+}
