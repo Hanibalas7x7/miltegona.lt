@@ -494,6 +494,13 @@ a {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
+    
+    /* Add separator before contact info in mobile */
+    .footer-col:last-child h3 {
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
