@@ -251,6 +251,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Redirect to contact page with pre-filled message
         const encodedMessage = encodeURIComponent(message);
-        window.location.href = `contact.html?message=${encodedMessage}`;
+        window.location.href = `/kontaktai/?message=${encodedMessage}`;
     }
 });
