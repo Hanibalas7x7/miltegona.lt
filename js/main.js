@@ -190,28 +190,117 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Show message function
 function showMessage(message, type) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message message-${type}`;
-    messageDiv.textContent = message;
-    messageDiv.style.cssText = `
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
         position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 2rem;
-        background: ${type === 'success' ? '#10b981' : '#ef4444'};
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
     `;
     
-    document.body.appendChild(messageDiv);
+    // Create modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        animation: scaleIn 0.3s ease;
+    `;
     
-    setTimeout(() => {
-        messageDiv.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => messageDiv.remove(), 300);
-    }, 3000);
+    // Icon
+    const icon = type === 'success' ? '✓' : '✕';
+    const iconColor = type === 'success' ? '#10b981' : '#ef4444';
+    
+    modal.innerHTML = `
+        <div style="
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: ${iconColor};
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            font-weight: bold;
+        ">${icon}</div>
+        <h3 style="
+            margin: 0 0 1rem;
+            color: #1a1d23;
+            font-size: 1.25rem;
+        ">${type === 'success' ? 'Sėkmingai!' : 'Klaida'}</h3>
+        <p style="
+            margin: 0 0 1.5rem;
+            color: #6b7280;
+            line-height: 1.5;
+        ">${message}</p>
+        <button id="modal-ok-btn" style="
+            background: ${iconColor};
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        ">Gerai</button>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Close on button click
+    const okBtn = modal.querySelector('#modal-ok-btn');
+    okBtn.addEventListener('click', () => {
+        overlay.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => overlay.remove(), 300);
+    });
+    
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => overlay.remove(), 300);
+        }
+    });
+    
+    // Add animations to document if not present
+    if (!document.querySelector('#modal-animations')) {
+        const style = document.createElement('style');
+        style.id = 'modal-animations';
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            @keyframes scaleIn {
+                from { transform: scale(0.9); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+            #modal-ok-btn:hover {
+                opacity: 0.9;
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }
 
 // Lightbox function
