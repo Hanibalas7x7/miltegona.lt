@@ -158,7 +158,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     message: fullMessage
                 };
                 
-                submitBtn.textContent = 'Siunčiamas laiškas...';
+                submitBtn.innerHTML = '<span class="spinner"></span> Siunčiama...';
+                submitBtn.disabled = true;
                 
                 // Send email using EmailJS
                 await emailjs.send('service_54ci6he', 'template_m5zwm5m', templateParams);
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Form submission error:', error);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                submitBtn.innerHTML = originalText;
             }
         });
     }
@@ -396,3 +397,114 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Back to Top Button
+const backToTopBtn = document.createElement('button');
+backToTopBtn.id = 'backToTop';
+backToTopBtn.innerHTML = '↑';
+backToTopBtn.setAttribute('aria-label', 'Back to top');
+document.body.appendChild(backToTopBtn);
+
+window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+        backToTopBtn.classList.add('visible');
+    } else {
+        backToTopBtn.classList.remove('visible');
+    }
+});
+
+backToTopBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// WhatsApp Floating Button
+const whatsappBtn = document.createElement('a');
+whatsappBtn.href = 'https://wa.me/37062502563?text=Sveiki,%20norėčiau%20sužinoti%20daugiau%20apie%20miltelinio%20dažymo%20paslaugas';
+whatsappBtn.target = '_blank';
+whatsappBtn.rel = 'noopener noreferrer';
+whatsappBtn.id = 'whatsappBtn';
+whatsappBtn.innerHTML = `<svg viewBox="0 0 32 32" width="32" height="32"><path fill="currentColor" d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.737 5.607 2.137 8.048l-2.137 7.952 7.933-2.127c2.42 1.37 5.173 2.127 8.067 2.127 8.837 0 16-7.163 16-16s-7.163-16-16-16zM16 29.333c-2.547 0-5.053-0.72-7.24-2.080l-0.52-0.307-5.387 1.44 1.44-5.373-0.32-0.533c-1.44-2.4-2.24-5.147-2.24-7.973 0-7.36 5.973-13.333 13.333-13.333s13.333 5.973 13.333 13.333-5.973 13.333-13.333 13.333zM22.293 18.653c-0.4-0.2-2.347-1.16-2.72-1.293-0.36-0.133-0.627-0.2-0.893 0.2s-1.027 1.293-1.253 1.56c-0.24 0.267-0.467 0.307-0.867 0.107-0.4-0.2-1.68-0.627-3.2-1.987-1.187-1.067-1.987-2.373-2.213-2.773-0.24-0.4-0.027-0.613 0.173-0.813 0.187-0.173 0.4-0.467 0.6-0.693 0.2-0.24 0.267-0.4 0.4-0.667 0.133-0.267 0.067-0.493-0.027-0.693-0.107-0.2-0.893-2.147-1.227-2.933-0.32-0.773-0.653-0.667-0.893-0.68-0.227-0.013-0.493-0.013-0.76-0.013s-0.693 0.093-1.053 0.493c-0.36 0.4-1.387 1.36-1.387 3.307s1.413 3.84 1.613 4.107c0.2 0.267 2.827 4.32 6.853 6.053 0.96 0.413 1.707 0.667 2.293 0.853 0.96 0.307 1.84 0.267 2.533 0.16 0.773-0.12 2.347-0.96 2.68-1.893 0.333-0.933 0.333-1.72 0.24-1.893-0.107-0.187-0.373-0.293-0.773-0.493z"/></svg>`;
+whatsappBtn.setAttribute('aria-label', 'Contact via WhatsApp');
+document.body.appendChild(whatsappBtn);
+
+// Back to Top & WhatsApp CSS
+const floatingBtnsStyle = document.createElement('style');
+floatingBtnsStyle.textContent = `
+    #backToTop {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        background: #ff6b35;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 999;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+    }
+    
+    #backToTop.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    #backToTop:hover {
+        background: #e55a2b;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(255, 107, 53, 0.6);
+    }
+    
+    #whatsappBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #25D366;
+        color: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        animation: whatsappPulse 2s infinite;
+    }
+    
+    #whatsappBtn:hover {
+        background: #20BA5A;
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(37, 211, 102, 0.6);
+    }
+    
+    @keyframes whatsappPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    @media (max-width: 768px) {
+        #backToTop {
+            bottom: 80px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+        }
+        
+        #whatsappBtn {
+            bottom: 15px;
+            right: 15px;
+            width: 55px;
+            height: 55px;
+        }
+    }
+`;
+document.head.appendChild(floatingBtnsStyle);

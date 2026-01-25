@@ -140,7 +140,7 @@ The website is fully responsive with breakpoints at:
 
 For questions or issues, contact:
 - Email: info@miltegona.lt
-- Phone: +370 5 272 3304
+- Phone: +37062502563
 
 ## 📄 License
 
