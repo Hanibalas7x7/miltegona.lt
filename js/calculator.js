@@ -2,11 +2,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const calculateBtn = document.getElementById('calculate-btn');
     const totalPriceEl = document.getElementById('total-price');
+    const totalPriceVatEl = document.getElementById('total-price-vat');
     const priceBreakdownEl = document.getElementById('price-breakdown');
     const quoteRequestBtn = document.getElementById('quote-request-btn');
 
     // Minimum order amount
     const MIN_ORDER = 15;
+    const VAT_RATE = 0.21; // 21% PVM
 
     // Store calculation data for quote request
     let calculationData = null;
@@ -19,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (calculationData) {
             sendQuoteRequest();
         } else {
-            alert('Prašome pirma apskaičiuoti kainą');
+            showMessage('Prašome pirma apskaičiuoti kainą', 'error');
         }
     });
 
@@ -54,7 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate inputs
         if (length === 0 || height === 0) {
-            alert('Prašome užpildyti ilgį ir aukštį');
+            showMessage('Prašome užpildyti ilgį ir aukštį', 'error');
+            return;
+        }
+
+        if (weight > 1000) {
+            showMessage('1 vnt. neturėtų sverti daugiau nei 1000 kg', 'error');
             return;
         }
 
@@ -132,19 +139,19 @@ document.addEventListener('DOMContentLoaded', function() {
             totalPrice = MIN_ORDER;
         }
 
+        // Calculate price with VAT
+        const totalPriceWithVat = totalPrice * (1 + VAT_RATE);
+
         // Display results
         totalPriceEl.textContent = totalPrice.toFixed(2) + ' €';
+        totalPriceVatEl.textContent = totalPriceWithVat.toFixed(2) + ' €';
 
         // Create breakdown
-        let breakdownHTML = '<h4>Kainos sudėtis (1 vnt.):</h4>';
+        let breakdownHTML = '<h4>Kainos sudėtis (1 vnt.) be PVM:</h4>';
         breakdownHTML += `<div class="price-item"><span>Matmenys:</span><span>${length}×${height}×${width} mm</span></div>`;
         
         if (depthMultiplier > 1) {
             breakdownHTML += `<div class="price-item"><span>Gylio daugiklis:</span><span>×${depthMultiplier}</span></div>`;
-        }
-        
-        if (complexity > 1) {
-            breakdownHTML += `<div class="price-item"><span>Sudėtingumas:</span><span>×${complexity}</span></div>`;
         }
         
         if (weightMultiplier > 1) {
@@ -208,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             complexity: complexityText,
             maskingCount, assemblyChecked, urgentChecked,
             totalPrice: totalPrice.toFixed(2),
+            totalPriceWithVat: totalPriceWithVat.toFixed(2),
             breakdown: breakdownHTML
         };
     }
@@ -247,7 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
             message += `\n`;
         }
         
-        message += `ORIENTACINĖ KAINA: ${calculationData.totalPrice} €\n`;
+        message += `ORIENTACINĖ KAINA BE PVM: ${calculationData.totalPrice} €\n`;
+        message += `KAINA SU PVM: ${calculationData.totalPriceWithVat} €\n`;
         
         // Redirect to contact page with pre-filled message
         const encodedMessage = encodeURIComponent(message);
