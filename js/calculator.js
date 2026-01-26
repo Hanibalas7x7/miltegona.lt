@@ -60,9 +60,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Calculate depth multiplier based on width (depth)
         let depthMultiplier = 1;
-        if (width > 700) {
+        if (width > 599) {
             depthMultiplier = 2;
-        } else if (width > 500) {
+        } else if (width > 299) {
             depthMultiplier = 1.5;
         }
 
