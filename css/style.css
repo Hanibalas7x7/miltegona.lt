@@ -218,20 +218,23 @@ a {
 }
 
 .btn-primary:hover {
-    background: #d97706;
+    background: var(--primary-color);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
 
 .btn-secondary {
-    background: transparent;
+    background: var(--primary-color);
     color: white;
-    border-color: white;
+    border-color: var(--primary-color);
 }
 
 .btn-secondary:hover {
-    background: white;
-    color: var(--primary-color);
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 /* Section Titles */
@@ -409,11 +412,15 @@ a {
 
 .footer-col a {
     color: #FC9D17;
-    transition: color 0.3s;
+    transition: all 0.3s;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    display: inline-block;
 }
 
 .footer-col a:hover {
     color: #fdb34b;
+    border-bottom-color: #FC9D17;
 }
 
 .footer-logo {
