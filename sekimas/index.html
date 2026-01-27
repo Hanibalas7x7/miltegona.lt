@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sekite savo užsakymo statusą realiuoju laiku. Įveskite 5 simbolių užsakymo kodą ir sužinokite, kokiame etape yra jūsų gaminys.">
+    <meta name="keywords" content="užsakymo sekimas, miltelinis dažymas, sekti užsakymą, užsakymo statusas">
+    <title>Užsakymo sekimas - UAB Miltegona</title>
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Užsakymo sekimas - UAB Miltegona">
+    <meta property="og:description" content="Sekite savo užsakymo statusą realiuoju laiku">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://miltegona.lt/sekimas/">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Pradžia",
+        "item": "https://miltegona.lt/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Užsakymo sekimas",
+        "item": "https://miltegona.lt/sekimas/"
+      }]
+    }
+    </script>
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="/assets/android-chrome-512x512-dOqEyR4jnBSMWDw1.png">
+    <link rel="apple-touch-icon" href="/assets/android-chrome-512x512-dOqEyR4jnBSMWDw1.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff6b35">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/tracking.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="/">
+                        <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="UAB Miltegona - miltelinio dažymo paslaugos Kaune" class="logo-img" style="height: 60px; width: auto;">
+                    </a>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="/">Pradžia</a></li>
+                        <li><a href="/apie-mus/">Apie mus</a></li>
+                        <li><a href="/miltelinis-dazymas/">Paslaugos</a></li>
+                        <li><a href="/galerija/">Galerija</a></li>
+                        <li><a href="/kaina/">Skaičiuoklė</a></li>
+                        <li><a href="/kontaktai/">Kontaktai</a></li>
+                        <li><a href="/sekimas/" class="active">Sekimas</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Užsakymo sekimas</h1>
+            <p>Įveskite savo užsakymo kodą ir stebėkite jo būklę realiuoju laiku</p>
+        </div>
+    </section>
+
+    <!-- Tracking Section -->
+    <section class="tracking-section">
+        <div class="container">
+            <!-- Search Box -->
+            <div class="tracking-search" id="searchBox">
+                <div class="search-card">
+                    <h2>Įveskite užsakymo kodą</h2>
+                    <p class="search-description">5 simbolių kodą radote SMS žinutėje arba ant gaminio</p>
+                    
+                    <form id="trackingForm" class="tracking-form">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="orderCode" 
+                                placeholder="pvz. 8ANZ6" 
+                                maxlength="5" 
+                                required
+                                autocomplete="off"
+                                style="text-transform: uppercase;">
+                            <button type="submit" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="m21 21-4.35-4.35"/>
+                                </svg>
+                                Sekti
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="search-note">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                        <span>Jūsų užsakymo kodas atsiųstas SMS žinute po užsakymo priėmimo</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div class="tracking-results" id="resultsContainer" style="display: none;">
+                <!-- Results will be inserted here by JavaScript -->
+            </div>
+
+            <!-- Error Message -->
+            <div class="tracking-error" id="errorMessage" style="display: none;">
+                <div class="error-card">
+                    <div class="error-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </div>
+                    <h3>Užsakymas nerastas</h3>
+                    <p>Užsakymas su kodu <strong id="errorCode"></strong> nerastas sistemoje.</p>
+                    <p class="error-help">Patikrinkite ar teisingai įvedėte kodą. Kodas yra 5 simbolių, pvz. <strong>8ANZ6</strong></p>
+                    <button class="btn btn-secondary" onclick="document.getElementById('searchBox').scrollIntoView({behavior: 'smooth'}); document.getElementById('orderCode').focus();">
+                        Ieškoti iš naujo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="tracking-loading" id="loadingSpinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Ieškoma užsakymo...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>Kaip tai veikia?</h2>
+            <div class="steps-grid">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <h3>Priimame užsakymą</h3>
+                    <p>Po užsakymo priėmimo išsiunčiame jums SMS su unikaliu 5 simbolių kodu</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <h3>Sekate statusą</h3>
+                    <p>Įvedę kodą šiame puslapyje matote realų gaminio paruošimo eigą</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <h3>Gauname pranešimą</h3>
+                    <p>Kai užsakymas paruoštas atsiėmimui, gausite SMS pranešimą</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <h3>Atsiimate</h3>
+                    <p>Atvykite į mūsų sandėlį nurodytu laiku ir atsiimkite užsakymą</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <img src="/assets/logo_blur-Aq2Qv48BaWH3VXD1.png" alt="UAB Miltegona" class="footer-logo">
+                    <p>Profesionalus miltelinis dažymas nuo 2021 metų.</p>
+                    <p class="company-code">Įmonės kodas: 305813612</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Nuorodos</h3>
+                    <ul>
+                        <li><a href="/">Pradžia</a></li>
+                        <li><a href="/apie-mus/">Apie mus</a></li>
+                        <li><a href="/miltelinis-dazymas/">Paslaugos</a></li>
+                        <li><a href="/kaina/">Skaičiuoklė</a></li>
+                        <li><a href="/kontaktai/">Kontaktai</a></li>
+                        <li><a href="/sekimas/">Sekimas</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Kontaktai</h3>
+                    <ul>
+                        <li><strong>Pavadinimas:</strong> UAB "Miltegona"</li>
+                        <li><strong>Tel:</strong> <a href="tel:+37062502563">+370 625 02563 (Tomas)</a></li>
+                        <li><strong>El. paštas:</strong> <a href="mailto:info@miltegona.lt">info@miltegona.lt</a></li>
+                        <li><strong>Adresas:</strong> Pramonės g. 4, Kaunas</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Informacija</h3>
+                    <ul>
+                        <li><strong>Įmonės kodas:</strong> 305813612</li>
+                        <li><strong>PVM kodas:</strong> LT100014222417</li>
+                        <li><strong>Darbo laikas:</strong> I-V: 9:00 - 18:00, VI-VII: Nedirbame</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 UAB Miltegona. Visos teisės saugomos.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/tracking.js"></script>
+</body>
+</html>
