@@ -1,22 +1,7 @@
 // Tracking Page JavaScript
 
-// Initialize Supabase client for tracking
-const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5enR0enF2YmVzY2RwaWh2eWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYxNzEyMzcsImV4cCI6MjA1MTc0NzIzN30.Qa5lR9jBnmz0tN9MUCOSNJdwlsHlg5QmfJCsqJvUyYg';
-
-let trackingSupabase;
-try {
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-        trackingSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase client initialized');
-    } else {
-        console.error('❌ Supabase library not loaded');
-        alert('Klaida: Nepavyko užkrauti duomenų bazės bibliotekos. Pabandykite atnaujinti puslapį.');
-    }
-} catch (err) {
-    console.error('❌ Error initializing Supabase:', err);
-    alert('Klaida inicializuojant duomenų bazę: ' + err.message);
-}
+// Edge Function URL
+const TRACK_ORDER_ENDPOINT = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/track-order';
 
 // Form elements
 const trackingForm = document.getElementById('trackingForm');
@@ -47,14 +32,6 @@ trackingForm.addEventListener('submit', async function(e) {
 
 // Track order function
 async function trackOrder(orderCode) {
-    // Check if Supabase is initialized
-    if (!trackingSupabase || typeof trackingSupabase.from !== 'function') {
-        errorMessage.style.display = 'block';
-        showError(orderCode, 'Duomenų bazė neįkrauta. Pabandykite atnaujinti puslapį (Ctrl+F5).');
-        console.error('❌ trackingSupabase not initialized properly:', trackingSupabase);
-        return;
-    }
-    
     // Hide previous results
     resultsContainer.style.display = 'none';
     errorMessage.style.display = 'none';
@@ -65,38 +42,35 @@ async function trackOrder(orderCode) {
     try {
         console.log('🔍 Searching for order:', orderCode);
         
-        // Query for_clients table
-        const { data, error } = await trackingSupabase
-            .from('for_clients')
-            .select('*')
-            .eq('unique_code', orderCode)
-            .single();
+        // Call Edge Function
+        const response = await fetch(TRACK_ORDER_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: orderCode })
+        });
         
-        console.log('📊 Supabase response:', { data, error });
+        const result = await response.json();
+        
+        console.log('📊 Response:', { status: response.status, result });
         
         loadingSpinner.style.display = 'none';
         
-        if (error) {
-            console.error('❌ Supabase error:', error);
+        if (!response.ok || result.error) {
+            console.error('❌ Error:', result.error);
             
-            // Check if it's a "not found" error vs permission error
-            if (error.code === 'PGRST116') {
+            if (response.status === 404) {
                 showError(orderCode); // Not found
             } else {
-                showError(orderCode, `Klaida: ${error.message}`);
+                showError(orderCode, `Klaida: ${result.error || 'Nežinoma klaida'}`);
             }
             return;
         }
         
-        if (!data) {
-            console.log('⚠️ No data returned');
-            showError(orderCode);
-            return;
-        }
-        
-        console.log('✅ Order found:', data);
+        console.log('✅ Order found:', result);
         // Show results
-        displayResults(data);
+        displayResults(result);
         
     } catch (err) {
         loadingSpinner.style.display = 'none';
@@ -118,11 +92,11 @@ function displayResults(order) {
     let currentStage = 'received';
     if (isDelivered) currentStage = 'delivered';
     else if (isReady) currentStage = 'ready';
-    else if (isPainted) currentStage = 'painted';
-    else if (isPrimed) currentStage = 'primed';
-    else if (isSanded) currentStage = 'sanded';
-    
-    const html = `
+    else if (isPainted) curstatus?.is_sanded || false;
+    const isPrimed = order.status?.is_primed || false;
+    const isPainted = order.status?.is_painted || false;
+    const isReady = order.status?.is_ready || false;
+    const isDelivered = order.status?
         <div class="result-card">
             <div class="result-header">
                 <h2>Užsakymo būklė</h2>
