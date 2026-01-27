@@ -81,22 +81,23 @@ async function trackOrder(orderCode) {
 
 // Display results
 function displayResults(order) {
-    const isSanded = order.is_sanded || false;
-    const isPrimed = order.is_primed || false;
-    const isPainted = order.is_painted || false;
-    const isReady = order.is_ready || false;
-    const isDelivered = order.is_delivered || false;
+    // Extract status from nested object
+    const isSanded = order.status?.is_sanded || false;
+    const isPrimed = order.status?.is_primed || false;
+    const isPainted = order.status?.is_painted || false;
+    const isReady = order.status?.is_ready || false;
+    const isDelivered = order.status?.is_delivered || false;
     const spalva = order.spalva_ir_pavirsuis || 'Nenurodyta';
     
     // Determine current stage
     let currentStage = 'received';
     if (isDelivered) currentStage = 'delivered';
     else if (isReady) currentStage = 'ready';
-    else if (isPainted) curstatus?.is_sanded || false;
-    const isPrimed = order.status?.is_primed || false;
-    const isPainted = order.status?.is_painted || false;
-    const isReady = order.status?.is_ready || false;
-    const isDelivered = order.status?
+    else if (isPainted) currentStage = 'painted';
+    else if (isPrimed) currentStage = 'primed';
+    else if (isSanded) currentStage = 'sanded';
+    
+    const html = `
         <div class="result-card">
             <div class="result-header">
                 <h2>Užsakymo būklė</h2>
