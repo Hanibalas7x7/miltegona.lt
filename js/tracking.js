@@ -85,6 +85,8 @@ function displayResults(order) {
     const currentStage = order.current_stage || 'Priimtas';
     const needsSanding = order.requirements?.needs_sanding || false;
     const needsPriming = order.requirements?.needs_priming || false;
+    const isSandblasted = order.progress?.sandblasted || false;
+    const isPrimed = order.progress?.primed || false;
     const spalva = order.spalva_ir_pavirsuis || 'Nenurodyta';
     
     // Map painted_tag to progress stages
@@ -159,7 +161,7 @@ function displayResults(order) {
                 
                 <!-- 2. Smėliavimas (if needed) -->
                 ${needsSanding ? `
-                <div class="timeline-item ${currentProgress === 'sanding' ? 'active' : (stageOrder[currentProgress] > stageOrder['sanding'] ? 'completed' : 'pending')}">
+                <div class="timeline-item ${isSandblasted ? 'completed' : (currentProgress === 'sanding' ? 'active' : 'pending')}">
                     <div class="timeline-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
@@ -168,8 +170,8 @@ function displayResults(order) {
                     <div class="timeline-content">
                         <h3>Smėliavimas / Valymas</h3>
                         <p>Paviršiaus paruošimas prieš dažymą</p>
-                        <span class="status-badge ${currentProgress === 'sanding' ? 'active' : (stageOrder[currentProgress] > stageOrder['sanding'] ? 'completed' : 'pending')}">
-                            ${currentProgress === 'sanding' ? 'Vykdoma' : (stageOrder[currentProgress] > stageOrder['sanding'] ? 'Atlikta' : 'Laukiama')}
+                        <span class="status-badge ${isSandblasted ? 'completed' : (currentProgress === 'sanding' ? 'active' : 'pending')}">
+                            ${isSandblasted ? 'Atlikta' : (currentProgress === 'sanding' ? 'Vykdoma' : 'Laukiama')}
                         </span>
                     </div>
                 </div>
@@ -177,7 +179,7 @@ function displayResults(order) {
                 
                 <!-- 3. Gruntavimas (if needed) -->
                 ${needsPriming ? `
-                <div class="timeline-item ${currentProgress === 'priming' ? 'active' : (stageOrder[currentProgress] > stageOrder['priming'] ? 'completed' : 'pending')}">
+                <div class="timeline-item ${isPrimed ? 'completed' : (currentProgress === 'priming' ? 'active' : 'pending')}">
                     <div class="timeline-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 19V5M5 12l7-7 7 7"/>
@@ -186,8 +188,8 @@ function displayResults(order) {
                     <div class="timeline-content">
                         <h3>Gruntavimas</h3>
                         <p>Gruntuojamas paviršius geresniam dažų sukibimui</p>
-                        <span class="status-badge ${currentProgress === 'priming' ? 'active' : (stageOrder[currentProgress] > stageOrder['priming'] ? 'completed' : 'pending')}">
-                            ${currentProgress === 'priming' ? 'Vykdoma' : (stageOrder[currentProgress] > stageOrder['priming'] ? 'Atlikta' : 'Laukiama')}
+                        <span class="status-badge ${isPrimed ? 'completed' : (currentProgress === 'priming' ? 'active' : 'pending')}">
+                            ${isPrimed ? 'Atlikta' : (currentProgress === 'priming' ? 'Vykdoma' : 'Laukiama')}
                         </span>
                     </div>
                 </div>
