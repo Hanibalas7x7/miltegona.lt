@@ -86,7 +86,8 @@ function displayResults(order) {
     const needsSanding = order.requirements?.needs_sanding || false;
     const needsPriming = order.requirements?.needs_priming || false;
     const isSandblasted = order.progress?.sandblasted || false;
-    const isPainted = order.progress?.painted || false;
+    const isReady = order.progress?.ready || false;
+    const isPainted = order.progress?.painted || isReady; // If ready, then painted too
     const isDelivered = order.progress?.delivered || false;
     const spalva = order.spalva_ir_pavirsuis || 'Nenurodyta';
     
@@ -213,7 +214,7 @@ function displayResults(order) {
                 </div>
                 
                 <!-- 5. Pabaigtas / Galima atsiimti -->
-                <div class="timeline-item ${isPainted && !isDelivered ? 'active' : (isDelivered ? 'completed' : 'pending')}">
+                <div class="timeline-item ${isReady ? 'completed' : 'pending'}">
                     <div class="timeline-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 3h18v18H3zM3 9h18M9 21V9"/>
@@ -222,8 +223,8 @@ function displayResults(order) {
                     <div class="timeline-content">
                         <h3>Pabaigtas</h3>
                         <p>Užsakymas baigtas ir galima atsiimti</p>
-                        <span class="status-badge ${isPainted && !isDelivered ? 'active' : (isDelivered ? 'completed' : 'pending')}">
-                            ${isPainted && !isDelivered ? 'Galima atsiimti' : (isDelivered ? 'Atsiimta' : 'Laukiama')}
+                        <span class="status-badge ${isReady ? 'completed' : 'pending'}">
+                            ${isReady ? 'Atlikta' : 'Laukiama'}
                         </span>
                     </div>
                 </div>
