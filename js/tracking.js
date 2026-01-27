@@ -167,7 +167,7 @@ function displayResults(order) {
                         </svg>
                     </div>
                     <div class="timeline-content">
-                        <h3>Smėliavimas / Valymas</h3>
+                        <h3>Smėliavimas</h3>
                         <p>Paviršiaus paruošimas prieš dažymą</p>
                         <span class="status-badge ${isSandblasted ? 'completed' : (currentProgress === 'sanding' ? 'active' : 'pending')}">
                             ${isSandblasted ? 'Atlikta' : (currentProgress === 'sanding' ? 'Vykdoma' : 'Laukiama')}
