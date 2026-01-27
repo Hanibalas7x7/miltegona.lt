@@ -43,6 +43,8 @@ async function trackOrder(orderCode) {
     loadingSpinner.style.display = 'block';
     
     try {
+        console.log('🔍 Searching for order:', orderCode);
+        
         // Query for_clients table
         const { data, error } = await supabase
             .from('for_clients')
@@ -50,20 +52,36 @@ async function trackOrder(orderCode) {
             .eq('unique_code', orderCode)
             .single();
         
+        console.log('📊 Supabase response:', { data, error });
+        
         loadingSpinner.style.display = 'none';
         
-        if (error || !data) {
+        if (error) {
+            console.error('❌ Supabase error:', error);
+            
+            // Check if it's a "not found" error vs permission error
+            if (error.code === 'PGRST116') {
+                showError(orderCode); // Not found
+            } else {
+                showError(orderCode, `Klaida: ${error.message}`);
+            }
+            return;
+        }
+        
+        if (!data) {
+            console.log('⚠️ No data returned');
             showError(orderCode);
             return;
         }
         
+        console.log('✅ Order found:', data);
         // Show results
         displayResults(data);
         
     } catch (err) {
         loadingSpinner.style.display = 'none';
-        showError(orderCode);
-        console.error('Error fetching order:', err);
+        showError(orderCode, `Sistemos klaida: ${err.message}`);
+        console.error('💥 Error fetching order:', err);
     }
 }
 
