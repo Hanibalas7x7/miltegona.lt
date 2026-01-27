@@ -88,6 +88,7 @@ function displayResults(order) {
     const isSandblasted = order.progress?.sandblasted || false;
     const isReady = order.progress?.ready || false;
     const isPainted = order.progress?.painted || isReady; // If ready, then painted too
+    const isPrimed = isPainted && needsPriming; // If painted and needs priming, then priming is done
     const isDelivered = order.progress?.delivered || false;
     const spalva = order.spalva_ir_pavirsuis || 'Nenurodyta';
     
@@ -181,7 +182,7 @@ function displayResults(order) {
                 
                 <!-- 3. Gruntavimas (if needed) -->
                 ${needsPriming ? `
-                <div class="timeline-item ${(stageOrder[currentProgress] > stageOrder['priming']) ? 'completed' : (currentProgress === 'priming' ? 'active' : 'pending')}">
+                <div class="timeline-item ${isPrimed ? 'completed' : (currentProgress === 'priming' ? 'active' : 'pending')}">
                     <div class="timeline-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 19V5M5 12l7-7 7 7"/>
@@ -190,8 +191,8 @@ function displayResults(order) {
                     <div class="timeline-content">
                         <h3>Gruntavimas</h3>
                         <p>Gruntuojamas paviršius geresniam dažų sukibimui</p>
-                        <span class="status-badge ${(stageOrder[currentProgress] > stageOrder['priming']) ? 'completed' : (currentProgress === 'priming' ? 'active' : 'pending')}">
-                            ${(stageOrder[currentProgress] > stageOrder['priming']) ? 'Atlikta' : (currentProgress === 'priming' ? 'Vykdoma' : 'Laukiama')}
+                        <span class="status-badge ${isPrimed ? 'completed' : (currentProgress === 'priming' ? 'active' : 'pending')}">
+                            ${isPrimed ? 'Atlikta' : (currentProgress === 'priming' ? 'Vykdoma' : 'Laukiama')}
                         </span>
                     </div>
                 </div>
