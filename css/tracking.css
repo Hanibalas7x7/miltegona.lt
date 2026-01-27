@@ -42,10 +42,12 @@
 .input-group {
     display: flex;
     gap: 1rem;
+    align-items: stretch;
 }
 
 .input-group input {
     flex: 1;
+    min-width: 0; /* Allow flex shrink */
     padding: 1rem 1.5rem;
     font-size: 1.5rem;
     font-weight: 700;
@@ -72,11 +74,12 @@
 }
 
 .input-group button {
-    padding: 1rem 2rem;
+    padding: 1rem 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .search-note {
