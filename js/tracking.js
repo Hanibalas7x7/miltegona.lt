@@ -86,6 +86,8 @@ function displayResults(order) {
     const needsSanding = order.requirements?.needs_sanding || false;
     const needsPriming = order.requirements?.needs_priming || false;
     const isSandblasted = order.progress?.sandblasted || false;
+    const isPainted = order.progress?.painted || false;
+    const isDelivered = order.progress?.delivered || false;
     const spalva = order.spalva_ir_pavirsuis || 'Nenurodyta';
     
     // Map painted_tag to progress stages
@@ -195,7 +197,7 @@ function displayResults(order) {
                 ` : ''}
                 
                 <!-- 4. Dažymas -->
-                <div class="timeline-item ${currentProgress === 'painting' ? 'active' : (stageOrder[currentProgress] > stageOrder['painting'] ? 'completed' : 'pending')}">
+                <div class="timeline-item ${isPainted ? 'completed' : (currentProgress === 'painting' ? 'active' : 'pending')}">
                     <div class="timeline-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/>
@@ -204,14 +206,14 @@ function displayResults(order) {
                     <div class="timeline-content">
                         <h3>Dažymas</h3>
                         <p>Miltelinis dažymas spalva: <strong>${spalva}</strong></p>
-                        <span class="status-badge ${currentProgress === 'painting' ? 'active' : (stageOrder[currentProgress] > stageOrder['painting'] ? 'completed' : 'pending')}">
-                            ${currentProgress === 'painting' ? 'Vykdoma' : (stageOrder[currentProgress] > stageOrder['painting'] ? 'Atlikta' : 'Laukiama')}
+                        <span class="status-badge ${isPainted ? 'completed' : (currentProgress === 'painting' ? 'active' : 'pending')}">
+                            ${isPainted ? 'Atlikta' : (currentProgress === 'painting' ? 'Vykdoma' : 'Laukiama')}
                         </span>
                     </div>
                 </div>
                 
                 <!-- 5. Pabaigtas / Galima atsiimti -->
-                <div class="timeline-item ${currentProgress === 'ready' ? 'active' : (currentProgress === 'delivered' ? 'completed' : 'pending')}">
+                <div class="timeline-item ${isPainted && !isDelivered ? 'active' : (isDelivered ? 'completed' : 'pending')}">
                     <div class="timeline-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 3h18v18H3zM3 9h18M9 21V9"/>
@@ -220,14 +222,14 @@ function displayResults(order) {
                     <div class="timeline-content">
                         <h3>Pabaigtas</h3>
                         <p>Užsakymas baigtas ir galima atsiimti</p>
-                        <span class="status-badge ${currentProgress === 'ready' ? 'active' : (currentProgress === 'delivered' ? 'completed' : 'pending')}">
-                            ${currentProgress === 'ready' ? 'Galima atsiimti' : (currentProgress === 'delivered' ? 'Atsiimta' : 'Laukiama')}
+                        <span class="status-badge ${isPainted && !isDelivered ? 'active' : (isDelivered ? 'completed' : 'pending')}">
+                            ${isPainted && !isDelivered ? 'Galima atsiimti' : (isDelivered ? 'Atsiimta' : 'Laukiama')}
                         </span>
                     </div>
                 </div>
                 
                 <!-- 6. Atsiimtas -->
-                <div class="timeline-item ${currentProgress === 'delivered' ? 'completed' : 'pending'}">
+                <div class="timeline-item ${isDelivered ? 'completed' : 'pending'}">
                     <div class="timeline-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="9" cy="21" r="1"/>
@@ -237,9 +239,9 @@ function displayResults(order) {
                     </div>
                     <div class="timeline-content">
                         <h3>Atsiimtas</h3>
-                        <p>${currentProgress === 'delivered' ? 'Užsakymas atsiimtas. Ačiū!' : 'Laukiame jūsų atsiėmimo'}</p>
-                        <span class="status-badge ${currentProgress === 'delivered' ? 'completed' : 'pending'}">
-                            ${currentProgress === 'delivered' ? 'Atsiimta' : 'Laukiama'}
+                        <p>${isDelivered ? 'Užsakymas atsiimtas. Ačiū!' : 'Laukiame jūsų atsiėmimo'}</p>
+                        <span class="status-badge ${isDelivered ? 'completed' : 'pending'}">
+                            ${isDelivered ? 'Atsiimta' : 'Laukiama'}
                         </span>
                     </div>
                 </div>
