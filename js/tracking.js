@@ -1,13 +1,21 @@
 // Tracking Page JavaScript
 
-// Initialize Supabase (use existing client from main.js if available)
+// Initialize Supabase client for tracking
+const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5enR0enF2YmVzY2RwaWh2eWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYxNzEyMzcsImV4cCI6MjA1MTc0NzIzN30.Qa5lR9jBnmz0tN9MUCOSNJdwlsHlg5QmfJCsqJvUyYg';
+
 let trackingSupabase;
-if (typeof supabase !== 'undefined') {
-    trackingSupabase = supabase;
-} else {
-    const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5enR0enF2YmVzY2RwaWh2eWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYxNzEyMzcsImV4cCI6MjA1MTc0NzIzN30.Qa5lR9jBnmz0tN9MUCOSNJdwlsHlg5QmfJCsqJvUyYg';
-    trackingSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+try {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+        trackingSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase client initialized');
+    } else {
+        console.error('❌ Supabase library not loaded');
+        alert('Klaida: Nepavyko užkrauti duomenų bazės bibliotekos. Pabandykite atnaujinti puslapį.');
+    }
+} catch (err) {
+    console.error('❌ Error initializing Supabase:', err);
+    alert('Klaida inicializuojant duomenų bazę: ' + err.message);
 }
 
 // Form elements
@@ -39,6 +47,14 @@ trackingForm.addEventListener('submit', async function(e) {
 
 // Track order function
 async function trackOrder(orderCode) {
+    // Check if Supabase is initialized
+    if (!trackingSupabase || typeof trackingSupabase.from !== 'function') {
+        errorMessage.style.display = 'block';
+        showError(orderCode, 'Duomenų bazė neįkrauta. Pabandykite atnaujinti puslapį (Ctrl+F5).');
+        console.error('❌ trackingSupabase not initialized properly:', trackingSupabase);
+        return;
+    }
+    
     // Hide previous results
     resultsContainer.style.display = 'none';
     errorMessage.style.display = 'none';
