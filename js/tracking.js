@@ -1,10 +1,14 @@
 // Tracking Page JavaScript
 
-// Initialize Supabase
-const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5enR0enF2YmVzY2RwaWh2eWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYxNzEyMzcsImV4cCI6MjA1MTc0NzIzN30.Qa5lR9jBnmz0tN9MUCOSNJdwlsHlg5QmfJCsqJvUyYg';
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase (use existing client from main.js if available)
+let trackingSupabase;
+if (typeof supabase !== 'undefined') {
+    trackingSupabase = supabase;
+} else {
+    const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5enR0enF2YmVzY2RwaWh2eWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYxNzEyMzcsImV4cCI6MjA1MTc0NzIzN30.Qa5lR9jBnmz0tN9MUCOSNJdwlsHlg5QmfJCsqJvUyYg';
+    trackingSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
 
 // Form elements
 const trackingForm = document.getElementById('trackingForm');
@@ -46,7 +50,7 @@ async function trackOrder(orderCode) {
         console.log('🔍 Searching for order:', orderCode);
         
         // Query for_clients table
-        const { data, error } = await supabase
+        const { data, error } = await trackingSupabase
             .from('for_clients')
             .select('*')
             .eq('unique_code', orderCode)
