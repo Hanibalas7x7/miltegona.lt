@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Kontrolės Panelė - UAB Miltegona</title>
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/kontrole.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="auth-screen">
+        <div class="auth-container">
+            <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="Miltegona" class="auth-logo">
+            <h1>Kontrolės Panelė</h1>
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="password">Slaptažodis</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary">Prisijungti</button>
+            </form>
+            <div id="login-error" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div id="control-panel" class="control-panel" style="display: none;">
+        <header class="control-header">
+            <div class="container">
+                <div class="header-content">
+                    <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="Miltegona" class="header-logo">
+                    <h1>Vartų Kontrolė</h1>
+                    <button id="logout-btn" class="btn btn-secondary">Atsijungti</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="control-main">
+            <div class="container">
+                <!-- Code Generator -->
+                <section class="panel-section">
+                    <h2>Generuoti Naują Kodą</h2>
+                    <form id="code-form" class="code-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="code-type">Galiojimo Laikas</label>
+                                <select id="code-type" required>
+                                    <option value="single">Konkreti diena</option>
+                                    <option value="range">Datų intervalas</option>
+                                    <option value="unlimited">Neribotai</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="single-date-group" class="form-group date-group">
+                            <label for="single-date">Pasirinkite Datą</label>
+                            <input type="date" id="single-date" value="">
+                            <small class="form-hint">Kodas galioja visą pasirinktą dieną (00:00 - 23:59)</small>
+                        </div>
+
+                        <div id="range-date-group" class="form-group date-group" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="start-date">Nuo</label>
+                                    <input type="date" id="start-date" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="end-date">Iki</label>
+                                    <input type="date" id="end-date" value="">
+                                </div>
+                            </div>
+                            <small class="form-hint">Kodas galioja nuo pasirinktos datos pradžios iki datos pabaigos</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="code-note">Pastaba (neprivaloma)</label>
+                            <input type="text" id="code-note" placeholder="Pvz., Kliento vardas">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Generuoti Kodą</button>
+                    </form>
+                </section>
+
+                <!-- Active Codes List -->
+                <section class="panel-section">
+                    <h2>Aktyvūs Kodai</h2>
+                    <div class="codes-filter">
+                        <button class="filter-btn active" data-filter="all">Visi</button>
+                        <button class="filter-btn" data-filter="active">Aktyvūs</button>
+                        <button class="filter-btn" data-filter="expired">Pasibaigę</button>
+                    </div>
+                    <div id="codes-list" class="codes-list">
+                        <p class="loading-message">Kraunama...</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Code Modal -->
+    <div id="code-modal" class="modal">
+        <div class="modal-content">
+            <h3>Kodas Sugeneruotas!</h3>
+            <div class="code-display">
+                <input type="text" id="generated-code" readonly>
+                <button id="copy-code-btn" class="btn-icon" title="Kopijuoti">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="link-display">
+                <input type="text" id="generated-link" readonly>
+                <button id="copy-link-btn" class="btn-icon" title="Kopijuoti nuorodą">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                </button>
+            </div>
+            <button id="close-modal-btn" class="btn btn-primary">Uždaryti</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    <script src="/js/kontrole.js"></script>
+</body>
+</html>

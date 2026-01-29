@@ -1,0 +1,176 @@
+/* Gate Opening Page Styles */
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.gate-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1d23 0%, #0f1115 100%);
+    padding: 2rem;
+}
+
+.gate-content {
+    background: var(--bg-light);
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-xl);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.gate-logo {
+    height: 80px;
+    margin: 0 auto 2rem;
+}
+
+.gate-state h1 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.gate-state p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+#error-message {
+    white-space: pre-line;
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Icons */
+.success-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 165, 96, 0.2);
+    border-radius: 50%;
+    color: var(--accent-color);
+    animation: scaleIn 0.5s ease;
+}
+
+.error-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239, 68, 68, 0.2);
+    border-radius: 50%;
+    color: #ef4444;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Button */
+.btn-large {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-large svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Gate Status */
+.gate-status {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-white);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    min-height: 50px;
+}
+
+.gate-status.sending {
+    color: var(--primary-color);
+}
+
+.gate-status.success {
+    color: var(--accent-color);
+}
+
+.gate-status.error {
+    color: #ef4444;
+}
+
+/* Footer */
+.gate-footer {
+    margin-top: 2rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .gate-content {
+        padding: 2rem;
+    }
+    
+    .gate-state h1 {
+        font-size: 1.5rem;
+    }
+    
+    .btn-large {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .success-icon,
+    .error-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .success-icon svg,
+    .error-icon svg {
+        width: 60px;
+        height: 60px;
+    }
+}
