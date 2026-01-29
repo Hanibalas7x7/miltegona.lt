@@ -191,7 +191,6 @@ codeForm.addEventListener('submit', async (e) => {
         
         // Reset form
         codeForm.reset();
-        setDefaultDates();
         codeTypeSelect.value = 'single';
         singleDateGroup.style.display = 'block';
         rangeDateGroup.style.display = 'none';
