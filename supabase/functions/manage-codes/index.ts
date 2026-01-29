@@ -33,7 +33,7 @@ serve(async (req) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, x-session-token",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, x-password",
       },
     });
   }
@@ -66,13 +66,35 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify session token exists (basic check)
-    const sessionToken = req.headers.get("x-session-token");
-    if (!sessionToken || sessionToken.trim() === "") {
+    // Verify password on every request
+    const password = req.headers.get("x-password");
+    if (!password || password.trim() === "") {
       return new Response(
         JSON.stringify({
           success: false,
           error: "Nėra autorizacijos",
+        }),
+        {
+          status: 401,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
+
+    // Check password in control_password table
+    const { data: passwordData, error: passwordError } = await supabase
+      .from("control_password")
+      .select("password")
+      .single();
+
+    if (passwordError || !passwordData || passwordData.password !== password) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Neteisingas slaptažodis",
         }),
         {
           status: 401,

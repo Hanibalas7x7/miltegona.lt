@@ -30,39 +30,40 @@ window.addEventListener('DOMContentLoaded', async () => {
 // Validate code
 async function validateCode(code) {
     try {
-        // Get code from database
-        const { data, error } = await supabase
-            .from('gate_codes')
-            .select('*')
-            .eq('code', code)
-            .single();
+        // Call Edge Function to validate code (uses SERVICE_ROLE_KEY internally)
+        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/check-gate-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({ code })
+        });
         
-        if (error || !data) {
-            showInvalidState('Kodas nerastas sistemoje arba jau ištrintas');
+        const result = await response.json();
+        
+        if (!result.success) {
+            showInvalidState(result.error || 'Klaida tikrinant kodą');
             return;
         }
         
-        // Check if code is valid
-        const now = new Date();
-        
-        if (data.unlimited) {
-            showValidState();
+        if (!result.valid) {
+            // Format the date if provided
+            let message = result.reason || 'Netinkamas kodas';
+            
+            if (result.validFrom) {
+                const validFromDate = new Date(result.validFrom);
+                message = '⏳ Kodas dar negalioja.\n\nŠis kodas pradės galioti nuo: ' + formatDate(validFromDate);
+            } else if (result.validTo) {
+                const validToDate = new Date(result.validTo);
+                message = '❌ Šio kodo galiojimo laikas pasibaigė: ' + formatDate(validToDate) + '\n\nKodas nebegalioja ir netrukus bus automatiškai ištrintas iš sistemos.';
+            }
+            
+            showInvalidState(message, result.type || 'error');
             return;
         }
         
-        const validFrom = new Date(data.valid_from);
-        const validTo = new Date(data.valid_to);
-        
-        if (now < validFrom) {
-            showInvalidState('⏳ Kodas dar negalioja.\n\nŠis kodas pradės galioti nuo: ' + formatDate(validFrom), 'pending');
-            return;
-        }
-        
-        if (now > validTo) {
-            showInvalidState('❌ Šio kodo galiojimo laikas pasibaigė: ' + formatDate(validTo) + '\n\nKodas nebegalioja ir netrukus bus automatiškai ištrintas iš sistemos.', 'expired');
-            return;
-        }
-        
+        // Code is valid
         showValidState();
         
     } catch (error) {

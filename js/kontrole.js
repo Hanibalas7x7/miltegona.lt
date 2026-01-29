@@ -60,9 +60,12 @@ loginForm.addEventListener('submit', async (e) => {
         const result = await response.json();
         
         if (result.success) {
-            // Store session token in localStorage (persists across browser sessions)
-            localStorage.setItem('kontrole_auth', result.sessionToken);
-            localStorage.setItem('kontrole_auth_time', Date.now().toString());
+            // Store password in localStorage (30 days) - transmitted over HTTPS only
+            const expirationDate = new Date();
+            expirationDate.setDate(expirationDate.getDate() + 30);
+            localStorage.setItem('kontrole_password', password);
+            localStorage.setItem('kontrole_auth_expiration', expirationDate.toISOString());
+            
             loginScreen.style.display = 'none';
             controlPanel.style.display = 'block';
             loadCodes();
@@ -80,8 +83,8 @@ loginForm.addEventListener('submit', async (e) => {
 
 // Logout
 logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('kontrole_auth');
-    localStorage.removeItem('kontrole_auth_time');
+    localStorage.removeItem('kontrole_password');
+    localStorage.removeItem('kontrole_auth_expiration');
     loginScreen.style.display = 'flex';
     controlPanel.style.display = 'none';
     loginForm.reset();
@@ -89,22 +92,21 @@ logoutBtn.addEventListener('click', () => {
 });
 
 // Check if already authenticated (valid for 30 days)
-const authToken = localStorage.getItem('kontrole_auth');
-const authTime = localStorage.getItem('kontrole_auth_time');
-const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+const savedPassword = localStorage.getItem('kontrole_password');
+const authExpiration = localStorage.getItem('kontrole_auth_expiration');
 
-if (authToken && authTime) {
-    const timeSinceAuth = Date.now() - parseInt(authTime);
+if (savedPassword && authExpiration) {
+    const expirationDate = new Date(authExpiration);
     
-    if (timeSinceAuth < thirtyDaysInMs) {
+    if (expirationDate > new Date()) {
         // Session still valid
         loginScreen.style.display = 'none';
         controlPanel.style.display = 'block';
         loadCodes();
     } else {
         // Session expired, clear it
-        localStorage.removeItem('kontrole_auth');
-        localStorage.removeItem('kontrole_auth_time');
+        localStorage.removeItem('kontrole_password');
+        localStorage.removeItem('kontrole_auth_expiration');
     }
 }
 
@@ -157,14 +159,14 @@ codeForm.addEventListener('submit', async (e) => {
     
     try {
         // Call Edge Function to create code (secure)
-        const sessionToken = localStorage.getItem('kontrole_auth');
+        const password = localStorage.getItem('kontrole_password');
         
         const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                'x-session-token': sessionToken
+                'x-password': password
             },
             body: JSON.stringify({
                 action: 'create',
@@ -209,13 +211,13 @@ async function loadCodes() {
         codesList.innerHTML = '<p class="loading-message">Kraunama...</p>';
         
         // Call Edge Function to get codes (secure)
-        const sessionToken = localStorage.getItem('kontrole_auth');
+        const password = localStorage.getItem('kontrole_password');
         
         const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                'x-session-token': sessionToken
+                'x-password': password
             }
         });
         
@@ -398,14 +400,14 @@ window.deleteCode = async function(id) {
     
     try {
         // Call Edge Function to delete code (secure)
-        const sessionToken = localStorage.getItem('kontrole_auth');
+        const password = localStorage.getItem('kontrole_password');
         
         const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                'x-session-token': sessionToken
+                'x-password': password
             },
             body: JSON.stringify({
                 action: 'delete',

@@ -11,7 +11,6 @@ function checkRateLimit(ip: string): boolean {
   const record = rateLimitMap.get(ip);
 
   if (!record || now > record.resetTime) {
-    // Reset or create new record
     rateLimitMap.set(ip, {
       count: 1,
       resetTime: now + RATE_LIMIT_WINDOW,
@@ -20,7 +19,7 @@ function checkRateLimit(ip: string): boolean {
   }
 
   if (record.count >= RATE_LIMIT) {
-    return false; // Rate limit exceeded
+    return false;
   }
 
   record.count++;
@@ -50,7 +49,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Per daug bandymų. Bandykite vėliau.",
+          valid: false,
+          error: "Per daug užklausų. Bandykite vėliau.",
         }),
         {
           status: 429,
@@ -63,13 +63,14 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { password } = await req.json();
+    const { code } = await req.json();
 
-    if (!password) {
+    if (!code) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Slaptažodis nenurodytas",
+          valid: false,
+          error: "Kodas nenurodytas",
         }),
         {
           status: 400,
@@ -81,26 +82,28 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
+    // Initialize Supabase client with SERVICE_ROLE_KEY
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check password in control_password table
-    const { data, error } = await supabase
-      .from("control_password")
-      .select("password")
+    // Validate code in gate_codes table
+    const { data: gateCode, error: codeError } = await supabase
+      .from("gate_codes")
+      .select("unlimited, valid_from, valid_to")
+      .eq("code", code)
       .single();
 
-    if (error) {
-      console.error("Error fetching password:", error);
+    if (codeError || !gateCode) {
       return new Response(
         JSON.stringify({
-          success: false,
-          error: "Klaida tikrinant slaptažodį",
+          success: true,
+          valid: false,
+          reason: "Kodas nerastas sistemoje arba jau ištrintas",
+          type: "not_found"
         }),
         {
-          status: 500,
+          status: 200,
           headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
@@ -109,15 +112,18 @@ serve(async (req) => {
       );
     }
 
-    // Validate password
-    if (data.password !== password) {
+    // Check if code is still valid (date check)
+    const now = new Date();
+    
+    if (gateCode.unlimited) {
       return new Response(
         JSON.stringify({
-          success: false,
-          error: "Neteisingas slaptažodis",
+          success: true,
+          valid: true,
+          unlimited: true
         }),
         {
-          status: 401,
+          status: 200,
           headers: {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
@@ -126,10 +132,53 @@ serve(async (req) => {
       );
     }
 
-    // Password is correct
+    const validFrom = new Date(gateCode.valid_from);
+    const validTo = new Date(gateCode.valid_to);
+    
+    if (now < validFrom) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          valid: false,
+          reason: "⏳ Kodas dar negalioja.\n\nŠis kodas pradės galioti nuo: " + validFrom.toISOString(),
+          type: "pending",
+          validFrom: gateCode.valid_from
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
+    
+    if (now > validTo) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          valid: false,
+          reason: "❌ Šio kodo galiojimo laikas pasibaigė: " + validTo.toISOString() + "\n\nKodas nebegalioja ir netrukus bus automatiškai ištrintas iš sistemos.",
+          type: "expired",
+          validTo: gateCode.valid_to
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
+
+    // Code is valid
     return new Response(
       JSON.stringify({
         success: true,
+        valid: true,
+        unlimited: false
       }),
       {
         status: 200,
@@ -139,11 +188,13 @@ serve(async (req) => {
         },
       }
     );
+
   } catch (error) {
     console.error("Function error:", error);
     return new Response(
       JSON.stringify({
         success: false,
+        valid: false,
         error: "Serverio klaida",
       }),
       {
