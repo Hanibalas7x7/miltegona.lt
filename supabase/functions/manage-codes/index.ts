@@ -33,7 +33,7 @@ serve(async (req) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, x-session-token",
       },
     });
   }
@@ -66,9 +66,9 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify session token
-    const authHeader = req.headers.get("x-session-token");
-    if (!authHeader) {
+    // Verify session token exists (basic check)
+    const sessionToken = req.headers.get("x-session-token");
+    if (!sessionToken || sessionToken.trim() === "") {
       return new Response(
         JSON.stringify({
           success: false,
