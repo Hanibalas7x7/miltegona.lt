@@ -1,0 +1,5 @@
+# Cleanup files
+secrets-to-remove.txt
+replace-keys.ps1
+bfg.jar
+supabase.exe

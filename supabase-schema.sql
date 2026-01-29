@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS control_password (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Insert default password (change this!)
-INSERT INTO control_password (password) VALUES ('admin123')
+-- Insert default password (IMPORTANT: Change this immediately after deployment!)
+INSERT INTO control_password (password) VALUES ('CHANGE_THIS_PASSWORD')
 ON CONFLICT DO NOTHING;
 
 -- 2. Gate Codes Table
