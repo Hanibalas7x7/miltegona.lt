@@ -79,11 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(card);
     });
 
-    // Initialize Supabase client
-    const supabase = window.supabase ? window.supabase.createClient(
-        'https://xyzttzqvbescdpihvyfu.supabase.co',
-        '***REMOVED***'
-    ) : null;
+    // Supabase client removed - no longer needed for public pages
+    // Contact form now uses Edge Functions or backend API
 
     // Form validation
     const contactForm = document.querySelector('#contact-form');

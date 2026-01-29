@@ -1,8 +1,5 @@
-// Supabase Configuration
-const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
-const SUPABASE_ANON_KEY = '***REMOVED***';
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Edge Functions Configuration
+const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
 
 // Elements
 const loginScreen = document.getElementById('login-screen');
@@ -48,11 +45,10 @@ loginForm.addEventListener('submit', async (e) => {
     try {
         // Call Edge Function to validate password
         // Rate limiting: 60 requests per hour per IP
-        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/validate-password', {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-password`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ password })
         });
@@ -161,11 +157,10 @@ codeForm.addEventListener('submit', async (e) => {
         // Call Edge Function to create code (secure)
         const password = localStorage.getItem('kontrole_password');
         
-        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/manage-codes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                 'x-password': password
             },
             body: JSON.stringify({
@@ -212,10 +207,9 @@ async function loadCodes() {
         // Call Edge Function to get codes (secure)
         const password = localStorage.getItem('kontrole_password');
         
-        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/manage-codes`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                 'x-password': password
             }
         });
@@ -401,11 +395,10 @@ window.deleteCode = async function(id) {
         // Call Edge Function to delete code (secure)
         const password = localStorage.getItem('kontrole_password');
         
-        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/manage-codes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                 'x-password': password
             },
             body: JSON.stringify({

@@ -1,8 +1,5 @@
-// Supabase Configuration
-const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
-const SUPABASE_ANON_KEY = '***REMOVED***';
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Edge Functions Configuration
+const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
 
 // Elements
 const loadingState = document.getElementById('loading-state');
@@ -31,11 +28,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function validateCode(code) {
     try {
         // Call Edge Function to validate code (uses SERVICE_ROLE_KEY internally)
-        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/check-gate-code', {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ code })
         });
@@ -111,11 +107,10 @@ openGateBtn.addEventListener('click', async () => {
     try {
         // Call Supabase Edge Function to validate and open
         // Rate limiting: 60 requests per hour per IP
-        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/validate-and-open', {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-and-open`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ code })
         });
