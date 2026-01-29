@@ -156,17 +156,31 @@ codeForm.addEventListener('submit', async (e) => {
     }
     
     try {
-        const { error } = await supabase
-            .from('gate_codes')
-            .insert([{
+        // Call Edge Function to create code (secure)
+        const sessionToken = localStorage.getItem('kontrole_auth');
+        
+        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'x-session-token': sessionToken
+            },
+            body: JSON.stringify({
+                action: 'create',
                 code: code,
                 valid_from: validFrom,
                 valid_to: validTo,
                 unlimited: unlimited,
                 note: note || null
-            }]);
+            })
+        });
         
-        if (error) throw error;
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Klaida kuriant kodą');
+        }
         
         // Show modal with code
         generatedCodeInput.value = code;
@@ -175,6 +189,7 @@ codeForm.addEventListener('submit', async (e) => {
         
         // Reset form
         codeForm.reset();
+        setDefaultDates();
         codeTypeSelect.value = 'single';
         singleDateGroup.style.display = 'block';
         rangeDateGroup.style.display = 'none';
@@ -184,7 +199,7 @@ codeForm.addEventListener('submit', async (e) => {
         
     } catch (error) {
         console.error('Error generating code:', error);
-        showMessage('Klaida generuojant kodą', 'error');
+        showMessage(error.message || 'Klaida generuojant kodą', 'error');
     }
 });
 
@@ -193,19 +208,29 @@ async function loadCodes() {
     try {
         codesList.innerHTML = '<p class="loading-message">Kraunama...</p>';
         
-        const { data, error } = await supabase
-            .from('gate_codes')
-            .select('*')
-            .order('created_at', { ascending: false });
+        // Call Edge Function to get codes (secure)
+        const sessionToken = localStorage.getItem('kontrole_auth');
         
-        if (error) throw error;
+        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'x-session-token': sessionToken
+            }
+        });
         
-        if (data.length === 0) {
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Klaida gaunant kodus');
+        }
+        
+        if (result.data.length === 0) {
             codesList.innerHTML = '<p class="empty-message">Dar nėra sukurtų kodų</p>';
             return;
         }
         
-        displayCodes(data);
+        displayCodes(result.data);
         
     } catch (error) {
         console.error('Error loading codes:', error);
@@ -372,18 +397,33 @@ window.deleteCode = async function(id) {
     if (!confirm('Ar tikrai norite ištrinti šį kodą?')) return;
     
     try {
-        const { error } = await supabase
-            .from('gate_codes')
-            .delete()
-            .eq('id', id);
+        // Call Edge Function to delete code (secure)
+        const sessionToken = localStorage.getItem('kontrole_auth');
         
-        if (error) throw error;
+        const response = await fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/manage-codes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'x-session-token': sessionToken
+            },
+            body: JSON.stringify({
+                action: 'delete',
+                id: id
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Klaida trinant kodą');
+        }
         
         showMessage('Kodas ištrintas', 'success');
         loadCodes();
     } catch (error) {
         console.error('Error deleting code:', error);
-        showMessage('Klaida trinant kodą', 'error');
+        showMessage(error.message || 'Klaida trinant kodą', 'error');
     }
 };
 

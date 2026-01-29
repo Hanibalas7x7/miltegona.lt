@@ -41,13 +41,20 @@ ALTER TABLE control_password ENABLE ROW LEVEL SECURITY;
 ALTER TABLE gate_codes ENABLE ROW LEVEL SECURITY;
 -- gate_commands already exists, check if RLS is needed
 
--- 5. RLS Policies for control_password (read only for authenticated)
-CREATE POLICY "Allow read access to control_password" ON control_password
-    FOR SELECT USING (true);
+-- 5. RLS Policies for control_password (DENY ALL - only Edge Functions can access)
+DROP POLICY IF EXISTS "Allow read access to control_password" ON control_password;
 
--- 6. RLS Policies for gate_codes
-CREATE POLICY "Allow all operations on gate_codes" ON gate_codes
-    FOR ALL USING (true);
+CREATE POLICY "Deny all direct access to control_password" ON control_password
+    FOR ALL USING (false);
+
+-- 6. RLS Policies for gate_codes (DENY ALL - only Edge Functions can access)
+DROP POLICY IF EXISTS "Allow all operations on gate_codes" ON gate_codes;
+
+CREATE POLICY "Deny all direct access to gate_codes" ON gate_codes
+    FOR ALL USING (false);
+
+-- Note: Only Service Role Key (used by Edge Functions) can bypass RLS
+-- Frontend with ANON_KEY cannot access these tables directly
 
 -- 7. RLS Policies for gate_commands (if needed)
 -- CREATE POLICY "Allow all operations on gate_commands" ON gate_commands
@@ -63,6 +70,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 9. Triggers for updated_at
+DROP TRIGGER IF EXISTS update_control_password_updated_at ON control_password;
+DROP TRIGGER IF EXISTS update_gate_codes_updated_at ON gate_codes;
+
 CREATE TRIGGER update_control_password_updated_at
     BEFORE UPDATE ON control_password
     FOR EACH ROW
