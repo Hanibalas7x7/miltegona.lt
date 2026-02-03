@@ -546,13 +546,23 @@ body {
     }
 
     .header-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-logo {
+        max-width: 60px;
     }
 
     .dashboard-header h1 {
-        font-size: 20px;
+        font-size: 18px;
+    }
+
+    .logout-btn {
+        padding: 8px 16px;
+        font-size: 14px;
     }
 
     .welcome-section h2 {
@@ -560,8 +570,18 @@ body {
     }
 
     .month-selector {
-        flex-direction: column;
-        gap: 15px;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .month-selector button {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .month-selector h3 {
+        font-size: 16px;
+        min-width: 150px;
     }
 
     .suvestine-table {
