@@ -32,14 +32,56 @@
                     </svg>
                 </div>
                 <h1>Kodas Galioja!</h1>
-                <p>Spauskite mygtuką norėdami atidaryti vartus</p>
-                <button id="open-gate-btn" class="btn btn-primary btn-large">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    Atidaryti Vartus
-                </button>
+                <p>Pasirinkite veiksmą</p>
+                
+                <!-- Territory Gate -->
+                <div class="control-section">
+                    <button id="open-territory-gate-btn" class="btn btn-primary">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Atidaryti Teritorijos Vartus
+                    </button>
+                </div>
+                
+                <!-- Building Gate -->
+                <div class="control-section">
+                    <h3>Pastato Vartai</h3>
+                    <div class="button-group">
+                        <button id="open-building-gate-btn" class="btn btn-success">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                            Atidaryti
+                        </button>
+                        <button id="close-building-gate-btn" class="btn btn-warning">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            Uždaryti
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Light Control -->
+                <div class="control-section">
+                    <button id="toggle-light-btn" class="btn btn-secondary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <span id="light-btn-text">Tikrinama...</span>
+                    </button>
+                </div>
+                
                 <div id="gate-status" class="gate-status"></div>
             </div>
             

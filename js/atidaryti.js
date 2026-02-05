@@ -6,9 +6,16 @@ const loadingState = document.getElementById('loading-state');
 const validState = document.getElementById('valid-state');
 const invalidState = document.getElementById('invalid-state');
 const successState = document.getElementById('success-state');
-const openGateBtn = document.getElementById('open-gate-btn');
+const openTerritoryGateBtn = document.getElementById('open-territory-gate-btn');
+const openBuildingGateBtn = document.getElementById('open-building-gate-btn');
+const closeBuildingGateBtn = document.getElementById('close-building-gate-btn');
+const toggleLightBtn = document.getElementById('toggle-light-btn');
+const lightBtnText = document.getElementById('light-btn-text');
 const gateStatus = document.getElementById('gate-status');
 const errorMessage = document.getElementById('error-message');
+
+// State
+let lightState = null; // 'on', 'off', or null
 
 // Get code from URL
 const urlParams = new URLSearchParams(window.location.search);
@@ -72,6 +79,9 @@ async function validateCode(code) {
 function showValidState() {
     loadingState.style.display = 'none';
     validState.style.display = 'block';
+    
+    // Load light status
+    loadLightStatus();
 }
 
 // Show invalid state
@@ -98,9 +108,106 @@ function showSuccessState() {
     successState.style.display = 'block';
 }
 
-// Open gate button click - calls Edge Function with rate limiting (60 req/hour)
-openGateBtn.addEventListener('click', async () => {
-    openGateBtn.disabled = true;
+// Load light status
+async function loadLightStatus() {
+    try {
+        lightBtnText.textContent = 'Tikrinama...';
+        toggleLightBtn.disabled = true;
+        
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, action: 'get_status' })
+        });
+        
+        const result = await response.json();
+        console.log('Light status response:', result);
+        
+        if (result.success && result.data) {
+            // result.data contains the unified-control response
+            lightState = result.data.state;
+            console.log('Light state:', lightState);
+            updateLightButton();
+        } else {
+            console.error('Failed to get light status:', result);
+            lightBtnText.textContent = 'Šviesa (nežinoma būsena)';
+        }
+        
+        toggleLightBtn.disabled = false;
+    } catch (error) {
+        console.error('Error loading light status:', error);
+        lightBtnText.textContent = 'Šviesa (klaida)';
+        toggleLightBtn.disabled = false;
+    }
+}
+
+// Update light button based on state
+function updateLightButton() {
+    if (lightState === 'on') {
+        lightBtnText.textContent = 'Išjungti Šviesą';
+        toggleLightBtn.classList.remove('btn-secondary');
+        toggleLightBtn.classList.add('btn-warning');
+    } else if (lightState === 'off') {
+        lightBtnText.textContent = 'Įjungti Šviesą';
+        toggleLightBtn.classList.remove('btn-warning');
+        toggleLightBtn.classList.add('btn-secondary');
+    } else {
+        lightBtnText.textContent = 'Šviesa';
+    }
+}
+
+// Generic control function
+async function performAction(action, buttonElement, successMessage) {
+    buttonElement.disabled = true;
+    gateStatus.textContent = 'Siunčiama komanda...';
+    gateStatus.className = 'gate-status sending';
+    
+    try {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, action })
+        });
+        
+        const result = await response.json();
+        console.log('Action response:', action, result);
+        
+        if (!result.success) {
+            const errorMsg = result.error || result.message || 'Nepavyko atlikti veiksmo';
+            console.error('Action failed:', errorMsg, result);
+            throw new Error(errorMsg);
+        }
+        
+        gateStatus.textContent = successMessage;
+        gateStatus.className = 'gate-status success';
+        
+        // Reload light status if it was a light action
+        if (action === 'light_on' || action === 'light_off') {
+            setTimeout(() => loadLightStatus(), 500);
+        }
+        
+        setTimeout(() => {
+            gateStatus.textContent = '';
+            gateStatus.className = 'gate-status';
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        gateStatus.textContent = error.message;
+        gateStatus.className = 'gate-status error';
+        
+        setTimeout(() => {
+            gateStatus.textContent = '';
+            gateStatus.className = 'gate-status';
+        }, 5000);
+    } finally {
+        buttonElement.disabled = false;
+    }
+}
+
+// Open territory gate button click - original functionality
+openTerritoryGateBtn.addEventListener('click', async () => {
+    openTerritoryGateBtn.disabled = true;
     gateStatus.textContent = 'Siunčiama komanda...';
     gateStatus.className = 'gate-status sending';
     
@@ -156,9 +263,13 @@ openGateBtn.addEventListener('click', async () => {
                 if (error) throw error;
                 
                 if (data.status === 'completed') {
-                    gateStatus.textContent = 'Vartai atidaryti sėkmingai!';
+                    gateStatus.textContent = '✅ Teritorijos vartai atidaryti sėkmingai!';
                     gateStatus.className = 'gate-status success';
-                    setTimeout(() => showSuccessState(), 2000);
+                    openTerritoryGateBtn.disabled = false;
+                    setTimeout(() => {
+                        gateStatus.textContent = '';
+                        gateStatus.className = 'gate-status';
+                    }, 5000);
                     return;
                 }
                 
@@ -171,16 +282,24 @@ openGateBtn.addEventListener('click', async () => {
                     setTimeout(checkStatus, checkInterval);
                 } else {
                     // Timeout - show success anyway (command was sent)
-                    gateStatus.textContent = 'Komanda išsiųsta. Vartai turėtų atidaryti.';
+                    gateStatus.textContent = '✅ Komanda išsiųsta. Vartai turėtų atidaryti.';
                     gateStatus.className = 'gate-status success';
-                    setTimeout(() => showSuccessState(), 2000);
+                    openTerritoryGateBtn.disabled = false;
+                    setTimeout(() => {
+                        gateStatus.textContent = '';
+                        gateStatus.className = 'gate-status';
+                    }, 5000);
                 }
             } catch (error) {
                 console.error('Error checking status:', error);
                 // Show success anyway - command was created
-                gateStatus.textContent = 'Komanda išsiųsta. Vartai turėtų atidaryti.';
+                gateStatus.textContent = '✅ Komanda išsiųsta. Vartai turėtų atidaryti.';
                 gateStatus.className = 'gate-status success';
-                setTimeout(() => showSuccessState(), 2000);
+                openTerritoryGateBtn.disabled = false;
+                setTimeout(() => {
+                    gateStatus.textContent = '';
+                    gateStatus.className = 'gate-status';
+                }, 5000);
             }
         };
         
@@ -197,8 +316,24 @@ openGateBtn.addEventListener('click', async () => {
         
         gateStatus.textContent = errorText;
         gateStatus.className = 'gate-status error';
-        openGateBtn.disabled = false;
+        openTerritoryGateBtn.disabled = false;
     }
+});
+
+// Building gate buttons
+openBuildingGateBtn.addEventListener('click', () => {
+    performAction('open_building_gate', openBuildingGateBtn, '✅ Pastato vartai atidaromi...');
+});
+
+closeBuildingGateBtn.addEventListener('click', () => {
+    performAction('close_building_gate', closeBuildingGateBtn, '✅ Pastato vartai uždaromi...');
+});
+
+// Light toggle button
+toggleLightBtn.addEventListener('click', () => {
+    const action = lightState === 'on' ? 'light_off' : 'light_on';
+    const message = lightState === 'on' ? '✅ Šviesa išjungta' : '✅ Šviesa įjungta';
+    performAction(action, toggleLightBtn, message);
 });
 
 // Format date to Lithuanian local time
