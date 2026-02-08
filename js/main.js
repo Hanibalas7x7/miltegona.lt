@@ -10,10 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const messageTextarea = document.getElementById('message');
         if (messageTextarea) {
             messageTextarea.value = decodeURIComponent(messageParam);
-            // Scroll to form
-            setTimeout(() => {
-                messageTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 100);
+            // Use requestAnimationFrame to avoid forced reflow
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    messageTextarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            });
         }
     }
     
