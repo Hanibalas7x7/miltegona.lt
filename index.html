@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="lt">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1VLD2QNVLR"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-1VLD2QNVLR');
-    </script>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="UAB Miltegona - profesionalios miltelinio dažymo paslaugos Kaune. Siūlome kokybišką metalo, aliuminio ir plieno paviršių dažymą, smėliavimą, gruntavimą. Plačiausia RAL spalvų pasirinkimą. Greitas aptarnavimas ir konkurencingos kainos. Skambinkite +370 625 02563.">
@@ -322,5 +313,29 @@
     </footer>
 
     <script src="js/main.js"></script>
+    
+    <!-- Deferred Google Analytics - loads after page is fully interactive -->
+    <script>
+      // Defer GA loading until idle or 3 seconds after page load
+      function loadGA() {
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-1VLD2QNVLR';
+        document.head.appendChild(script);
+        
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-1VLD2QNVLR');
+      }
+      
+      // Load GA when browser is idle or after 3 seconds
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadGA, { timeout: 3000 });
+      } else {
+        setTimeout(loadGA, 3000);
+      }
+    </script>
 </body>
 </html>
