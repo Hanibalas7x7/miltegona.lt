@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Darbuotojai Suvestine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #1a1d23;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #0f1115;
+            color: #ffffff;
+        }
+        button {
+            background-color: #FC9D17;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #ffb347;
+        }
+        .result {
+            background-color: #0f1115;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #ff6b6b;
+        }
+        .success {
+            color: #51cf66;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Darbuotojai Suvestine</h1>
+        
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="darbuotojas@miltegona.lt">
+            
+            <label for="password">Slaptažodis:</label>
+            <input type="password" id="password" placeholder="slaptažodis">
+            
+            <button onclick="testLogin()">1. Login</button>
+        </div>
+
+        <div id="login-result" class="result" style="display: none;"></div>
+
+        <div>
+            <label for="year">Metai:</label>
+            <input type="number" id="year" value="2025">
+            
+            <label for="month">Mėnuo (1-12):</label>
+            <input type="number" id="month" min="1" max="12" value="1">
+            
+            <button onclick="testSuvestine()">2. Load Suvestine</button>
+        </div>
+
+        <div id="suvestine-result" class="result" style="display: none;"></div>
+
+        <div>
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Enter employee credentials and click Login</li>
+                <li>If successful, token will be saved</li>
+                <li>Select year/month and click Load Suvestine</li>
+                <li>Check if data loads successfully</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
+        let sessionToken = null;
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('login-result');
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>Logging in...</p>';
+
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login failed');
+                }
+
+                sessionToken = data.sessionToken;
+                localStorage.setItem('test_session', sessionToken);
+
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+<strong>✓ Login Successful!</strong>
+Token: ${sessionToken.substring(0, 50)}...
+User: ${JSON.stringify(data.user, null, 2)}
+                `;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>✗ Login Failed:</strong>\n${error.message}`;
+            }
+        }
+
+        async function testSuvestine() {
+            const year = parseInt(document.getElementById('year').value);
+            const month = parseInt(document.getElementById('month').value);
+            const resultDiv = document.getElementById('suvestine-result');
+
+            if (!sessionToken) {
+                sessionToken = localStorage.getItem('test_session');
+                if (!sessionToken) {
+                    alert('Please login first!');
+                    return;
+                }
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>Loading suvestine...</p>';
+
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-suvestine?year=${year}&month=${month}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load suvestine');
+                }
+
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+<strong>✓ Suvestine Loaded!</strong>
+Response: ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>✗ Suvestine Failed:</strong>\n${error.message}`;
+            }
+        }
+
+        // Load session token on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            sessionToken = localStorage.getItem('test_session');
+            if (sessionToken) {
+                console.log('Loaded session token from localStorage');
+            }
+        });
+    </script>
+</body>
+</html>

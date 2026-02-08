@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #1a1d23;
+            color: #fff;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #0f1115;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #1a1d23;
+            color: #fff;
+            font-size: 16px;
+        }
+        button {
+            background: #FC9D17;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ffb347;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #000;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .info { color: #74c0fc; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Quick Login Test</h1>
+    <p>Patikrinkite ar darbuotojai-login Edge Function veikia</p>
+
+    <div class="test-section">
+        <h2>Test Login</h2>
+        <input type="email" id="email" placeholder="email@example.com" value="">
+        <input type="password" id="password" placeholder="password" value="">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test URL Directly</h2>
+        <button onclick="testUrl()">Test Edge Function URL</button>
+        <div id="url-result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '⏳ Testing login...\n\n';
+
+            try {
+                resultDiv.textContent += `📧 Email: ${email}\n`;
+                resultDiv.textContent += `🔑 Password length: ${password.length}\n`;
+                resultDiv.textContent += `🌐 URL: ${EDGE_FUNCTIONS_URL}/darbuotojai-login\n\n`;
+
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                resultDiv.textContent += `📊 Response Status: ${response.status} ${response.statusText}\n\n`;
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '✅ LOGIN SUCCESS!\n\n';
+                    resultDiv.textContent += `Token: ${data.sessionToken?.substring(0, 50)}...\n`;
+                    resultDiv.textContent += `User: ${JSON.stringify(data.user, null, 2)}\n`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '❌ LOGIN FAILED!\n\n';
+                    resultDiv.textContent += `Error: ${data.error || 'Unknown error'}\n`;
+                    resultDiv.textContent += `Full response: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `\n❌ NETWORK ERROR: ${error.message}\n`;
+                resultDiv.textContent += `\nThis could mean:\n`;
+                resultDiv.textContent += `- Edge Function is not deployed\n`;
+                resultDiv.textContent += `- CORS issue\n`;
+                resultDiv.textContent += `- Network connection problem`;
+            }
+        }
+
+        async function testUrl() {
+            const resultDiv = document.getElementById('url-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = '⏳ Testing Edge Function availability...\n\n';
+
+            try {
+                // Try OPTIONS request (CORS preflight)
+                const optionsResponse = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-login`, {
+                    method: 'OPTIONS'
+                });
+
+                resultDiv.textContent += `OPTIONS request: ${optionsResponse.status}\n`;
+                resultDiv.textContent += `CORS headers:\n`;
+                optionsResponse.headers.forEach((value, key) => {
+                    if (key.toLowerCase().includes('access-control')) {
+                        resultDiv.textContent += `  ${key}: ${value}\n`;
+                    }
+                });
+
+                if (optionsResponse.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent += '\n✅ Edge Function is accessible!\n';
+                    resultDiv.textContent += 'CORS is properly configured.\n';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent += '\n⚠️ Edge Function might not be deployed';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `\n❌ ERROR: ${error.message}\n`;
+                resultDiv.textContent += `\nEdge Function might not be deployed!`;
+            }
+        }
+
+        // Auto-test URL on load
+        window.addEventListener('DOMContentLoaded', () => {
+            testUrl();
+        });
+    </script>
+</body>
+</html>

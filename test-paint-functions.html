@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Functions Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0f1115;
+            color: #e5e7eb;
+        }
+        .test-section {
+            background: #1a1d23;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #2d3238;
+        }
+        h1 { color: #FC9D17; }
+        h2 { color: #FC9D17; font-size: 18px; margin-top: 0; }
+        button {
+            background: #FC9D17;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        button:hover { background: #d97706; }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0f1115;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success { color: #3ba560; }
+        .error { color: #f87171; }
+        input {
+            padding: 8px;
+            border: 1px solid #2d3238;
+            background: #0f1115;
+            color: #e5e7eb;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Dažų Valdymo Edge Functions Test</h1>
+    <p>Testuoja ar visos Edge Functions veikia teisingai.</p>
+
+    <!-- Test 1: Login -->
+    <div class="test-section">
+        <h2>1. Test Login (darbuotojai-login)</h2>
+        <input type="email" id="test-email" placeholder="email@example.com" value="test@test.lt">
+        <input type="password" id="test-password" placeholder="password" value="test123">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <!-- Test 2: Validate Session -->
+    <div class="test-section">
+        <h2>2. Test Validate Session (darbuotojai-validate-session)</h2>
+        <button onclick="testValidateSession()">Test Validate Session</button>
+        <div id="validate-result" class="result"></div>
+    </div>
+
+    <!-- Test 3: Get Paints -->
+    <div class="test-section">
+        <h2>3. Test Get All Paints (get-all-paints-admin)</h2>
+        <button onclick="testGetPaints()">Test Get Paints</button>
+        <div id="paints-result" class="result"></div>
+    </div>
+
+    <!-- Test 4: Add Paint -->
+    <div class="test-section">
+        <h2>4. Test Add Paint (add-paint)</h2>
+        <button onclick="testAddPaint()">Test Add Paint (ML999)</button>
+        <div id="add-result" class="result"></div>
+    </div>
+
+    <!-- Test 5: Update Weight -->
+    <div class="test-section">
+        <h2>5. Test Update Weight (update-paint-weight)</h2>
+        <button onclick="testUpdateWeight()">Test Update Weight (ML999 → 15kg)</button>
+        <div id="weight-result" class="result"></div>
+    </div>
+
+    <!-- Test 6: Update Paint -->
+    <div class="test-section">
+        <h2>6. Test Update Paint (update-paint)</h2>
+        <button onclick="testUpdatePaint()">Test Update Paint (ML999 spalva)</button>
+        <div id="update-result" class="result"></div>
+    </div>
+
+    <script>
+        const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
+        let sessionToken = null;
+
+        function showResult(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = 'result ' + (isError ? 'error' : 'success');
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    sessionToken = data.sessionToken;
+                    showResult('login-result', `✅ Success!\nSession Token: ${sessionToken}\nUser: ${data.user.vardas} ${data.user.pavarde}`);
+                } else {
+                    showResult('login-result', `❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResult('login-result', `❌ Network Error: ${error.message}\n\nPatikrinus Edge Functions ar deployed?`, true);
+            }
+        }
+
+        async function testValidateSession() {
+            if (!sessionToken) {
+                showResult('validate-result', '❌ Please login first!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-validate-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-session-token': sessionToken
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('validate-result', `✅ Session Valid!\nUser: ${data.user.vardas} ${data.user.pavarde}`);
+                } else {
+                    showResult('validate-result', `❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResult('validate-result', `❌ Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function testGetPaints() {
+            if (!sessionToken) {
+                showResult('paints-result', '❌ Please login first!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/get-all-paints-admin`, {
+                    method: 'GET',
+                    headers: { 'x-session-token': sessionToken }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('paints-result', `✅ Success!\nFound ${data.count} paints\n\n${JSON.stringify(data.paints.slice(0, 2), null, 2)}`);
+                } else {
+                    showResult('paints-result', `❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResult('paints-result', `❌ Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function testAddPaint() {
+            if (!sessionToken) {
+                showResult('add-result', '❌ Please login first!', true);
+                return;
+            }
+            
+            const paintData = {
+                ml_kodas: 'ML999',
+                gamintojas: 'Ripol',
+                kodas: 'TEST001',
+                spalva: 'RAL9999',
+                pavirsus: 'Smooth',
+                blizgumas: 'Matt',
+                effect: 'Normal',
+                sudetis: 'Polyester',
+                kiekis: 10
+            };
+            
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/add-paint`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-session-token': sessionToken
+                    },
+                    body: JSON.stringify(paintData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('add-result', `✅ Success!\n${data.message}\n\n${JSON.stringify(data.paint, null, 2)}`);
+                } else {
+                    showResult('add-result', `❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResult('add-result', `❌ Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function testUpdateWeight() {
+            if (!sessionToken) {
+                showResult('weight-result', '❌ Please login first!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/update-paint-weight`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-session-token': sessionToken
+                    },
+                    body: JSON.stringify({
+                        ml_kodas: 'ML999',
+                        new_weight: 15
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('weight-result', `✅ Success!\n${data.message}\nOld: ${data.old_weight}kg → New: ${data.new_weight}kg`);
+                } else {
+                    showResult('weight-result', `❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResult('weight-result', `❌ Network Error: ${error.message}`, true);
+            }
+        }
+
+        async function testUpdatePaint() {
+            if (!sessionToken) {
+                showResult('update-result', '❌ Please login first!', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${EDGE_FUNCTIONS_URL}/update-paint`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-session-token': sessionToken
+                    },
+                    body: JSON.stringify({
+                        ml_kodas: 'ML999',
+                        spalva: 'RAL1234'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('update-result', `✅ Success!\n${data.message}\n\n${JSON.stringify(data.paint, null, 2)}`);
+                } else {
+                    showResult('update-result', `❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResult('update-result', `❌ Network Error: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>
