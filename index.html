@@ -202,9 +202,13 @@
         <div class="container">
             <div class="hero-content">
                 <picture>
-                    <source media="(max-width: 768px)" srcset="assets/logo_blur-mobile.webp" type="image/webp" width="300" height="200">
+                    <!-- Mobile WebP with 1x and 2x for Retina -->
+                    <source media="(max-width: 768px)" srcset="assets/logo_blur-mobile@1x.webp 1x, assets/logo_blur-mobile@2x.webp 2x" type="image/webp" width="300" height="200">
+                    <!-- Mobile PNG fallback -->
                     <source media="(max-width: 768px)" srcset="assets/logo_blur-mobile.png" width="300" height="200">
-                    <source srcset="assets/logo_blur-desktop.webp" type="image/webp">
+                    <!-- Desktop WebP with 1x and 2x for Retina MacBooks -->
+                    <source srcset="assets/logo_blur-desktop.webp 1x, assets/logo_blur-desktop@2x.webp 2x" type="image/webp">
+                    <!-- Desktop PNG fallback -->
                     <img src="assets/logo_blur-desktop.png" alt="Miltegona logotipas - profesionalus miltelinis dažymas Kaune nuo 2021" class="hero-logo" width="600" height="399" loading="eager" fetchpriority="high">
                 </picture>
                 <h1>Miltelinis Dažymas Kaune</h1>
