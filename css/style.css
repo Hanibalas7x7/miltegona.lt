@@ -8,7 +8,7 @@
 :root {
     --primary-color: #FC9D17;
     --secondary-color: #d97706;
-    --accent-color: #2d8a4d;
+    --accent-color: #1e6038; /* Darker green for better contrast with white text (4.5:1 ratio) */
     --text-dark: #e5e7eb;
     --text-light: #9ca3af;
     --bg-light: #1a1d23;
