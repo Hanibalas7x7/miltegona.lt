@@ -106,7 +106,8 @@
         .paints-table-container {
             background: #1a1d23;
             border-radius: 8px;
-            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             box-shadow: 0 4px 6px rgba(0,0,0,0.4);
             border: 1px solid #2d3238;
         }
@@ -114,6 +115,7 @@
         .paints-table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 1000px;
         }
         
         .paints-table thead {
@@ -305,6 +307,19 @@
             .color-badge {
                 font-size: 12px;
                 padding: 4px 8px;
+            }
+
+            .header-content h1 {
+                font-size: 26px;
+            }
+
+            .color-popup-content {
+                padding: 30px 20px;
+            }
+
+            .color-popup-swatch {
+                width: 150px;
+                height: 150px;
             }
         }
     </style>
