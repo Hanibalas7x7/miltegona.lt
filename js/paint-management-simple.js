@@ -137,7 +137,7 @@ function displayPaints(paints) {
         <table class="paints-table">
             <thead>
                 <tr>
-                    <th onclick="sortTable('ml_kodas')" style="cursor: pointer;">ML Kodas</th>
+                    <th onclick="sortTable('ml_kodas')" style="cursor: pointer;">ML<br>Kodas</th>
                     <th onclick="sortTable('kiekis')" style="cursor: pointer;">Svoris</th>
                     <th onclick="sortTable('gamintojas')" style="cursor: pointer;">Gamintojas</th>
                     <th onclick="sortTable('kodas')" style="cursor: pointer;">Kodas</th>
@@ -224,6 +224,7 @@ function sortTable(column) {
 window.sortTable = sortTable;
 
 function filterPaints(searchTerm) {
+    const originalSearchTerm = searchTerm;
     searchTerm = searchTerm.toLowerCase().trim();
     
     if (!searchTerm) {
@@ -232,18 +233,28 @@ function filterPaints(searchTerm) {
         return;
     }
     
+    // Check if original search term ends with space - exact ML code search
+    const exactMLSearch = originalSearchTerm.endsWith(' ');
+    
     const filtered = allPaintsOriginal.filter(paint => {
-        return (
-            (paint.ml_kodas && paint.ml_kodas.toLowerCase().includes(searchTerm)) ||
-            (paint.gamintojas && paint.gamintojas.toLowerCase().includes(searchTerm)) ||
-            (paint.kodas && paint.kodas.toLowerCase().includes(searchTerm)) ||
-            (paint.spalva && paint.spalva.toLowerCase().includes(searchTerm)) ||
-            (paint.gruntas && paint.gruntas.toLowerCase().includes(searchTerm)) ||
-            (paint.blizgumas && paint.blizgumas.toLowerCase().includes(searchTerm)) ||
-            (paint.pavirsus && paint.pavirsus.toLowerCase().includes(searchTerm)) ||
-            (paint.effect && paint.effect.toLowerCase().includes(searchTerm)) ||
-            (paint.sudetis && paint.sudetis.toLowerCase().includes(searchTerm))
-        );
+        if (exactMLSearch) {
+            // Exact ML code match only (without space)
+            const cleanSearchTerm = searchTerm; // already trimmed
+            return paint.ml_kodas && paint.ml_kodas.toLowerCase() === `ml${cleanSearchTerm}`;
+        } else {
+            // Normal search across all fields
+            return (
+                (paint.ml_kodas && paint.ml_kodas.toLowerCase().includes(searchTerm)) ||
+                (paint.gamintojas && paint.gamintojas.toLowerCase().includes(searchTerm)) ||
+                (paint.kodas && paint.kodas.toLowerCase().includes(searchTerm)) ||
+                (paint.spalva && paint.spalva.toLowerCase().includes(searchTerm)) ||
+                (paint.gruntas && paint.gruntas.toLowerCase().includes(searchTerm)) ||
+                (paint.blizgumas && paint.blizgumas.toLowerCase().includes(searchTerm)) ||
+                (paint.pavirsus && paint.pavirsus.toLowerCase().includes(searchTerm)) ||
+                (paint.effect && paint.effect.toLowerCase().includes(searchTerm)) ||
+                (paint.sudetis && paint.sudetis.toLowerCase().includes(searchTerm))
+            );
+        }
     });
     
     displayPaints(filtered);
@@ -260,6 +271,12 @@ function openModal() {
         document.querySelector('#add-paint-form [name="spalva"]').value = 'RAL';
         
         modal.classList.add('active');
+        
+        // Scroll modal content to top
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.scrollTop = 0;
+        }
     }
 }
 
@@ -299,16 +316,16 @@ function closeModal() {
 async function savePaint(form) {
     const formData = new FormData(form);
     const paintData = {
-        ml_code: formData.get('ml_code'),
+        ml_kodas: formData.get('ml_code'),
         gamintojas: formData.get('gamintojas'),
-        kodas: formData.get('kodas') || null,
-        spalva: formData.get('spalva') || null,
+        kodas: formData.get('kodas') || '',
+        spalva: formData.get('spalva') || '',
         kiekis: parseFloat(formData.get('kiekis')),
         gruntas: formData.get('gruntas') || null,
-        blizgumas: formData.get('blizgumas') || null,
-        pavirsus: formData.get('pavirsus') || null,
-        effect: formData.get('effect') || null,
-        sudetis: formData.get('sudetis') || null,
+        blizgumas: formData.get('blizgumas') || '',
+        pavirsus: formData.get('pavirsus') || '',
+        effect: formData.get('effect') || '',
+        sudetis: formData.get('sudetis') || '',
         kaina: formData.get('kaina') ? parseFloat(formData.get('kaina')) : null
     };
     
@@ -444,9 +461,19 @@ async function saveEditPaint(form) {
 
 async function saveWeight(form) {
     const formData = new FormData(form);
+    const id = parseInt(formData.get('id'));
+    const new_weight = parseFloat(formData.get('new_weight'));
+    
+    // Find paint by ID to get ml_kodas
+    const paint = allPaintsCache.find(p => p.id === id);
+    if (!paint || !paint.ml_kodas) {
+        alert('Klaida: ML kodas nerastas');
+        return;
+    }
+    
     const weightData = {
-        id: parseInt(formData.get('id')),
-        new_weight: parseFloat(formData.get('new_weight'))
+        ml_kodas: paint.ml_kodas,
+        new_weight: new_weight
     };
     
     try {

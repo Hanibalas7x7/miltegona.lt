@@ -59,12 +59,10 @@ serve(async (req) => {
     // Get paint data from request body
     const paintData: PaintData = await req.json();
 
-    // Validate required fields
-    if (!paintData.gamintojas || !paintData.kodas || !paintData.spalva || 
-        !paintData.blizgumas || !paintData.pavirsus || !paintData.effect || 
-        !paintData.sudetis || !paintData.kiekis || !paintData.ml_kodas) {
+    // Validate required fields (only mandatory: gamintojas, kiekis, ml_kodas)
+    if (!paintData.gamintojas || paintData.kiekis === undefined || paintData.kiekis === null || !paintData.ml_kodas) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Missing required fields: gamintojas, kiekis, ml_kodas' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

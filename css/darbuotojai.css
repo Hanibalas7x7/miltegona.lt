@@ -23,6 +23,7 @@ body {
     background: var(--bg-dark);
     color: var(--text-dark);
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 /* Login Screen */
@@ -108,12 +109,12 @@ body {
 
 .btn-primary {
     width: 100%;
-    padding: 14px;
+    padding: 10px 16px;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -172,7 +173,7 @@ body {
 }
 
 .header-content {
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 1rem 20px;
     display: flex;
@@ -227,7 +228,7 @@ body {
 
 /* Tabs */
 .tabs {
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 20px;
     display: flex;
@@ -260,9 +261,9 @@ body {
 /* Tab Content */
 .tab-content {
     display: none;
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: 30px 10px;
 }
 
 .tab-content.active {
@@ -550,6 +551,7 @@ body {
         gap: 10px;
         justify-content: space-between;
         align-items: center;
+        padding: 1rem 0;
     }
 
     .header-logo {
@@ -565,13 +567,32 @@ body {
         font-size: 14px;
     }
 
+    .welcome-section {
+        padding: 20px 0;
+    }
+
     .welcome-section h2 {
         font-size: 22px;
+    }
+
+    .tabs {
+        padding: 20px 0;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .tab-content {
+        padding: 20px 0;
     }
 
     .month-selector {
         gap: 10px;
         justify-content: center;
+        padding: 15px 0;
     }
 
     .month-selector button {
@@ -590,7 +611,7 @@ body {
 
     .suvestine-table th,
     .suvestine-table td {
-        padding: 8px;
+        padding: 8px 2px;
     }
 
     .suvestine-summary {
@@ -600,20 +621,11 @@ body {
     }
 
     .atlyginimai-card {
-        padding: 20px;
+        padding: 20px 0;
     }
 
     .salary-value {
         font-size: 16px;
-    }
-
-    .tabs {
-        flex-wrap: wrap;
-    }
-
-    .tab-btn {
-        font-size: 14px;
-        padding: 10px 16px;
     }
 
     .salary-details {
@@ -625,9 +637,55 @@ body {
     .salary-row.info {
         grid-column: 1;
     }
+
+    .paints-table {
+        table-layout: auto !important;
+    }
+
+    .paints-table th,
+    .paints-table td {
+        padding: 3px 5px !important;
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+    }
+
+    .paints-table tbody tr td {
+        padding: 3px 5px !important;
+    }
+
+    .paints-table th:first-child,
+    .paints-table td:first-child {
+        min-width: 40px !important;
+    }
+
+    .paints-table th:nth-child(2),
+    .paints-table td:nth-child(2) {
+        min-width: 35px !important;
+        max-width: 50px !important;
+    }
+
+    .paints-table th:nth-child(3),
+    .paints-table td:nth-child(3) {
+        min-width: 80px !important;
+    }
+
+    .paints-table th:nth-child(4),
+    .paints-table td:nth-child(4) {
+        min-width: 70px !important;
+    }
+
+    .paints-table th:nth-child(5),
+    .paints-table td:nth-child(5) {
+        min-width: 95px !important;
+    }
 }
 
 /* Paints Table */
+.content-area {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .paints-table {
     width: 100%;
     border-collapse: collapse;
@@ -638,7 +696,7 @@ body {
 
 .paints-table th,
 .paints-table td {
-    padding: 12px;
+    padding: 8px 5px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
@@ -659,13 +717,14 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.8);
     z-index: 1000;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    overflow-y: auto;
 }
 
 .modal.active {
