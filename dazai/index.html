@@ -746,6 +746,14 @@
                     bVal = parseFloat(bVal) || 0;
                 }
                 
+                // For ML code, extract number and sort numerically
+                if (sortColumn === 'ml_kodas') {
+                    const aNum = parseInt((aVal.match(/\d+/) || [0])[0]) || 0;
+                    const bNum = parseInt((bVal.match(/\d+/) || [0])[0]) || 0;
+                    aVal = aNum;
+                    bVal = bNum;
+                }
+                
                 if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
                 if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
                 return 0;
