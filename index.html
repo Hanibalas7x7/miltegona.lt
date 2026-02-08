@@ -320,10 +320,14 @@
 
     <script src="js/main.js" defer></script>
     
-    <!-- Deferred Google Analytics - loads after page is fully interactive -->
+    <!-- Heavily Deferred Google Analytics - loads only after user interaction or 10s -->
     <script>
-      // Defer GA loading until idle or 3 seconds after page load
+      var gaLoaded = false;
+      
       function loadGA() {
+        if (gaLoaded) return;
+        gaLoaded = true;
+        
         var script = document.createElement('script');
         script.async = true;
         script.src = 'https://www.googletagmanager.com/gtag/js?id=G-1VLD2QNVLR';
@@ -336,12 +340,21 @@
         gtag('config', 'G-1VLD2QNVLR');
       }
       
-      // Load GA when browser is idle or after 3 seconds
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(loadGA, { timeout: 3000 });
-      } else {
-        setTimeout(loadGA, 3000);
-      }
+      // Load GA only after user interaction (scroll, click, touch) or 10 seconds
+      var events = ['scroll', 'click', 'touchstart', 'mousemove'];
+      var loadGAOnce = function() {
+        loadGA();
+        events.forEach(function(event) {
+          window.removeEventListener(event, loadGAOnce);
+        });
+      };
+      
+      events.forEach(function(event) {
+        window.addEventListener(event, loadGAOnce, { passive: true, once: true });
+      });
+      
+      // Fallback: load after 10 seconds if no interaction
+      setTimeout(loadGA, 10000);
     </script>
 </body>
 </html>
