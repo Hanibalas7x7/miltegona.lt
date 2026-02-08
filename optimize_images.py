@@ -40,29 +40,36 @@ def optimize_image(input_path, output_path, max_width, quality=85):
 print("Optimizing images for mobile performance...")
 print()
 
-# Hero background - create mobile version
-print("1. Hero background (main_pic):")
+# Hero background - create mobile version with lower quality
+print("1. Hero background (main_pic) - aggressive compression:")
 optimize_image(
     'assets/main_pic-dWx9yXgJoNfgOMBk.jpg',
     'assets/main_pic-mobile.jpg',
     max_width=800,
-    quality=80
+    quality=70
 )
 
-# Logo blur - create smaller version with transparency
-print("\n2. Hero logo (logo_blur) - keeping PNG transparency:")
+# Logo blur - create hero and footer mobile versions
+print("\n2. Hero logo (logo_blur-mobile) - 400px:")
 optimize_image(
     'assets/logo_blur-Aq2Qv48BaWH3VXD1.png',
     'assets/logo_blur-mobile.png',
     max_width=400
 )
 
+print("\n3. Footer logo (logo_blur-footer) - 300px:")
+optimize_image(
+    'assets/logo_blur-Aq2Qv48BaWH3VXD1.png',
+    'assets/logo_blur-footer.png',
+    max_width=300
+)
+
 # Header logo - optimize existing
-print("\n3. Header logo (miltegona-logo-white):")
+print("\n4. Header logo (miltegona-logo-white) - 120px:")
 optimize_image(
     'assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png',
     'assets/miltegona-logo-white-optimized.png',
-    max_width=200
+    max_width=120
 )
 
-print("\n✅ Done! Now update HTML to use mobile versions with <picture> element")
+print("\n✅ Done! Now update HTML to use optimized versions")
