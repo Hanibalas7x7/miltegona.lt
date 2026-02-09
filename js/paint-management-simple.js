@@ -293,8 +293,10 @@ function filterPaints(searchTerm) {
 }
 
 function openModal() {
+    console.log('[MODAL] openModal() called');
     const modal = document.getElementById('add-paint-modal');
     if (modal) {
+        console.log('[MODAL] Modal element found');
         // Calculate next available ML code
         const nextMLCode = getNextAvailableMLCode();
         document.querySelector('#add-paint-form [name="ml_code"]').value = nextMLCode;
@@ -303,6 +305,7 @@ function openModal() {
         document.querySelector('#add-paint-form [name="spalva"]').value = 'RAL';
         
         modal.classList.add('active');
+        console.log('[MODAL] Modal activated');
         
         // Scroll modal content to top
         const modalContent = modal.querySelector('.modal-content');
@@ -793,10 +796,14 @@ function autoFillFields(manufacturer, code) {
 
 // Scan paint label using Edge Function
 async function scanPaintLabel(imageFile) {
+    console.log('[SCAN] ========== SCAN START ==========');
+    console.log('[SCAN] scanPaintLabel() called with file:', imageFile ? imageFile.name : 'NO FILE');
+    console.log('[SCAN] File details:', { name: imageFile?.name, size: imageFile?.size, type: imageFile?.type });
     try {
         // Show loading state on both buttons
         const scanCameraBtn = document.getElementById('scan-camera-btn');
         const scanGalleryBtn = document.getElementById('scan-gallery-btn');
+        console.log('[SCAN] Button elements:', { camera: !!scanCameraBtn, gallery: !!scanGalleryBtn });
         const originalCameraHTML = scanCameraBtn ? scanCameraBtn.innerHTML : '';
         const originalGalleryHTML = scanGalleryBtn ? scanGalleryBtn.innerHTML : '';
         
@@ -825,10 +832,13 @@ async function scanPaintLabel(imageFile) {
         }
 
         // Convert image to base64
+        console.log('[SCAN] Converting file to base64...');
         const base64Image = await fileToBase64(imageFile);
+        console.log('[SCAN] Base64 conversion complete, length:', base64Image.length);
 
         // Call Edge Function
         const token = localStorage.getItem('darbuotojai_session');
+        console.log('[SCAN] Calling Edge Function:', `${EDGE_FUNCTIONS_URL}/scan-paint-label`);
         const response = await fetch(`${EDGE_FUNCTIONS_URL}/scan-paint-label`, {
             method: 'POST',
             headers: {
@@ -838,7 +848,9 @@ async function scanPaintLabel(imageFile) {
             body: JSON.stringify({ image_base64: base64Image }),
         });
 
+        console.log('[SCAN] API response received, status:', response.status);
         const data = await response.json();
+        console.log('[SCAN] Response data:', JSON.stringify(data, null, 2));
 
         // Restore buttons
         if (scanCameraBtn) {
@@ -849,22 +861,25 @@ async function scanPaintLabel(imageFile) {
             scanGalleryBtn.disabled = false;
             scanGalleryBtn.innerHTML = originalGalleryHTML;
         }
+        console.log('[SCAN] Buttons restored');
 
         if (!response.ok || !data.success) {
+            console.error('[SCAN] API error:', data.error);
             alert(`❌ Klaida skenuojant: ${data.error || 'Nežinoma klaida'}`);
             console.error('Scan error:', data);
             return;
         }
 
-        console.log('Scan results:', data);
+        console.log('[SCAN] Scan successful, results:', data);
 
         // Fill form fields with extracted data (modal already open)
         const form = document.getElementById('add-paint-form');
         if (!form) {
-            console.error('Add paint form not found - make sure modal is open');
+            console.error('[SCAN] ERROR: Add paint form not found!');
             alert('⚠️ Klaida: forma nerasta. Atverkite "Pridėti Naujus Dažus" langą ir bandykite dar kartą.');
             return;
         }
+        console.log('[SCAN] Form found, filling fields...');
 
         // Fill manufacturer
         if (data.manufacturer) {
@@ -947,9 +962,13 @@ async function scanPaintLabel(imageFile) {
         if (data.paint_type) extractedData.push({ icon: 'package', label: 'Sudėtis', value: data.paint_type });
 
         if (extractedData.length > 0) {
+            console.log('[SCAN] Showing scan results modal, data count:', extractedData.length);
             showScanResults(extractedData);
         } else {
+            console.warn('[SCAN] No data extracted from label');
             alert('⚠️ Lipduko duomenys nuskaityti, bet nepavyko atpažinti specifinių laukų. Bandykite su aiškesne nuotrauka.');
+        }
+        console.log('[SCAN] ========== SCAN COMPLETE ==========');
         }
 
     } catch (error) {
@@ -998,8 +1017,10 @@ function fileToBase64(file) {
 
 // Show scan results in styled modal
 function showScanResults(extractedData) {
+    console.log('[RESULTS] showScanResults() called with', extractedData.length, 'items');
     const modal = document.getElementById('scan-results-modal');
     const resultsList = document.getElementById('scan-results-list');
+    console.log('[RESULTS] Modal elements:', { modal: !!modal, resultsList: !!resultsList });
     
     // Icon SVG paths for each type
     const icons = {
@@ -1031,8 +1052,12 @@ function showScanResults(extractedData) {
         resultsList.appendChild(resultItem);
     });
     
+    console.log('[RESULTS] Results list populated with', extractedData.length, 'items');
+    
     // Show modal
+    console.log('[RESULTS] Activating modal...');
     modal.classList.add('active');
+    console.log('[RESULTS] Modal activated, classList:', modal.classList.toString());
 }
 
 function closeScanResultsModal() {
