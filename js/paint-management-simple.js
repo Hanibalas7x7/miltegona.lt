@@ -74,19 +74,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Scan paint label button
-    const scanBtn = document.getElementById('scan-paint-label-btn');
-    if (scanBtn) {
-        scanBtn.addEventListener('click', () => {
-            console.log('Scan paint label clicked');
-            document.getElementById('scan-image-input').click();
+    // Scan paint label buttons
+    const scanCameraBtn = document.getElementById('scan-camera-btn');
+    const scanGalleryBtn = document.getElementById('scan-gallery-btn');
+    
+    if (scanCameraBtn) {
+        scanCameraBtn.addEventListener('click', () => {
+            console.log('Scan camera clicked');
+            document.getElementById('scan-camera-input').click();
         });
     }
     
-    // Scan image input
-    const scanInput = document.getElementById('scan-image-input');
-    if (scanInput) {
-        scanInput.addEventListener('change', async (e) => {
+    if (scanGalleryBtn) {
+        scanGalleryBtn.addEventListener('click', () => {
+            console.log('Scan gallery clicked');
+            document.getElementById('scan-gallery-input').click();
+        });
+    }
+    
+    // Scan image inputs
+    const scanCameraInput = document.getElementById('scan-camera-input');
+    const scanGalleryInput = document.getElementById('scan-gallery-input');
+    
+    if (scanCameraInput) {
+        scanCameraInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await scanPaintLabel(file);
+                e.target.value = ''; // Reset input
+            }
+        });
+    }
+    
+    if (scanGalleryInput) {
+        scanGalleryInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
                 await scanPaintLabel(file);
@@ -783,19 +804,35 @@ function autoFillFields(manufacturer, code) {
 // Scan paint label using Edge Function
 async function scanPaintLabel(imageFile) {
     try {
-        // Show loading state
-        const scanBtn = document.getElementById('scan-paint-label-btn');
-        const originalHTML = scanBtn.innerHTML;
-        scanBtn.disabled = true;
-        scanBtn.innerHTML = `
-            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle;">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
-                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
-                </circle>
-            </svg>
-            Skenuojama...
-        `;
+        // Show loading state on both buttons
+        const scanCameraBtn = document.getElementById('scan-camera-btn');
+        const scanGalleryBtn = document.getElementById('scan-gallery-btn');
+        const originalCameraHTML = scanCameraBtn ? scanCameraBtn.innerHTML : '';
+        const originalGalleryHTML = scanGalleryBtn ? scanGalleryBtn.innerHTML : '';
+        
+        if (scanCameraBtn) {
+            scanCameraBtn.disabled = true;
+            scanCameraBtn.innerHTML = `
+                <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
+                        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+            `;
+        }
+        
+        if (scanGalleryBtn) {
+            scanGalleryBtn.disabled = true;
+            scanGalleryBtn.innerHTML = `
+                <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
+                        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+            `;
+        }
 
         // Convert image to base64
         const base64Image = await fileToBase64(imageFile);
@@ -813,9 +850,15 @@ async function scanPaintLabel(imageFile) {
 
         const data = await response.json();
 
-        // Restore button
-        scanBtn.disabled = false;
-        scanBtn.innerHTML = originalHTML;
+        // Restore buttons
+        if (scanCameraBtn) {
+            scanCameraBtn.disabled = false;
+            scanCameraBtn.innerHTML = originalCameraHTML;
+        }
+        if (scanGalleryBtn) {
+            scanGalleryBtn.disabled = false;
+            scanGalleryBtn.innerHTML = originalGalleryHTML;
+        }
 
         if (!response.ok || !data.success) {
             alert(`❌ Klaida skenuojant: ${data.error || 'Nežinoma klaida'}`);
@@ -921,17 +964,32 @@ async function scanPaintLabel(imageFile) {
 
     } catch (error) {
         console.error('Scan error:', error);
-        const scanBtn = document.getElementById('scan-paint-label-btn');
-        if (scanBtn) {
-            scanBtn.disabled = false;
-            scanBtn.innerHTML = `
+        const scanCameraBtn = document.getElementById('scan-camera-btn');
+        const scanGalleryBtn = document.getElementById('scan-gallery-btn');
+        
+        if (scanCameraBtn) {
+            scanCameraBtn.disabled = false;
+            scanCameraBtn.innerHTML = `
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                 </svg>
-                Skenuoti Lipduka
+                <span class="scan-btn-text">Skenuoti</span>
             `;
         }
+        
+        if (scanGalleryBtn) {
+            scanGalleryBtn.disabled = false;
+            scanGalleryBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span class="scan-btn-text">Galerija</span>
+            `;
+        }
+        
         alert(`❌ Klaida skenuojant lipduko: ${error.message}`);
     }
 }
