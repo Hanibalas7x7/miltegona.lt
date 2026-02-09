@@ -119,9 +119,9 @@
                     <section class="panel-section">
                         <h2>Dažų Valdymas</h2>
                         
-                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
                             <button id="add-paint-btn" class="btn btn-primary">Pridėti Naujus Dažus</button>
-                            <input type="text" id="paint-search" class="form-input" placeholder="Ieškoti pagal ML kodą, spalvą, gamintoją..." style="max-width: 400px;">
+                            <input type="text" id="paint-search" class="form-input" placeholder="Ieškoti pagal ML kodą, spalvą, gamintoją..." style="max-width: 400px; margin-left: auto;">
                         </div>
 
                         <div id="paints-content" class="content-area">
@@ -136,7 +136,17 @@
     <!-- Add Paint Modal -->
     <div id="add-paint-modal" class="modal">
         <div class="modal-content">
-            <h3>Pridėti Naujus Dažus</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;">Pridėti Naujus Dažus</h3>
+                <button type="button" id="scan-paint-label-btn" class="btn btn-success" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    Skenuoti Lipduka
+                </button>
+                <input type="file" id="scan-image-input" accept="image/*" capture="environment" style="display: none;">
+            </div>
             <form id="add-paint-form">
                 <div class="form-group">
                     <label class="form-label">ML Kodas *</label>
@@ -377,6 +387,22 @@
                     <button type="submit" class="btn btn-primary">Išsaugoti</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Scan Results Modal -->
+    <div id="scan-results-modal" class="modal">
+        <div class="modal-content scan-results-content">
+            <div class="scan-results-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <h3>Nuskenuota</h3>
+                <button type="button" class="scan-close-btn" onclick="closeScanResultsModal()">×</button>
+            </div>
+            <div id="scan-results-list" class="scan-results-list">
+                <!-- Results will be populated here -->
+            </div>
         </div>
     </div>
 

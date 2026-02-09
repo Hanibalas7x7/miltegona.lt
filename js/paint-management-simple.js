@@ -73,6 +73,27 @@ document.addEventListener('DOMContentLoaded', () => {
             autoFillFields(gamintojasInput ? gamintojasInput.value : '', kodasInput.value);
         });
     }
+    
+    // Scan paint label button
+    const scanBtn = document.getElementById('scan-paint-label-btn');
+    if (scanBtn) {
+        scanBtn.addEventListener('click', () => {
+            console.log('Scan paint label clicked');
+            document.getElementById('scan-image-input').click();
+        });
+    }
+    
+    // Scan image input
+    const scanInput = document.getElementById('scan-image-input');
+    if (scanInput) {
+        scanInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await scanPaintLabel(file);
+                e.target.value = ''; // Reset input
+            }
+        });
+    }
 });
 
 async function loadPaints() {
@@ -759,4 +780,224 @@ function autoFillFields(manufacturer, code) {
     }
 }
 
+// Scan paint label using Edge Function
+async function scanPaintLabel(imageFile) {
+    try {
+        // Show loading state
+        const scanBtn = document.getElementById('scan-paint-label-btn');
+        const originalHTML = scanBtn.innerHTML;
+        scanBtn.disabled = true;
+        scanBtn.innerHTML = `
+            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle;">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
+                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
+            Skenuojama...
+        `;
 
+        // Convert image to base64
+        const base64Image = await fileToBase64(imageFile);
+
+        // Call Edge Function
+        const token = localStorage.getItem('darbuotojai_session');
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/scan-paint-label`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ image_base64: base64Image }),
+        });
+
+        const data = await response.json();
+
+        // Restore button
+        scanBtn.disabled = false;
+        scanBtn.innerHTML = originalHTML;
+
+        if (!response.ok || !data.success) {
+            alert(`❌ Klaida skenuojant: ${data.error || 'Nežinoma klaida'}`);
+            console.error('Scan error:', data);
+            return;
+        }
+
+        console.log('Scan results:', data);
+
+        // Fill form fields with extracted data (modal already open)
+        const form = document.getElementById('add-paint-form');
+        if (!form) {
+            console.error('Add paint form not found - make sure modal is open');
+            alert('⚠️ Klaida: forma nerasta. Atverkite "Pridėti Naujus Dažus" langą ir bandykite dar kartą.');
+            return;
+        }
+
+        // Fill manufacturer
+        if (data.manufacturer) {
+            const gamintojasInput = form.querySelector('[name="gamintojas"]');
+            if (gamintojasInput) {
+                gamintojasInput.value = data.manufacturer;
+                gamintojasInput.dispatchEvent(new Event('input', { bubbles: true }));
+                gamintojasInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // Fill product code
+        if (data.product_code) {
+            const kodasInput = form.querySelector('[name="kodas"]');
+            if (kodasInput) {
+                kodasInput.value = data.product_code;
+                kodasInput.dispatchEvent(new Event('input', { bubbles: true }));
+                kodasInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // Fill RAL/color code
+        if (data.ral_code) {
+            const spalvaInput = form.querySelector('[name="spalva"]');
+            if (spalvaInput) {
+                spalvaInput.value = data.ral_code;
+                spalvaInput.dispatchEvent(new Event('input', { bubbles: true }));
+                spalvaInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // Fill weight
+        if (data.weight_kg) {
+            const kiekisInput = form.querySelector('[name="kiekis"]');
+            if (kiekisInput) {
+                kiekisInput.value = data.weight_kg;
+                kiekisInput.dispatchEvent(new Event('input', { bubbles: true }));
+                kiekisInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // Fill gloss
+        if (data.gloss) {
+            const blizgumasInput = form.querySelector('[name="blizgumas"]');
+            if (blizgumasInput) {
+                blizgumasInput.value = data.gloss;
+                blizgumasInput.dispatchEvent(new Event('input', { bubbles: true }));
+                blizgumasInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // Fill surface
+        if (data.surface) {
+            const pavirsusInput = form.querySelector('[name="pavirsus"]');
+            if (pavirsusInput) {
+                pavirsusInput.value = data.surface;
+                pavirsusInput.dispatchEvent(new Event('input', { bubbles: true }));
+                pavirsusInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // Fill paint type/composition
+        if (data.paint_type) {
+            const sudetisSelect = form.querySelector('[name="sudetis"]');
+            if (sudetisSelect) {
+                sudetisSelect.value = data.paint_type;
+                sudetisSelect.dispatchEvent(new Event('input', { bubbles: true }));
+                sudetisSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+
+        // Show success message with extracted data in styled modal
+        const extractedData = [];
+        if (data.manufacturer) extractedData.push({ icon: 'building', label: 'Gamintojas', value: data.manufacturer });
+        if (data.product_code) extractedData.push({ icon: 'hash', label: 'Produkto kodas', value: data.product_code });
+        if (data.ral_code) extractedData.push({ icon: 'droplet', label: 'RAL/Spalva', value: data.ral_code });
+        if (data.weight_kg) extractedData.push({ icon: 'weight', label: 'Svoris', value: `${data.weight_kg} kg` });
+        if (data.gloss) extractedData.push({ icon: 'sun', label: 'Blizgumas', value: data.gloss });
+        if (data.surface) extractedData.push({ icon: 'layers', label: 'Paviršius', value: data.surface });
+        if (data.paint_type) extractedData.push({ icon: 'package', label: 'Sudėtis', value: data.paint_type });
+
+        if (extractedData.length > 0) {
+            showScanResults(extractedData);
+        } else {
+            alert('⚠️ Lipduko duomenys nuskaityti, bet nepavyko atpažinti specifinių laukų. Bandykite su aiškesne nuotrauka.');
+        }
+
+    } catch (error) {
+        console.error('Scan error:', error);
+        const scanBtn = document.getElementById('scan-paint-label-btn');
+        if (scanBtn) {
+            scanBtn.disabled = false;
+            scanBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                Skenuoti Lipduka
+            `;
+        }
+        alert(`❌ Klaida skenuojant lipduko: ${error.message}`);
+    }
+}
+
+// Convert File to base64 string (without data URI prefix)
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // Remove data URI prefix (e.g., "data:image/jpeg;base64,")
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Show scan results in styled modal
+function showScanResults(extractedData) {
+    const modal = document.getElementById('scan-results-modal');
+    const resultsList = document.getElementById('scan-results-list');
+    
+    // Icon SVG paths for each type
+    const icons = {
+        building: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01M7 12h.01M7 17h.01M12 7h.01M12 12h.01M12 17h.01M17 7h.01M17 12h.01M17 17h.01"/>',
+        hash: '<line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>',
+        droplet: '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>',
+        weight: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+        sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+        layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+        package: '<path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>'
+    };
+    
+    // Clear previous results
+    resultsList.innerHTML = '';
+    
+    // Add each result item
+    extractedData.forEach(item => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'scan-result-item';
+        resultItem.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                ${icons[item.icon] || icons.package}
+            </svg>
+            <div class="scan-result-text">
+                <div class="scan-result-label">${item.label}</div>
+                <div class="scan-result-value" title="${item.value}">${item.value}</div>
+            </div>
+        `;
+        resultsList.appendChild(resultItem);
+    });
+    
+    // Show modal
+    modal.classList.add('active');
+}
+
+function closeScanResultsModal() {
+    const modal = document.getElementById('scan-results-modal');
+    modal.classList.remove('active');
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('scan-results-modal');
+    if (modal && e.target === modal) {
+        closeScanResultsModal();
+    }
+});

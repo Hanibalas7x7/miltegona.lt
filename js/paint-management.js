@@ -29,6 +29,21 @@ function setupEventListeners() {
         openPaintModal('add');
     });
 
+    // Scan paint label button
+    document.getElementById('scan-paint-label-btn')?.addEventListener('click', () => {
+        document.getElementById('scan-image-input').click();
+    });
+
+    // Handle image selection for scanning
+    document.getElementById('scan-image-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            await scanPaintLabel(file);
+            // Reset input so same file can be selected again
+            e.target.value = '';
+        }
+    });
+
     // Refresh paints button
     document.getElementById('refresh-paints-btn')?.addEventListener('click', () => {
         loadPaints();
@@ -61,6 +76,111 @@ function setupEventListeners() {
         if (e.target.classList.contains('modal')) {
             closeModals();
         }
+    });
+}
+
+// Scan paint label using Edge Function
+async function scanPaintLabel(imageFile) {
+    try {
+        // Show loading message
+        const scanBtn = document.getElementById('scan-paint-label-btn');
+        const originalText = scanBtn.innerHTML;
+        scanBtn.disabled = true;
+        scanBtn.innerHTML = `
+            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="32" stroke-dashoffset="32">
+                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
+            Skenuojama...
+        `;
+
+        // Convert image to base64
+        const base64Image = await fileToBase64(imageFile);
+
+        // Call Edge Function
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/scan-paint-label`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image_base64: base64Image }),
+        });
+
+        const data = await response.json();
+
+        // Restore button
+        scanBtn.disabled = false;
+        scanBtn.innerHTML = originalText;
+
+        if (!data.success) {
+            alert(`Klaida skenuojant: ${data.error || 'Nežinoma klaida'}`);
+            return;
+        }
+
+        // Open add modal and fill with extracted data
+        openPaintModal('add');
+        
+        // Fill form fields with extracted data
+        setTimeout(() => {
+            const form = document.getElementById('add-paint-form');
+            if (!form) return;
+
+            // Map OCR results to form fields
+            if (data.manufacturer) {
+                form.querySelector('[name="gamintojas"]').value = data.manufacturer;
+            }
+            if (data.product_code) {
+                form.querySelector('[name="kodas"]').value = data.product_code;
+            }
+            if (data.ral_code) {
+                form.querySelector('[name="spalva"]').value = data.ral_code;
+            }
+            if (data.weight_kg) {
+                form.querySelector('[name="kiekis"]').value = data.weight_kg;
+            }
+            if (data.gloss) {
+                form.querySelector('[name="blizgumas"]').value = data.gloss;
+            }
+            if (data.surface) {
+                form.querySelector('[name="pavirsus"]').value = data.surface;
+            }
+            if (data.paint_type) {
+                form.querySelector('[name="sudetis"]').value = data.paint_type;
+            }
+
+            // Show success message
+            alert(`✅ Lipduko duomenys nuskaityti!\n\nRastą informaciją:\n` +
+                  `${data.manufacturer ? '• Gamintojas: ' + data.manufacturer + '\n' : ''}` +
+                  `${data.product_code ? '• Produkto kodas: ' + data.product_code + '\n' : ''}` +
+                  `${data.ral_code ? '• RAL/Spalva: ' + data.ral_code + '\n' : ''}` +
+                  `${data.weight_kg ? '• Svoris: ' + data.weight_kg + ' kg\n' : ''}` +
+                  `${data.gloss ? '• Blizgumas: ' + data.gloss + '\n' : ''}` +
+                  `${data.surface ? '• Paviršius: ' + data.surface + '\n' : ''}` +
+                  `\nPatikrinkite duomenis ir išsaugokite.`
+            );
+        }, 100);
+
+    } catch (error) {
+        console.error('Scan error:', error);
+        const scanBtn = document.getElementById('scan-paint-label-btn');
+        scanBtn.disabled = false;
+        scanBtn.innerHTML = originalText;
+        alert(`Klaida skenuojant lipduko: ${error.message}`);
+    }
+}
+
+// Convert File to base64 string (without data URI prefix)
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // Remove data URI prefix (e.g., "data:image/jpeg;base64,")
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
     });
 }
 
