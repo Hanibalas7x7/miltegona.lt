@@ -1,10 +1,11 @@
 // Simple Paint Management - Step by step implementation
 // Uses EDGE_FUNCTIONS_URL from darbuotojai.js (already declared globally)
-// VERSION: 2026-02-10_17:00 - Mobile scan fix with visible inputs
+// VERSION: 2026-02-10_17:15 - Mobile debug with click tracking
 
 // Initialize paint management when paints tab is shown
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('%c🎨 PAINT MANAGEMENT v2026-02-10_17:00', 'background: #3ba560; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold');
+    console.log('%c🎨 PAINT MANAGEMENT v2026-02-10_17:15', 'background: #3ba560; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold');
+    console.log('=== VERSION: 2026-02-10_17:15 ===');
     console.log('Paint management script loaded');
     
     // Listen for paints tab click
@@ -80,37 +81,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const scanCameraInput = document.getElementById('scan-camera-input');
     const scanGalleryInput = document.getElementById('scan-gallery-input');
     
-    console.log('Scan inputs initialized:', { 
-        scanCameraInput: !!scanCameraInput, 
-        scanGalleryInput: !!scanGalleryInput 
-    });
+    console.log('=== SCAN INPUTS CHECK ===');
+    console.log('Camera input exists:', !!scanCameraInput);
+    console.log('Gallery input exists:', !!scanGalleryInput);
+    if (scanCameraInput) console.log('Camera input type:', scanCameraInput.type, 'capture:', scanCameraInput.capture);
+    if (scanGalleryInput) console.log('Gallery input type:', scanGalleryInput.type);
     
-    // Input change handlers
+    // Add click event listeners to debug if inputs are being clicked
     if (scanCameraInput) {
+        scanCameraInput.addEventListener('click', (e) => {
+            console.log('[CLICK] Camera input CLICKED by user');
+        });
+        
+        scanCameraInput.addEventListener('focus', (e) => {
+            console.log('[FOCUS] Camera input focused');
+        });
+        
         scanCameraInput.addEventListener('change', async (e) => {
-            console.log('[INPUT] Camera input change triggered, files:', e.target.files);
+            console.log('[CHANGE] Camera input change triggered!');
+            console.log('[CHANGE] Files count:', e.target.files ? e.target.files.length : 0);
             const file = e.target.files[0];
             if (file) {
-                console.log('[INPUT] Processing camera file:', file.name, file.size);
+                console.log('[CHANGE] File info:', { name: file.name, size: file.size, type: file.type });
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
+            } else {
+                console.log('[CHANGE] No file selected!');
             }
         });
-        console.log('Camera input listener attached');
+        console.log('Camera input: click, focus, change listeners attached');
     }
     
     if (scanGalleryInput) {
+        scanGalleryInput.addEventListener('click', (e) => {
+            console.log('[CLICK] Gallery input CLICKED by user');
+        });
+        
+        scanGalleryInput.addEventListener('focus', (e) => {
+            console.log('[FOCUS] Gallery input focused');
+        });
+        
         scanGalleryInput.addEventListener('change', async (e) => {
-            console.log('[INPUT] Gallery input change triggered, files:', e.target.files);
+            console.log('[CHANGE] Gallery input change triggered!');
+            console.log('[CHANGE] Files count:', e.target.files ? e.target.files.length : 0);
             const file = e.target.files[0];
             if (file) {
-                console.log('[INPUT] Processing gallery file:', file.name, file.size);
+                console.log('[CHANGE] File info:', { name: file.name, size: file.size, type: file.type });
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
+            } else {
+                console.log('[CHANGE] No file selected!');
             }
         });
-        console.log('Gallery input listener attached');
+        console.log('Gallery input: click, focus, change listeners attached');
     }
+    
+    console.log('=== SCAN INPUTS SETUP COMPLETE ===');
 });
 
 async function loadPaints() {
