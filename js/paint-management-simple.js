@@ -1,18 +1,15 @@
 // Simple Paint Management - Step by step implementation
 // Uses EDGE_FUNCTIONS_URL from darbuotojai.js (already declared globally)
-// VERSION: 2026-02-10_17:15 - Mobile debug with click tracking
+// VERSION: 2026-02-10_17:30 - Production with clean logging
 
 // Initialize paint management when paints tab is shown
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('%c🎨 PAINT MANAGEMENT v2026-02-10_17:15', 'background: #3ba560; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold');
-    console.log('=== VERSION: 2026-02-10_17:15 ===');
-    console.log('Paint management script loaded');
+    console.log('%c🎨 Paint Management v2026-02-10_17:30', 'background: #3ba560; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold');
     
     // Listen for paints tab click
     const paintsTab = document.querySelector('[data-tab="paints"]');
     if (paintsTab) {
         paintsTab.addEventListener('click', () => {
-            console.log('Paints tab clicked');
             loadPaints();
         });
     }
@@ -21,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const addPaintBtn = document.getElementById('add-paint-btn');
     if (addPaintBtn) {
         addPaintBtn.addEventListener('click', () => {
-            console.log('Add paint clicked');
             openModal();
         });
     }
@@ -77,66 +73,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Scan inputs - visible with opacity:0, direct interaction works on mobile
+    // Scan file inputs - opacity:0 allows direct mobile interaction
     const scanCameraInput = document.getElementById('scan-camera-input');
     const scanGalleryInput = document.getElementById('scan-gallery-input');
     
-    console.log('=== SCAN INPUTS CHECK ===');
-    console.log('Camera input exists:', !!scanCameraInput);
-    console.log('Gallery input exists:', !!scanGalleryInput);
-    if (scanCameraInput) console.log('Camera input type:', scanCameraInput.type, 'capture:', scanCameraInput.capture);
-    if (scanGalleryInput) console.log('Gallery input type:', scanGalleryInput.type);
-    
-    // Add click event listeners to debug if inputs are being clicked
     if (scanCameraInput) {
-        scanCameraInput.addEventListener('click', (e) => {
-            console.log('[CLICK] Camera input CLICKED by user');
-        });
-        
-        scanCameraInput.addEventListener('focus', (e) => {
-            console.log('[FOCUS] Camera input focused');
-        });
-        
         scanCameraInput.addEventListener('change', async (e) => {
-            console.log('[CHANGE] Camera input change triggered!');
-            console.log('[CHANGE] Files count:', e.target.files ? e.target.files.length : 0);
             const file = e.target.files[0];
             if (file) {
-                console.log('[CHANGE] File info:', { name: file.name, size: file.size, type: file.type });
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
-            } else {
-                console.log('[CHANGE] No file selected!');
             }
         });
-        console.log('Camera input: click, focus, change listeners attached');
     }
     
     if (scanGalleryInput) {
-        scanGalleryInput.addEventListener('click', (e) => {
-            console.log('[CLICK] Gallery input CLICKED by user');
-        });
-        
-        scanGalleryInput.addEventListener('focus', (e) => {
-            console.log('[FOCUS] Gallery input focused');
-        });
-        
         scanGalleryInput.addEventListener('change', async (e) => {
-            console.log('[CHANGE] Gallery input change triggered!');
-            console.log('[CHANGE] Files count:', e.target.files ? e.target.files.length : 0);
             const file = e.target.files[0];
             if (file) {
-                console.log('[CHANGE] File info:', { name: file.name, size: file.size, type: file.type });
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
-            } else {
-                console.log('[CHANGE] No file selected!');
             }
         });
-        console.log('Gallery input: click, focus, change listeners attached');
     }
-    
-    console.log('=== SCAN INPUTS SETUP COMPLETE ===');
 });
 
 async function loadPaints() {
@@ -325,10 +284,8 @@ function filterPaints(searchTerm) {
 }
 
 function openModal() {
-    console.log('[MODAL] openModal() called');
     const modal = document.getElementById('add-paint-modal');
     if (modal) {
-        console.log('[MODAL] Modal element found');
         // Calculate next available ML code
         const nextMLCode = getNextAvailableMLCode();
         document.querySelector('#add-paint-form [name="ml_code"]').value = nextMLCode;
@@ -337,7 +294,6 @@ function openModal() {
         document.querySelector('#add-paint-form [name="spalva"]').value = 'RAL';
         
         modal.classList.add('active');
-        console.log('[MODAL] Modal activated');
         
         // Scroll modal content to top
         const modalContent = modal.querySelector('.modal-content');
@@ -828,14 +784,11 @@ function autoFillFields(manufacturer, code) {
 
 // Scan paint label using Edge Function
 async function scanPaintLabel(imageFile) {
-    console.log('[SCAN] ========== SCAN START ==========');
-    console.log('[SCAN] scanPaintLabel() called with file:', imageFile ? imageFile.name : 'NO FILE');
-    console.log('[SCAN] File details:', { name: imageFile?.name, size: imageFile?.size, type: imageFile?.type });
+    console.log('🔍 Scanning paint label:', imageFile.name);
     try {
         // Show loading state on both buttons
         const scanCameraBtn = document.getElementById('scan-camera-btn');
         const scanGalleryBtn = document.getElementById('scan-gallery-btn');
-        console.log('[SCAN] Button elements:', { camera: !!scanCameraBtn, gallery: !!scanGalleryBtn });
         const originalCameraHTML = scanCameraBtn ? scanCameraBtn.innerHTML : '';
         const originalGalleryHTML = scanGalleryBtn ? scanGalleryBtn.innerHTML : '';
         
@@ -864,13 +817,10 @@ async function scanPaintLabel(imageFile) {
         }
 
         // Convert image to base64
-        console.log('[SCAN] Converting file to base64...');
         const base64Image = await fileToBase64(imageFile);
-        console.log('[SCAN] Base64 conversion complete, length:', base64Image.length);
 
         // Call Edge Function
         const token = localStorage.getItem('darbuotojai_session');
-        console.log('[SCAN] Calling Edge Function:', `${EDGE_FUNCTIONS_URL}/scan-paint-label`);
         const response = await fetch(`${EDGE_FUNCTIONS_URL}/scan-paint-label`, {
             method: 'POST',
             headers: {
@@ -880,9 +830,7 @@ async function scanPaintLabel(imageFile) {
             body: JSON.stringify({ image_base64: base64Image }),
         });
 
-        console.log('[SCAN] API response received, status:', response.status);
         const data = await response.json();
-        console.log('[SCAN] Response data:', JSON.stringify(data, null, 2));
 
         // Restore buttons
         if (scanCameraBtn) {
@@ -893,25 +841,20 @@ async function scanPaintLabel(imageFile) {
             scanGalleryBtn.disabled = false;
             scanGalleryBtn.innerHTML = originalGalleryHTML;
         }
-        console.log('[SCAN] Buttons restored');
 
         if (!response.ok || !data.success) {
-            console.error('[SCAN] API error:', data.error);
+            console.error('Scan API error:', data.error);
             alert(`❌ Klaida skenuojant: ${data.error || 'Nežinoma klaida'}`);
-            console.error('Scan error:', data);
             return;
         }
-
-        console.log('[SCAN] Scan successful, results:', data);
 
         // Fill form fields with extracted data (modal already open)
         const form = document.getElementById('add-paint-form');
         if (!form) {
-            console.error('[SCAN] ERROR: Add paint form not found!');
+            console.error('Add paint form not found');
             alert('⚠️ Klaida: forma nerasta. Atverkite "Pridėti Naujus Dažus" langą ir bandykite dar kartą.');
             return;
         }
-        console.log('[SCAN] Form found, filling fields...');
 
         // Fill manufacturer
         if (data.manufacturer) {
@@ -994,16 +937,14 @@ async function scanPaintLabel(imageFile) {
         if (data.paint_type) extractedData.push({ icon: 'package', label: 'Sudėtis', value: data.paint_type });
 
         if (extractedData.length > 0) {
-            console.log('[SCAN] Showing scan results modal, data count:', extractedData.length);
             showScanResults(extractedData);
         } else {
-            console.warn('[SCAN] No data extracted from label');
             alert('⚠️ Lipduko duomenys nuskaityti, bet nepavyko atpažinti specifinių laukų. Bandykite su aiškesne nuotrauka.');
         }
-        console.log('[SCAN] ========== SCAN COMPLETE ==========');
+        console.log('✅ Scan complete');
 
     } catch (error) {
-        console.error('[SCAN] ERROR:', error);
+        console.error('❌ Scan error:', error);
         const scanCameraBtn = document.getElementById('scan-camera-btn');
         const scanGalleryBtn = document.getElementById('scan-gallery-btn');
         
@@ -1048,10 +989,8 @@ function fileToBase64(file) {
 
 // Show scan results in styled modal
 function showScanResults(extractedData) {
-    console.log('[RESULTS] showScanResults() called with', extractedData.length, 'items');
     const modal = document.getElementById('scan-results-modal');
     const resultsList = document.getElementById('scan-results-list');
-    console.log('[RESULTS] Modal elements:', { modal: !!modal, resultsList: !!resultsList });
     
     // Icon SVG paths for each type
     const icons = {
@@ -1083,12 +1022,8 @@ function showScanResults(extractedData) {
         resultsList.appendChild(resultItem);
     });
     
-    console.log('[RESULTS] Results list populated with', extractedData.length, 'items');
-    
     // Show modal
-    console.log('[RESULTS] Activating modal...');
     modal.classList.add('active');
-    console.log('[RESULTS] Modal activated, classList:', modal.classList.toString());
 }
 
 function closeScanResultsModal() {
