@@ -74,18 +74,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Scan image inputs (labels trigger inputs natively, no click handlers needed)
+    // Scan buttons - need explicit click handlers for mobile (label for attribute doesn't work with hidden inputs)
+    const scanCameraBtn = document.getElementById('scan-camera-btn');
+    const scanGalleryBtn = document.getElementById('scan-gallery-btn');
     const scanCameraInput = document.getElementById('scan-camera-input');
     const scanGalleryInput = document.getElementById('scan-gallery-input');
     
-    console.log('Scan inputs initialized:', { scanCameraInput: !!scanCameraInput, scanGalleryInput: !!scanGalleryInput });
+    console.log('Scan elements initialized:', { 
+        scanCameraBtn: !!scanCameraBtn, 
+        scanGalleryBtn: !!scanGalleryBtn,
+        scanCameraInput: !!scanCameraInput, 
+        scanGalleryInput: !!scanGalleryInput 
+    });
     
+    // Label click handlers - trigger input within user gesture context (works on mobile)
+    if (scanCameraBtn && scanCameraInput) {
+        scanCameraBtn.addEventListener('click', (e) => {
+            console.log('[BUTTON] Camera button clicked - triggering input');
+            e.preventDefault();
+            e.stopPropagation();
+            scanCameraInput.click();
+        });
+        console.log('Camera button listener attached');
+    }
+    
+    if (scanGalleryBtn && scanGalleryInput) {
+        scanGalleryBtn.addEventListener('click', (e) => {
+            console.log('[BUTTON] Gallery button clicked - triggering input');
+            e.preventDefault();
+            e.stopPropagation();
+            scanGalleryInput.click();
+        });
+        console.log('Gallery button listener attached');
+    }
+    
+    // Input change handlers
     if (scanCameraInput) {
         scanCameraInput.addEventListener('change', async (e) => {
-            console.log('Camera input change triggered, files:', e.target.files);
+            console.log('[INPUT] Camera input change triggered, files:', e.target.files);
             const file = e.target.files[0];
             if (file) {
-                console.log('Processing camera file:', file.name, file.size);
+                console.log('[INPUT] Processing camera file:', file.name, file.size);
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
             }
@@ -95,10 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (scanGalleryInput) {
         scanGalleryInput.addEventListener('change', async (e) => {
-            console.log('Gallery input change triggered, files:', e.target.files);
+            console.log('[INPUT] Gallery input change triggered, files:', e.target.files);
             const file = e.target.files[0];
             if (file) {
-                console.log('Processing gallery file:', file.name, file.size);
+                console.log('[INPUT] Processing gallery file:', file.name, file.size);
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
             }
@@ -969,10 +998,9 @@ async function scanPaintLabel(imageFile) {
             alert('⚠️ Lipduko duomenys nuskaityti, bet nepavyko atpažinti specifinių laukų. Bandykite su aiškesne nuotrauka.');
         }
         console.log('[SCAN] ========== SCAN COMPLETE ==========');
-        }
 
     } catch (error) {
-        console.error('Scan error:', error);
+        console.error('[SCAN] ERROR:', error);
         const scanCameraBtn = document.getElementById('scan-camera-btn');
         const scanGalleryBtn = document.getElementById('scan-gallery-btn');
         
