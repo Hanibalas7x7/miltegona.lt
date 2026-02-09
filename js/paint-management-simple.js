@@ -74,25 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Scan paint label buttons
-    const scanCameraBtn = document.getElementById('scan-camera-btn');
-    const scanGalleryBtn = document.getElementById('scan-gallery-btn');
-    
-    if (scanCameraBtn) {
-        scanCameraBtn.addEventListener('click', () => {
-            console.log('Scan camera clicked');
-            document.getElementById('scan-camera-input').click();
-        });
-    }
-    
-    if (scanGalleryBtn) {
-        scanGalleryBtn.addEventListener('click', () => {
-            console.log('Scan gallery clicked');
-            document.getElementById('scan-gallery-input').click();
-        });
-    }
-    
-    // Scan image inputs
+    // Scan image inputs (labels trigger inputs natively, no click handlers needed)
     const scanCameraInput = document.getElementById('scan-camera-input');
     const scanGalleryInput = document.getElementById('scan-gallery-input');
     
