@@ -369,13 +369,13 @@ async function savePaint(form) {
             throw new Error(error.error || 'Klaida išsaugant dažą');
         }
         
-        alert('Dažas sėkmingai pridėtas!');
+        showToast('Dažas sėkmingai pridėtas!', 'success');
         closeModal();
         loadPaints();
         
     } catch (error) {
         console.error('Error saving paint:', error);
-        alert('Klaida: ' + error.message);
+        showToast('Klaida: ' + error.message, 'error');
     }
 }
 
@@ -389,7 +389,7 @@ let currentSort = { column: null, ascending: true };
 window.editPaint = function(id) {
     const paint = allPaintsCache.find(p => p.id === id);
     if (!paint) {
-        alert('Dažas nerastas');
+        showToast('Dažas nerastas', 'error');
         return;
     }
     
@@ -413,7 +413,7 @@ window.editPaint = function(id) {
 window.updateWeight = function(id) {
     const paint = allPaintsCache.find(p => p.id === id);
     if (!paint) {
-        alert('Dažas nerastas');
+        showToast('Dažas nerastas', 'error');
         return;
     }
     
@@ -472,13 +472,13 @@ async function saveEditPaint(form) {
             throw new Error(error.error || 'Klaida išsaugant dažą');
         }
         
-        alert('Dažas sėkmingai atnaujintas!');
+        showToast('Dažas sėkmingai atnaujintas!', 'success');
         closeEditModal();
         loadPaints();
         
     } catch (error) {
         console.error('Error updating paint:', error);
-        alert('Klaida: ' + error.message);
+        showToast('Klaida: ' + error.message, 'error');
     }
 }
 
@@ -516,13 +516,13 @@ async function saveWeight(form) {
             throw new Error(error.error || 'Klaida atnaujinant svorį');
         }
         
-        alert('Svoris sėkmingai atnaujintas!');
+        showToast('Svoris sėkmingai atnaujintas!', 'success');
         closeWeightModal();
         loadPaints();
         
     } catch (error) {
         console.error('Error updating weight:', error);
-        alert('Klaida: ' + error.message);
+        showToast('Klaida: ' + error.message, 'error');
     }
 }
 
@@ -844,7 +844,7 @@ async function scanPaintLabel(imageFile) {
 
         if (!response.ok || !data.success) {
             console.error('Scan API error:', data.error);
-            alert(`❌ Klaida skenuojant: ${data.error || 'Nežinoma klaida'}`);
+            showToast(`Klaida skenuojant: ${data.error || 'Nežinoma klaida'}`, 'error');
             return;
         }
 
@@ -852,7 +852,7 @@ async function scanPaintLabel(imageFile) {
         const form = document.getElementById('add-paint-form');
         if (!form) {
             console.error('Add paint form not found');
-            alert('⚠️ Klaida: forma nerasta. Atverkite "Pridėti Naujus Dažus" langą ir bandykite dar kartą.');
+            showToast('Klaida: forma nerasta. Atverkite "Pridėti Naujus Dažus" langą ir bandykite dar kartą.', 'error');
             return;
         }
 
@@ -939,7 +939,7 @@ async function scanPaintLabel(imageFile) {
         if (extractedData.length > 0) {
             showScanResults(extractedData);
         } else {
-            alert('⚠️ Lipduko duomenys nuskaityti, bet nepavyko atpažinti specifinių laukų. Bandykite su aiškesne nuotrauka.');
+            showToast('Lipduko duomenys nuskaityti, bet nepavyko atpažinti specifinių laukų. Bandykite su aiškesne nuotrauka.', 'error');
         }
         console.log('✅ Scan complete');
 
@@ -969,7 +969,7 @@ async function scanPaintLabel(imageFile) {
             `;
         }
         
-        alert(`❌ Klaida skenuojant lipduko: ${error.message}`);
+        showToast(`Klaida skenuojant lipduko: ${error.message}`, 'error');
     }
 }
 
@@ -1038,3 +1038,28 @@ document.addEventListener('click', (e) => {
         closeScanResultsModal();
     }
 });
+
+// Toast notification system
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icon = type === 'success' ? '✓' : '✗';
+    
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
