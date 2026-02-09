@@ -1,8 +1,10 @@
 // Simple Paint Management - Step by step implementation
 // Uses EDGE_FUNCTIONS_URL from darbuotojai.js (already declared globally)
+// VERSION: 2026-02-10_16:45 - Mobile scan fix with button handlers
 
 // Initialize paint management when paints tab is shown
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('%c🎨 PAINT MANAGEMENT v2026-02-10_16:45', 'background: #3ba560; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold');
     console.log('Paint management script loaded');
     
     // Listen for paints tab click
