@@ -490,7 +490,7 @@ async function saveWeight(form) {
     // Find paint by ID to get ml_kodas
     const paint = allPaintsCache.find(p => p.id === id);
     if (!paint || !paint.ml_kodas) {
-        alert('Klaida: ML kodas nerastas');
+        showToast('Klaida: ML kodas nerastas', 'error');
         return;
     }
     
