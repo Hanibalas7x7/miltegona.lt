@@ -78,24 +78,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const scanCameraInput = document.getElementById('scan-camera-input');
     const scanGalleryInput = document.getElementById('scan-gallery-input');
     
+    console.log('Scan inputs initialized:', { scanCameraInput: !!scanCameraInput, scanGalleryInput: !!scanGalleryInput });
+    
     if (scanCameraInput) {
         scanCameraInput.addEventListener('change', async (e) => {
+            console.log('Camera input change triggered, files:', e.target.files);
             const file = e.target.files[0];
             if (file) {
+                console.log('Processing camera file:', file.name, file.size);
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
             }
         });
+        console.log('Camera input listener attached');
     }
     
     if (scanGalleryInput) {
         scanGalleryInput.addEventListener('change', async (e) => {
+            console.log('Gallery input change triggered, files:', e.target.files);
             const file = e.target.files[0];
             if (file) {
+                console.log('Processing gallery file:', file.name, file.size);
                 await scanPaintLabel(file);
                 e.target.value = ''; // Reset input
             }
         });
+        console.log('Gallery input listener attached');
     }
 });
 
@@ -796,8 +804,8 @@ async function scanPaintLabel(imageFile) {
             scanCameraBtn.disabled = true;
             scanCameraBtn.innerHTML = `
                 <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle;">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
+                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" opacity="0.25"></circle>
+                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
                         <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
                     </circle>
                 </svg>
@@ -808,8 +816,8 @@ async function scanPaintLabel(imageFile) {
             scanGalleryBtn.disabled = true;
             scanGalleryBtn.innerHTML = `
                 <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle;">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
+                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" opacity="0.25"></circle>
+                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" stroke-dasharray="63" stroke-dashoffset="16" opacity="1">
                         <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
                     </circle>
                 </svg>
@@ -952,23 +960,21 @@ async function scanPaintLabel(imageFile) {
         if (scanCameraBtn) {
             scanCameraBtn.disabled = false;
             scanCameraBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                 </svg>
-                <span class="scan-btn-text">Skenuoti</span>
             `;
         }
         
         if (scanGalleryBtn) {
             scanGalleryBtn.disabled = false;
             scanGalleryBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
                     <polyline points="21 15 16 10 5 21"></polyline>
                 </svg>
-                <span class="scan-btn-text">Galerija</span>
             `;
         }
         

@@ -846,6 +846,21 @@ body {
     white-space: nowrap;
 }
 
+/* Scan button hover effects */
+#scan-camera-btn:hover,
+#scan-gallery-btn:hover {
+    background: #2d8a4d !important;
+    border-color: #236e3d !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 165, 96, 0.3);
+}
+
+#scan-camera-btn:active,
+#scan-gallery-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 165, 96, 0.2);
+}
+
 @media (max-width: 480px) {
     .scan-results-content {
         max-width: 95vw;
@@ -854,12 +869,3 @@ body {
     
     .scan-result-item {
         padding: 10px 16px;
-    }
-    
-    /* Hide button text on mobile, show only icons */
-    .scan-btn-text {
-        display: none;
-    }
-}
-
-
