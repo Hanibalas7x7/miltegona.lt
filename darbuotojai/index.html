@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- VERSION: 2026-02-10_16:45 - Mobile scan button fix -->
+<!-- VERSION: 2026-02-10_17:00 - Mobile scan with visible inputs -->
 <html lang="lt">
 <head>
     <meta charset="UTF-8">
@@ -143,22 +143,26 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0;">Pridėti Naujus Dažus</h3>
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" id="scan-camera-btn" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #3ba560; border: 2px solid #2d8a4d; border-radius: 8px; cursor: pointer; margin: 0; transition: all 0.3s;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                            <circle cx="12" cy="13" r="4"></circle>
-                        </svg>
-                    </button>
-                    <button type="button" id="scan-gallery-btn" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #3ba560; border: 2px solid #2d8a4d; border-radius: 8px; cursor: pointer; margin: 0; transition: all 0.3s;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                            <polyline points="21 15 16 10 5 21"></polyline>
-                        </svg>
-                    </button>
+                    <div style="position: relative; width: 44px; height: 44px;">
+                        <input type="file" id="scan-camera-input" accept="image/*" capture="environment" style="position: absolute; top: 0; left: 0; width: 44px; height: 44px; opacity: 0; cursor: pointer; z-index: 2;">
+                        <label for="scan-camera-input" style="position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #3ba560; border: 2px solid #2d8a4d; border-radius: 8px; cursor: pointer; margin: 0; transition: all 0.3s; z-index: 1; pointer-events: none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </label>
+                    </div>
+                    <div style="position: relative; width: 44px; height: 44px;">
+                        <input type="file" id="scan-gallery-input" accept="image/*" style="position: absolute; top: 0; left: 0; width: 44px; height: 44px; opacity: 0; cursor: pointer; z-index: 2;">
+                        <label for="scan-gallery-input" style="position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #3ba560; border: 2px solid #2d8a4d; border-radius: 8px; cursor: pointer; margin: 0; transition: all 0.3s; z-index: 1; pointer-events: none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </label>
+                    </div>
                 </div>
-                <input type="file" id="scan-camera-input" accept="image/*" capture="environment" style="display: none;">
-                <input type="file" id="scan-gallery-input" accept="image/*" style="display: none;">
             </div>
             <form id="add-paint-form">
                 <div class="form-group">

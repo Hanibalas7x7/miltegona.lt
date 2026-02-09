@@ -1,10 +1,10 @@
 // Simple Paint Management - Step by step implementation
 // Uses EDGE_FUNCTIONS_URL from darbuotojai.js (already declared globally)
-// VERSION: 2026-02-10_16:45 - Mobile scan fix with button handlers
+// VERSION: 2026-02-10_17:00 - Mobile scan fix with visible inputs
 
 // Initialize paint management when paints tab is shown
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('%c🎨 PAINT MANAGEMENT v2026-02-10_16:45', 'background: #3ba560; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold');
+    console.log('%c🎨 PAINT MANAGEMENT v2026-02-10_17:00', 'background: #3ba560; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold');
     console.log('Paint management script loaded');
     
     // Listen for paints tab click
@@ -76,39 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Scan buttons - need explicit click handlers for mobile (label for attribute doesn't work with hidden inputs)
-    const scanCameraBtn = document.getElementById('scan-camera-btn');
-    const scanGalleryBtn = document.getElementById('scan-gallery-btn');
+    // Scan inputs - visible with opacity:0, direct interaction works on mobile
     const scanCameraInput = document.getElementById('scan-camera-input');
     const scanGalleryInput = document.getElementById('scan-gallery-input');
     
-    console.log('Scan elements initialized:', { 
-        scanCameraBtn: !!scanCameraBtn, 
-        scanGalleryBtn: !!scanGalleryBtn,
+    console.log('Scan inputs initialized:', { 
         scanCameraInput: !!scanCameraInput, 
         scanGalleryInput: !!scanGalleryInput 
     });
-    
-    // Label click handlers - trigger input within user gesture context (works on mobile)
-    if (scanCameraBtn && scanCameraInput) {
-        scanCameraBtn.addEventListener('click', (e) => {
-            console.log('[BUTTON] Camera button clicked - triggering input');
-            e.preventDefault();
-            e.stopPropagation();
-            scanCameraInput.click();
-        });
-        console.log('Camera button listener attached');
-    }
-    
-    if (scanGalleryBtn && scanGalleryInput) {
-        scanGalleryBtn.addEventListener('click', (e) => {
-            console.log('[BUTTON] Gallery button clicked - triggering input');
-            e.preventDefault();
-            e.stopPropagation();
-            scanGalleryInput.click();
-        });
-        console.log('Gallery button listener attached');
-    }
     
     // Input change handlers
     if (scanCameraInput) {
