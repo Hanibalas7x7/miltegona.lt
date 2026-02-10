@@ -29,6 +29,14 @@ serve(async (req) => {
       throw error
     }
 
+    // Get last change timestamp from paint_changes table
+    const { data: lastChange } = await supabaseClient
+      .from('paint_changes')
+      .select('created_at')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
     // Filter out empty records and primers (gruntas)
     const filteredData = data.filter((paint: any) => {
       // Exclude if gruntas field is not null and not empty
@@ -41,7 +49,10 @@ serve(async (req) => {
     })
 
     return new Response(
-      JSON.stringify({ paints: filteredData }),
+      JSON.stringify({ 
+        paints: filteredData,
+        lastChange: lastChange?.created_at || null
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
