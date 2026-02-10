@@ -62,6 +62,9 @@ serve(async (req) => {
       );
     }
 
+    // Normalize email to lowercase to prevent case-sensitivity issues
+    const normalizedEmail = email.toLowerCase();
+
     // Create Supabase client with service_role key
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -70,7 +73,7 @@ serve(async (req) => {
 
     // Authenticate with Supabase Auth
     const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
 
@@ -85,7 +88,7 @@ serve(async (req) => {
     const { data: appUser, error: appUserError } = await supabaseAdmin
       .from('app_users')
       .select('id, role, darbuotojas_id, darbuotojai:darbuotojas_id(id, vardas, pavarde)')
-      .eq('email', email)
+      .eq('email', normalizedEmail)
       .single();
 
     if (appUserError || !appUser) {

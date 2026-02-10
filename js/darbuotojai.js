@@ -96,7 +96,7 @@ async function checkSession() {
 async function handleLogin(e) {
     e.preventDefault();
     
-    const email = document.getElementById('email').value.trim();
+    const email = document.getElementById('email').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
     const errorDiv = document.getElementById('login-error');
     
