@@ -213,6 +213,26 @@ function extractPaintData(fullText: string): Partial<ScanResponse> {
   const finalSurface = manufacturer === 'Ripol' ? undefined : surface;
   const finalPaintType = manufacturer === 'Ripol' ? undefined : paintType;
   
+  // ST: Only extract manufacturer and product code, nothing else
+  if (manufacturer === 'ST') {
+    finalGloss = undefined;
+    console.log('📦 Returning ST data:', { manufacturer, product_code: productCode });
+    return {
+      manufacturer,
+      product_code: productCode,
+      // Don't extract: ral_code, weight, surface, gloss, paint_type
+    };
+  }
+  
+  // BULLCREM: Only extract manufacturer and product code, nothing else
+  if (manufacturer === 'BULLCREM') {
+    return {
+      manufacturer,
+      product_code: productCode,
+      // Don't extract: ral_code, weight, surface, gloss, paint_type
+    };
+  }
+  
   // For Tiger, extract color name first (e.g., "Mica 3606"), then RAL as fallback
   let colorCode: string | undefined;
   if (manufacturer === 'Tiger') {
@@ -296,6 +316,8 @@ function extractProductCode(text: string): string | undefined {
   // Pre-normalize text: Fix common OCR errors before pattern matching
   let normalizedText = text;
   
+  console.log('🔍 Searching for product code in text (first 200 chars):', text.substring(0, 200));
+  
   // 1. Replace O after any digit: 114O -> 1140, 4O/ -> 40/
   normalizedText = normalizedText.replace(/(\d)O/g, '$10');
   
@@ -334,14 +356,46 @@ function extractProductCode(text: string): string | undefined {
     return normalizeProductCode(match1[1]);
   }
   
-  // Pattern 1.5: Single letter + digit + dashes (ST format: P0-878-7016-001)
-  // Must check before Pattern 2 to avoid issues
-  const patternST = /([A-Z][0O]?[-\s]?\d{2,4}[-\s]?\d{3,4}[-\s]?\d{3,4})/;
+  // Pattern 1.5: ST format only (P1-358-1234-001)
+  // Must check AFTER pattern 1 but with specific validation
+  // Format: [Letter][Digit/Letter]-[3-4 chars]-[4 chars]-[3 chars]
+  // Note: All parts can contain letters for special paints, not just digits
+  // Valid first letters: E,F,M,P,C,H,L,D,U,W,R,S
+  // Valid second position: 0-9, E, P, Y, Z, O (OCR often mistakes 0 for O)
+  console.log('🔍 Checking ST pattern...');
+  const patternST = /\b([EFMPCHLDUWR][0-9EPYZO][-\s]?[A-Z0-9]{3,4}[-\s]?[A-Z0-9]{4}[-\s]?[A-Z0-9]{3})\b/;
   const matchST = normalizedText.match(patternST);
+  console.log('   ST pattern match:', matchST);
   if (matchST) {
     // Clean up spaces and normalize O to 0
     let cleaned = matchST[1].replace(/\s/g, '-').replace(/O/g, '0');
-    return cleaned;
+    console.log('   Cleaned ST code:', cleaned);
+    // Validate that it's a real ST code, not a false positive
+    const parts = cleaned.split('-');
+    console.log('   ST parts:', parts);
+    if (parts.length === 4 && 
+        parts[0].length === 2 &&  // Position 1+2
+        parts[1].length >= 3 && parts[1].length <= 4 &&  // Position 3-4 (alphanumeric)
+        parts[2].length === 4 &&  // RAL code (4 chars, can be alphanumeric)
+        parts[3].length === 3) {  // Series number (3 chars, can be alphanumeric)
+      console.log('✅ ST code validated and found:', cleaned);
+      return cleaned;
+    } else {
+      console.log('❌ ST code validation failed');
+    }
+  }
+  
+  // Pattern 1.6: BULLCREM format (QRG490050002)
+  // Format: [Letter][2 Letters][Digit][4 digits][4 digits]
+  // Position 1: Composition (Q,P,M,E,U,A)
+  // Position 2-3: Surface (LI,PF,PZ,RG,B1-3,MZ,BZ,MI,BI,MM,BA,BB,BM)
+  // Position 4: Gloss (1-5)
+  // Position 5-8: RAL code
+  // Position 9-12: Ignore
+  const patternBullcrem = /\b([QPMEUA][A-Z]{2}[1-5]\d{8})\b/;
+  const matchBullcrem = normalizedText.match(patternBullcrem);
+  if (matchBullcrem) {
+    return matchBullcrem[1];
   }
 
   // Pattern 2: Letters followed by many numbers

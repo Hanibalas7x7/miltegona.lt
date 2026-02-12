@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Auto-fill setup - listen to Gamintojas and Kodas inputs
+    // Auto-fill setup - listen to Gamintojas and Kodas inputs (ADD form)
     const gamintojasInput = document.querySelector('#add-paint-form [name="gamintojas"]');
     const kodasInput = document.querySelector('#add-paint-form [name="kodas"]');
     
@@ -70,6 +70,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (kodasInput) {
         kodasInput.addEventListener('input', () => {
             autoFillFields(gamintojasInput ? gamintojasInput.value : '', kodasInput.value);
+        });
+    }
+    
+    // Auto-fill setup - listen to Gamintojas and Kodas inputs (EDIT form)
+    const editGamintojasInput = document.querySelector('#edit-paint-form [name="gamintojas"]');
+    const editKodasInput = document.querySelector('#edit-paint-form [name="kodas"]');
+    
+    if (editGamintojasInput) {
+        editGamintojasInput.addEventListener('input', () => {
+            autoFillFieldsEdit(editGamintojasInput.value, editKodasInput ? editKodasInput.value : '');
+        });
+    }
+    
+    if (editKodasInput) {
+        editKodasInput.addEventListener('input', () => {
+            autoFillFieldsEdit(editGamintojasInput ? editGamintojasInput.value : '', editKodasInput.value);
         });
     }
     
@@ -443,7 +459,7 @@ window.closeWeightModal = closeWeightModal;
 async function saveEditPaint(form) {
     const formData = new FormData(form);
     const paintData = {
-        id: parseInt(formData.get('id')),
+        ml_kodas: formData.get('ml_code'),
         gamintojas: formData.get('gamintojas'),
         kodas: formData.get('kodas') || null,
         spalva: formData.get('spalva') || null,
@@ -557,6 +573,36 @@ function autoFillFields(manufacturer, code) {
             const mid7to2 = code.length >= 8 ? code.substring(6, 8) : '';
             color = 'RAL' + mid5to1 + '0' + mid7to2;
         }
+    } else if (manufacturer === 'ST') {
+        // ST format: P0-878-7016-001
+        const parts = code.split('-');
+        if (parts.length >= 3 && parts[2]) {
+            let ralCode = parts[2]; // Position 6-9: RAL code
+            if (ralCode[0] === '0') {
+                color = 'Transparent';
+            } else if (ralCode[0] === 'M' && /^M\d{3}$/.test(ralCode)) {
+                // M923 → RAL9023, M-prefix means Metallic effect
+                color = 'RAL' + ralCode[1] + '0' + ralCode.substring(2);
+                // Note: effect will be set later in effect section
+            } else {
+                color = 'RAL' + ralCode;
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        // BULLCREM format: QRG490050002
+        if (code.length >= 8) {
+            const ralCode = code.substring(4, 8); // Position 5-8: RAL code
+            // Special code mappings
+            if (ralCode === '0136') {
+                color = 'RAL9010';
+            } else if (ralCode === '0194') {
+                color = 'RAL9016';
+            } else if (ralCode === '0112') {
+                color = 'RAL9003';
+            } else {
+                color = 'RAL' + ralCode;
+            }
+        }
     }
     
     // Auto-fill Gruntas (Primer)
@@ -574,6 +620,25 @@ function autoFillFields(manufacturer, code) {
             if (mid16to2 === 'NT') {
                 gruntas = 'X';
             } else if (mid16to2 === 'ZP') {
+                gruntas = 'Zn';
+            }
+        }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 1 && parts[0].length >= 2) {
+            const pos2 = parts[0][1]; // Position 2: Modifier
+            if (pos2 === 'P' || pos2 === 'Y') {
+                gruntas = 'X';
+            } else if (pos2 === 'Z') {
+                gruntas = 'Zn';
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 3) {
+            const pos2to3 = code.substring(1, 3); // Position 2-3: Surface
+            if (pos2to3 === 'PF') {
+                gruntas = 'X';
+            } else if (pos2to3 === 'PZ') {
                 gruntas = 'Zn';
             }
         }
@@ -626,6 +691,37 @@ function autoFillFields(manufacturer, code) {
                 gloss = 'Ultra Matt';
             }
         }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 2 && parts[1]) {
+            const pos3 = parts[1][0]; // Position 3: Gloss
+            if (pos3 === '0') {
+                gloss = 'UltraMatt';
+            } else if (pos3 === '1') {
+                gloss = 'Matt';
+            } else if (pos3 === '3') {
+                gloss = 'SemiGloss';
+            } else if (pos3 === '6') {
+                gloss = 'Glossy';
+            } else if (pos3 === '8') {
+                gloss = 'High Gloss';
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 4) {
+            const pos4 = code.substring(3, 4); // Position 4: Gloss
+            if (pos4 === '1') {
+                gloss = 'Glossy';
+            } else if (pos4 === '2') {
+                gloss = 'SemiGloss';
+            } else if (pos4 === '3') {
+                gloss = 'SemiMatt';
+            } else if (pos4 === '4') {
+                gloss = 'Matt';
+            } else if (pos4 === '5') {
+                gloss = 'UltraMatt';
+            }
+        }
     }
     
     // Auto-fill Paviršius (Surface)
@@ -667,10 +763,52 @@ function autoFillFields(manufacturer, code) {
                 surface = 'Smėlis';
             }
         }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 2 && parts[1].length >= 2) {
+            const pos4 = parts[1][1]; // Position 4: Surface
+            if (pos4 === '9') {
+                surface = 'Damask';
+            } else if (pos4 === '8') {
+                surface = 'Hammer';
+            } else if (pos4 === '7') {
+                surface = 'Apelsinas';
+            } else if (pos4 === '6') {
+                surface = 'Smėlis';
+            } else if (pos4 === '5') {
+                surface = 'Smooth';
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 3) {
+            const pos2to3 = code.substring(1, 3); // Position 2-3: Surface
+            if (['LI', 'PF', 'PZ'].includes(pos2to3)) {
+                surface = 'Smooth';
+            } else if (pos2to3 === 'RG') {
+                surface = 'Apelsinas';
+            } else if (['B1', 'B2', 'B3'].includes(pos2to3)) {
+                surface = 'Smėlis';
+            } else if (['MZ', 'BZ'].includes(pos2to3)) {
+                surface = 'Hammer';
+            } else if (['MI', 'BI'].includes(pos2to3)) {
+                surface = 'Mica';
+            } else if (pos2to3 === 'MM') {
+                surface = 'Marble';
+            }
+            // BA/BB/BM > Unknown - leave empty
+        }
     }
     
     // Auto-fill Effect
     let effect = '';
+    // Check for ST M-prefix codes first
+    if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 3 && parts[2] && parts[2][0] === 'M' && /^M\d{3}$/.test(parts[2])) {
+            effect = 'Metallic';
+        }
+    }
+    
     if (manufacturer === 'Ripol') {
         if (code.length >= 5) {
             const mid5to1 = code.substring(4, 5);
@@ -759,6 +897,52 @@ function autoFillFields(manufacturer, code) {
                 composition = 'Hybrid PE';
             }
         }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 1 && parts[0].length >= 2) {
+            const pos1 = parts[0][0]; // Position 1: Composition
+            const pos2 = parts[0][1]; // Position 2: Modifier
+            
+            // Determine base composition from position 1
+            let baseComposition = '';
+            if (['E', 'F', 'M'].includes(pos1)) {
+                baseComposition = 'Epoxy';
+            } else if (['P', 'C', 'H', 'L', 'D'].includes(pos1)) {
+                baseComposition = 'Polyester';
+            } else if (['U', 'W', 'R'].includes(pos1)) {
+                baseComposition = 'Polyurethane';
+            } else if (pos1 === 'S') {
+                baseComposition = 'Silicone';
+            }
+            
+            // Apply modifier from position 2
+            if (pos2 === 'E') {
+                composition = 'Hybrid PE';
+            } else if (pos2 === '1') {
+                composition = baseComposition ? 'Industrial ' + (baseComposition === 'Polyester' ? 'PE' : baseComposition) : '';
+            } else if (pos2 === '2') {
+                composition = baseComposition ? 'Architectural ' + (baseComposition === 'Polyester' ? 'PE' : baseComposition) : '';
+            } else {
+                composition = baseComposition;
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 1) {
+            const pos1 = code.substring(0, 1); // Position 1: Composition
+            if (pos1 === 'Q') {
+                composition = 'Polyester';
+            } else if (pos1 === 'P') {
+                composition = 'Industrial PE';
+            } else if (pos1 === 'M') {
+                composition = 'Hybrid PE';
+            } else if (pos1 === 'E') {
+                composition = 'Epoxy';
+            } else if (pos1 === 'U') {
+                composition = 'Polyurethane';
+            } else if (pos1 === 'A') {
+                composition = 'Acrylic';
+            }
+        }
     }
     
     // Update form fields (only if field is empty or has default value)
@@ -781,6 +965,431 @@ function autoFillFields(manufacturer, code) {
         gruntasSelect.value = gruntas;
     }
 }
+
+// Auto-fill fields for EDIT form (same logic as autoFillFields but for edit-paint-form)
+function autoFillFieldsEdit(manufacturer, code) {
+    if (!manufacturer || !code) return;
+    
+    const form = document.getElementById('edit-paint-form');
+    if (!form) return;
+    
+    const spalvaInput = form.querySelector('[name="spalva"]');
+    const blizgumasInput = form.querySelector('[name="blizgumas"]');
+    const pavirsusInput = form.querySelector('[name="pavirsus"]');
+    const effectSelect = form.querySelector('[name="effect"]');
+    const sudetisSelect = form.querySelector('[name="sudetis"]');
+    const gruntasSelect = form.querySelector('[name="gruntas"]');
+    
+    // Auto-fill Spalva (Color)
+    let color = '';
+    if (manufacturer === 'Ripol') {
+        const mid6to4 = code.length >= 9 ? code.substring(5, 9) : '';
+        if (mid6to4 === 'C290') {
+            color = 'Primer Zinc';
+        } else if (mid6to4 === 'G535') {
+            color = 'Star Gold';
+        } else {
+            color = 'RAL' + mid6to4;
+        }
+    } else if (manufacturer === 'EuroPolveri') {
+        if (code.length >= 8) {
+            const mid5to1 = code.substring(4, 5);
+            const mid7to2 = code.length >= 8 ? code.substring(6, 8) : '';
+            color = 'RAL' + mid5to1 + '0' + mid7to2;
+        }
+    } else if (manufacturer === 'ST') {
+        // ST format: P0-878-7016-001
+        const parts = code.split('-');
+        if (parts.length >= 3 && parts[2]) {
+            let ralCode = parts[2]; // Position 6-9: RAL code
+            if (ralCode[0] === '0') {
+                color = 'Transparent';
+            } else if (ralCode[0] === 'M' && /^M\d{3}$/.test(ralCode)) {
+                // M923 → RAL9023, M-prefix means Metallic effect
+                color = 'RAL' + ralCode[1] + '0' + ralCode.substring(2);
+                // Note: effect will be set later in effect section
+            } else {
+                color = 'RAL' + ralCode;
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        // BULLCREM format: QRG490050002
+        if (code.length >= 8) {
+            const ralCode = code.substring(4, 8); // Position 5-8: RAL code
+            // Special code mappings
+            if (ralCode === '0136') {
+                color = 'RAL9010';
+            } else if (ralCode === '0194') {
+                color = 'RAL9016';
+            } else if (ralCode === '0112') {
+                color = 'RAL9003';
+            } else {
+                color = 'RAL' + ralCode;
+            }
+        }
+    }
+    
+    // Auto-fill Gruntas (Primer)
+    let gruntas = '';
+    if (manufacturer === 'EuroPolveri') {
+        if (code.length >= 13) {
+            const mid13to1 = code.substring(12, 13);
+            if (mid13to1 === '2') {
+                gruntas = 'X';
+            }
+        }
+    } else if (manufacturer === 'EkoColor') {
+        if (code.length >= 17) {
+            const mid16to2 = code.substring(15, 17);
+            if (mid16to2 === 'NT') {
+                gruntas = 'X';
+            } else if (mid16to2 === 'ZP') {
+                gruntas = 'Zn';
+            }
+        }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 1 && parts[0].length >= 2) {
+            const pos2 = parts[0][1]; // Position 2: Modifier
+            if (pos2 === 'P' || pos2 === 'Y') {
+                gruntas = 'X';
+            } else if (pos2 === 'Z') {
+                gruntas = 'Zn';
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 3) {
+            const pos2to3 = code.substring(1, 3); // Position 2-3: Surface
+            if (pos2to3 === 'PF') {
+                gruntas = 'X';
+            } else if (pos2to3 === 'PZ') {
+                gruntas = 'Zn';
+            }
+        }
+    }
+    
+    // Auto-fill Blizgumas (Gloss)
+    let gloss = '';
+    if (manufacturer === 'Ripol') {
+        if (code.length >= 2) {
+            const mid2to1 = code.substring(1, 2);
+            if (['1', '2'].includes(mid2to1)) {
+                gloss = 'Matt';
+            } else if (['3', '4'].includes(mid2to1)) {
+                gloss = 'SemiMatt';
+            } else if (['5', '6'].includes(mid2to1)) {
+                gloss = 'SemiGlossy';
+            } else if (['7', '8'].includes(mid2to1)) {
+                gloss = 'Glossy';
+            } else if (mid2to1 === '9') {
+                gloss = 'High Gloss';
+            }
+        }
+    } else if (manufacturer === 'EuroPolveri') {
+        if (code.length >= 3) {
+            const mid3to1 = code.substring(2, 3);
+            if (mid3to1 === '1') {
+                gloss = 'Glossy 90';
+            } else if (mid3to1 === '2') {
+                gloss = 'SemiGlossy 75';
+            } else if (mid3to1 === '3') {
+                gloss = 'SemiMatt 60';
+            } else if (mid3to1 === '4') {
+                gloss = 'Matt 25';
+            } else if (mid3to1 === '5') {
+                gloss = 'Ultra Matt 15';
+            }
+        }
+    } else if (manufacturer === 'EkoColor') {
+        if (code.length >= 5) {
+            const mid5to1 = code.substring(4, 5);
+            if (mid5to1 === '1') {
+                gloss = 'High Gloss';
+            } else if (mid5to1 === '2') {
+                gloss = 'SemiGlossy';
+            } else if (mid5to1 === '3') {
+                gloss = 'SemiMatt';
+            } else if (mid5to1 === '4') {
+                gloss = 'Matt';
+            } else if (mid5to1 === '5') {
+                gloss = 'Ultra Matt';
+            }
+        }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 2 && parts[1]) {
+            const pos3 = parts[1][0]; // Position 3: Gloss
+            if (pos3 === '0') {
+                gloss = 'UltraMatt';
+            } else if (pos3 === '1') {
+                gloss = 'Matt';
+            } else if (pos3 === '3') {
+                gloss = 'SemiGloss';
+            } else if (pos3 === '6') {
+                gloss = 'Glossy';
+            } else if (pos3 === '8') {
+                gloss = 'High Gloss';
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 4) {
+            const pos4 = code.substring(3, 4); // Position 4: Gloss
+            if (pos4 === '1') {
+                gloss = 'Glossy';
+            } else if (pos4 === '2') {
+                gloss = 'SemiGloss';
+            } else if (pos4 === '3') {
+                gloss = 'SemiMatt';
+            } else if (pos4 === '4') {
+                gloss = 'Matt';
+            } else if (pos4 === '5') {
+                gloss = 'UltraMatt';
+            }
+        }
+    }
+    
+    // Auto-fill Paviršius (Surface)
+    let surface = '';
+    if (manufacturer === 'Ripol') {
+        if (code.length >= 3) {
+            const mid3to1 = code.substring(2, 3);
+            if (mid3to1 === 'A') {
+                surface = 'Antiques';
+            } else if (mid3to1 === 'M') {
+                surface = 'Hammered';
+            } else if (mid3to1 === 'R') {
+                surface = 'Smėlis';
+            } else if (mid3to1 === 'B') {
+                surface = 'Apelsinas';
+            } else if (mid3to1 === 'L') {
+                surface = 'Smooth';
+            }
+        }
+    } else if (manufacturer === 'EuroPolveri') {
+        if (code.length >= 2) {
+            const mid2to1 = code.substring(1, 2);
+            if (mid2to1 === 'L') {
+                surface = 'Smooth';
+            } else if (mid2to1 === 'B') {
+                surface = 'Apelsinas';
+            } else if (mid2to1 === 'R') {
+                surface = 'Smėlis';
+            }
+        }
+    } else if (manufacturer === 'EkoColor') {
+        if (code.length >= 4) {
+            const mid4to1 = code.substring(3, 4);
+            if (mid4to1 === '1') {
+                surface = 'Smooth';
+            } else if (mid4to1 === '4') {
+                surface = 'Apelsinas';
+            } else if (mid4to1 === '2') {
+                surface = 'Smėlis';
+            }
+        }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 2 && parts[1].length >= 2) {
+            const pos4 = parts[1][1]; // Position 4: Surface
+            if (pos4 === '9') {
+                surface = 'Damask';
+            } else if (pos4 === '8') {
+                surface = 'Hammer';
+            } else if (pos4 === '7') {
+                surface = 'Apelsinas';
+            } else if (pos4 === '6') {
+                surface = 'Smėlis';
+            } else if (pos4 === '5') {
+                surface = 'Smooth';
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 3) {
+            const pos2to3 = code.substring(1, 3); // Position 2-3: Surface
+            if (['LI', 'PF', 'PZ'].includes(pos2to3)) {
+                surface = 'Smooth';
+            } else if (pos2to3 === 'RG') {
+                surface = 'Apelsinas';
+            } else if (['B1', 'B2', 'B3'].includes(pos2to3)) {
+                surface = 'Smėlis';
+            } else if (['MZ', 'BZ'].includes(pos2to3)) {
+                surface = 'Hammer';
+            } else if (['MI', 'BI'].includes(pos2to3)) {
+                surface = 'Mica';
+            } else if (pos2to3 === 'MM') {
+                surface = 'Marble';
+            }
+            // BA/BB/BM > Unknown - leave empty
+        }
+    }
+    
+    // Auto-fill Effect
+    let effect = '';
+    // Check for ST M-prefix codes first
+    if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 3 && parts[2] && parts[2][0] === 'M' && /^M\d{3}$/.test(parts[2])) {
+            effect = 'Metallic';
+        }
+    }
+    
+    if (manufacturer === 'Ripol') {
+        if (code.length >= 5) {
+            const mid5to1 = code.substring(4, 5);
+            if (mid5to1 === '1') {
+                effect = 'Normal';
+            } else if (mid5to1 === '2') {
+                effect = 'Metallic';
+            } else if (mid5to1 === '3') {
+                effect = 'Clear';
+            } else if (mid5to1 === '4') {
+                effect = 'Clear Met';
+            }
+        }
+        if (code.length >= 3) {
+            const mid3to1 = code.substring(2, 3);
+            if (mid3to1 === '5') {
+                effect = 'Marble';
+            } else if (mid3to1 === '6') {
+                effect = 'Marble Met';
+            } else if (mid3to1 === '7') {
+                effect = 'Bonded';
+            }
+        }
+    } else if (manufacturer === 'EuroPolveri') {
+        if (code.length >= 11) {
+            const mid11to1 = code.substring(10, 11);
+            if (mid11to1 !== '0') {
+                effect = 'Metallic';
+            }
+        }
+    } else if (manufacturer === 'EkoColor') {
+        if (code.length >= 17) {
+            const mid16to2 = code.substring(15, 17);
+            if (mid16to2 === 'FX') {
+                effect = 'Metallic';
+            }
+        }
+        if (code.length >= 16) {
+            const mid16to1 = code.substring(15, 16);
+            if (mid16to1 === 'C') {
+                effect = 'Cinkui';
+            }
+        }
+    }
+    
+    // Auto-fill Sudėtis (Composition)
+    let composition = '';
+    if (manufacturer === 'Ripol') {
+        if (code.length > 0) {
+            const left1 = code.substring(0, 1);
+            if (left1 === '1') {
+                composition = 'Hybrid PE';
+            } else if (left1 === '2') {
+                composition = 'Epoxy';
+            } else if (left1 === '5') {
+                composition = 'Polyester';
+            } else if (left1 === '6') {
+                composition = 'Industrial PE';
+            }
+        }
+    } else if (manufacturer === 'EuroPolveri') {
+        if (code.length > 0) {
+            const left1 = code.substring(0, 1);
+            if (left1 === '1') {
+                composition = 'Industrial PE';
+            } else if (left1 === '5') {
+                composition = 'Polyester';
+            } else if (left1 === '6') {
+                composition = 'Epoxy';
+            } else if (left1 === '7') {
+                composition = 'Industrial PE';
+            } else if (left1 === '9') {
+                composition = 'Hybrid PE';
+            }
+        }
+    } else if (manufacturer === 'EkoColor') {
+        if (code.length >= 2) {
+            const left2 = code.substring(0, 2);
+            if (left2 === 'PF') {
+                composition = 'Industrial PE';
+            } else if (left2 === 'PA') {
+                composition = 'Polyester';
+            } else if (left2 === 'EE') {
+                composition = 'Epoxy';
+            } else if (left2 === 'EP') {
+                composition = 'Hybrid PE';
+            }
+        }
+    } else if (manufacturer === 'ST') {
+        const parts = code.split('-');
+        if (parts.length >= 1 && parts[0].length >= 2) {
+            const pos1 = parts[0][0]; // Position 1: Composition
+            const pos2 = parts[0][1]; // Position 2: Modifier
+            
+            // Determine base composition from position 1
+            let baseComposition = '';
+            if (['E', 'F', 'M'].includes(pos1)) {
+                baseComposition = 'Epoxy';
+            } else if (['P', 'C', 'H', 'L', 'D'].includes(pos1)) {
+                baseComposition = 'Polyester';
+            } else if (['U', 'W', 'R'].includes(pos1)) {
+                baseComposition = 'Polyurethane';
+            } else if (pos1 === 'S') {
+                baseComposition = 'Silicone';
+            }
+            
+            // Apply modifier from position 2
+            if (pos2 === 'E') {
+                composition = 'Hybrid PE';
+            } else if (pos2 === '1') {
+                composition = baseComposition ? 'Industrial ' + (baseComposition === 'Polyester' ? 'PE' : baseComposition) : '';
+            } else if (pos2 === '2') {
+                composition = baseComposition ? 'Architectural ' + (baseComposition === 'Polyester' ? 'PE' : baseComposition) : '';
+            } else {
+                composition = baseComposition;
+            }
+        }
+    } else if (manufacturer === 'BULLCREM') {
+        if (code.length >= 1) {
+            const pos1 = code.substring(0, 1); // Position 1: Composition
+            if (pos1 === 'Q') {
+                composition = 'Polyester';
+            } else if (pos1 === 'P') {
+                composition = 'Industrial PE';
+            } else if (pos1 === 'M') {
+                composition = 'Hybrid PE';
+            } else if (pos1 === 'E') {
+                composition = 'Epoxy';
+            } else if (pos1 === 'U') {
+                composition = 'Polyurethane';
+            } else if (pos1 === 'A') {
+                composition = 'Acrylic';
+            }
+        }
+    }
+    
+    // Update form fields (only if field is empty or has default value)
+    if (spalvaInput && (spalvaInput.value === '' || spalvaInput.value === 'RAL')) {
+        spalvaInput.value = color || 'RAL';
+    }
+    if (blizgumasInput) {
+        blizgumasInput.value = gloss;
+    }
+    if (pavirsusInput) {
+        pavirsusInput.value = surface;
+    }
+    if (effectSelect) {
+        effectSelect.value = effect;
+    }
+    if (sudetisSelect) {
+        sudetisSelect.value = composition || 'Polyester';
+    }
+    if (gruntasSelect) {
+        gruntasSelect.value = gruntas;
+    }
+}
+
 
 // Scan paint label using Edge Function
 async function scanPaintLabel(imageFile) {
@@ -831,6 +1440,16 @@ async function scanPaintLabel(imageFile) {
         });
 
         const data = await response.json();
+
+        // Debug: Log the scan results
+        console.log('📦 Scan results:', data);
+        console.log('   manufacturer:', data.manufacturer);
+        console.log('   product_code:', data.product_code);
+        console.log('   ral_code:', data.ral_code);
+        console.log('   weight_kg:', data.weight_kg);
+        console.log('   surface:', data.surface);
+        console.log('   gloss:', data.gloss);
+        console.log('   paint_type:', data.paint_type);
 
         // Restore buttons
         if (scanCameraBtn) {
