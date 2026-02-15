@@ -871,6 +871,9 @@ async function imageToAVIF(file, maxWidth, quality = 0.8) {
 
 // Gallery upload form
 const galleryUploadForm = document.getElementById('gallery-upload-form');
+const uploadLoadingOverlay = document.getElementById('upload-loading-overlay');
+const loadingStatusText = document.getElementById('loading-status-text');
+
 if (galleryUploadForm) {
     galleryUploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -887,8 +890,9 @@ if (galleryUploadForm) {
             
             const originalSize = file.size;
             
-            // Show progress
-            uploadBtn.textContent = 'Komprimuojama į AVIF su TinyPNG...';
+            // Show loading overlay
+            uploadLoadingOverlay.style.display = 'flex';
+            loadingStatusText.textContent = 'Komprimuojama į AVIF su TinyPNG...';
             
             // Create FormData with original image (Edge Function will compress via TinyPNG API)
             const formData = new FormData();
@@ -899,7 +903,7 @@ if (galleryUploadForm) {
             
             const password = localStorage.getItem('kontrole_password');
             
-            uploadBtn.textContent = 'Įkeliama...';
+            loadingStatusText.textContent = 'Įkeliama į Supabase...';
             
             const response = await fetch(GALLERY_EDGE_URL, {
                 method: 'POST',
@@ -934,6 +938,8 @@ if (galleryUploadForm) {
             console.error('Error uploading image:', error);
             showMessage(error.message || 'Klaida įkeliant nuotrauką', 'error');
         } finally {
+            // Hide loading overlay
+            uploadLoadingOverlay.style.display = 'none';
             uploadBtn.textContent = originalText;
             uploadBtn.disabled = false;
         }
