@@ -825,13 +825,29 @@ if (galleryImageInput) {
 
 // Helper function to get image dimensions
 async function getImageDimensions(file) {
+    console.log('Getting image dimensions for:', file.name, file.type, file.size);
+    
+    // Validate file type
+    if (!file.type || !file.type.startsWith('image/')) {
+        throw new Error('Neteisingas failo tipas');
+    }
+    
     // Try FileReader first (better for mobile Chrome camera roll)
     try {
-        return await getImageDimensionsViaFileReader(file);
+        const result = await getImageDimensionsViaFileReader(file);
+        console.log('FileReader success:', result);
+        return result;
     } catch (fileReaderError) {
-        console.warn('FileReader failed, trying URL.createObjectURL:', fileReaderError);
+        console.warn('FileReader failed, trying URL.createObjectURL:', fileReaderError.message);
         // Fallback to URL.createObjectURL (works for file browser selection)
-        return await getImageDimensionsViaObjectURL(file);
+        try {
+            const result = await getImageDimensionsViaObjectURL(file);
+            console.log('ObjectURL success:', result);
+            return result;
+        } catch (objectUrlError) {
+            console.error('Both methods failed:', { fileReaderError, objectUrlError });
+            throw new Error('Nepavyko nuskaityti nuotraukos dimensijų');
+        }
     }
 }
 
@@ -841,42 +857,71 @@ async function getImageDimensionsViaFileReader(file) {
         const reader = new FileReader();
         const img = new Image();
         let timeoutId;
+        let resolved = false;
         
-        // Set 10 second timeout
+        // Set 30 second timeout for mobile Chrome
         timeoutId = setTimeout(() => {
-            reader.abort();
-            reject(new Error('FileReader timeout'));
-        }, 10000);
+            if (!resolved) {
+                resolved = true;
+                reader.abort();
+                reject(new Error('FileReader timeout (30s)'));
+            }
+        }, 30000);
         
         reader.onload = (e) => {
+            if (resolved) return;
+            
             if (!e.target || !e.target.result) {
+                resolved = true;
                 clearTimeout(timeoutId);
                 reject(new Error('FileReader returned empty result'));
                 return;
             }
             
-            img.onload = () => {
+            // Check if result is valid base64
+            const result = e.target.result;
+            if (typeof result !== 'string' || result.length < 100) {
+                resolved = true;
                 clearTimeout(timeoutId);
+                reject(new Error('FileReader result too short'));
+                return;
+            }
+            
+            img.onload = () => {
+                if (resolved) return;
+                resolved = true;
+                clearTimeout(timeoutId);
+                
                 if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                    console.log('Image loaded via FileReader:', img.naturalWidth, 'x', img.naturalHeight);
                     resolve({
                         width: img.naturalWidth,
                         height: img.naturalHeight
                     });
                 } else {
-                    reject(new Error('Invalid image dimensions'));
+                    reject(new Error('Invalid image dimensions: ' + img.naturalWidth + 'x' + img.naturalHeight));
                 }
             };
             
-            img.onerror = () => {
+            img.onerror = (error) => {
+                if (resolved) return;
+                resolved = true;
                 clearTimeout(timeoutId);
+                console.error('Image load error:', error);
                 reject(new Error('Image load error'));
             };
             
-            img.src = e.target.result;
+            // Small delay to ensure DOM is ready (mobile Chrome quirk)
+            setTimeout(() => {
+                img.src = result;
+            }, 50);
         };
         
-        reader.onerror = () => {
+        reader.onerror = (error) => {
+            if (resolved) return;
+            resolved = true;
             clearTimeout(timeoutId);
+            console.error('FileReader error:', error);
             reject(new Error('FileReader error'));
         };
         
@@ -888,34 +933,56 @@ async function getImageDimensionsViaFileReader(file) {
 async function getImageDimensionsViaObjectURL(file) {
     return new Promise((resolve, reject) => {
         const img = new Image();
-        const url = URL.createObjectURL(file);
+        let url;
         let timeoutId;
+        let resolved = false;
+        
+        try {
+            url = URL.createObjectURL(file);
+        } catch (error) {
+            console.error('Failed to create ObjectURL:', error);
+            reject(new Error('ObjectURL creation failed'));
+            return;
+        }
         
         timeoutId = setTimeout(() => {
-            URL.revokeObjectURL(url);
-            reject(new Error('ObjectURL timeout'));
-        }, 10000);
+            if (!resolved) {
+                resolved = true;
+                if (url) URL.revokeObjectURL(url);
+                reject(new Error('ObjectURL timeout (30s)'));
+            }
+        }, 30000);
         
         img.onload = () => {
+            if (resolved) return;
+            resolved = true;
             clearTimeout(timeoutId);
-            URL.revokeObjectURL(url);
+            if (url) URL.revokeObjectURL(url);
+            
             if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                console.log('Image loaded via ObjectURL:', img.naturalWidth, 'x', img.naturalHeight);
                 resolve({
                     width: img.naturalWidth,
                     height: img.naturalHeight
                 });
             } else {
-                reject(new Error('Invalid image dimensions'));
+                reject(new Error('Invalid image dimensions: ' + img.naturalWidth + 'x' + img.naturalHeight));
             }
         };
         
-        img.onerror = () => {
+        img.onerror = (error) => {
+            if (resolved) return;
+            resolved = true;
             clearTimeout(timeoutId);
-            URL.revokeObjectURL(url);
-            reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+            if (url) URL.revokeObjectURL(url);
+            console.error('ObjectURL image load error:', error);
+            reject(new Error('ObjectURL image load error'));
         };
         
-        img.src = url;
+        // Small delay for mobile Chrome
+        setTimeout(() => {
+            img.src = url;
+        }, 50);
     });
 }
 
