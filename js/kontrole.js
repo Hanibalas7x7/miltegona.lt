@@ -802,8 +802,14 @@ async function getImageDimensions(file) {
         // Use FileReader instead of createObjectURL for better mobile compatibility
         const reader = new FileReader();
         
+        // Add timeout for slow mobile connections
+        const timeout = setTimeout(() => {
+            reject(new Error('Failo įkėlimas užtruko per ilgai'));
+        }, 30000); // 30 seconds
+        
         reader.onload = (e) => {
             img.onload = () => {
+                clearTimeout(timeout);
                 resolve({
                     width: img.naturalWidth,
                     height: img.naturalHeight
@@ -811,6 +817,7 @@ async function getImageDimensions(file) {
             };
             
             img.onerror = () => {
+                clearTimeout(timeout);
                 reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
             };
             
@@ -818,15 +825,10 @@ async function getImageDimensions(file) {
         };
         
         reader.onerror = () => {
+            clearTimeout(timeout);
             reject(new Error('Nepavyko nuskaityti failo'));
         };
         
-        // Add timeout for slow mobile connections
-        const timeout = setTimeout(() => {
-            reject(new Error('Failo įkėlimas užtruko per ilgai'));
-        }, 30000); // 30 seconds
-        
-        reader.onloadend = () => clearTimeout(timeout);
         reader.readAsDataURL(file);
     });
 }
