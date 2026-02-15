@@ -798,7 +798,7 @@ if (galleryImageInput) {
 async function getImageDimensions(file) {
     return new Promise((resolve, reject) => {
         // Ensure we have a valid file
-        if (!file || !file.type.startsWith('image/')) {
+        if (!file || !file.type || !file.type.startsWith('image/')) {
             reject(new Error('Netinkamas failo tipas'));
             return;
         }
