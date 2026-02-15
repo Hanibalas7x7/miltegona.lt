@@ -77,9 +77,9 @@ loginForm.addEventListener('submit', async (e) => {
         const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-password`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ password })
+                'Content-Type': 'application/json',
+                'x-password': password
+            }
         });
         
         const result = await response.json();

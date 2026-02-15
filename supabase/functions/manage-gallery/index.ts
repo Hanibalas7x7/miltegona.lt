@@ -8,6 +8,31 @@ const MAX_WIDTH = 1920;
 const THUMBNAIL_WIDTH = 400;
 const THUMBNAIL_SMALL_WIDTH = 200;
 const MAX_DIMENSION = 20000; // Reasonable max for width/height
+const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB max file size
+
+// Timing-safe password comparison (XOR-based, prevents timing attacks)
+function timingSafeEqual(a: string, b: string): boolean {
+  const ea = new TextEncoder().encode(a);
+  const eb = new TextEncoder().encode(b);
+
+  // Always iterate over the max length to reduce timing leakage
+  const len = Math.max(ea.length, eb.length);
+  let diff = ea.length ^ eb.length;
+
+  for (let i = 0; i < len; i++) {
+    const va = ea[i] ?? 0;
+    const vb = eb[i] ?? 0;
+    diff |= va ^ vb;
+  }
+  return diff === 0;
+}
+
+// Parse client IP from headers (for logging/rate-limiting)
+function getClientIP(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for") ?? "";
+  const clientIp = xff.split(",")[0].trim() || req.headers.get("x-real-ip") || "unknown";
+  return clientIp;
+}
 
 // Category mapping
 const CATEGORY_FOLDERS = {
@@ -18,7 +43,12 @@ const CATEGORY_FOLDERS = {
 };
 
 // TinyPNG API - Resize and convert from compressed URL
-async function resizeAndConvertToAVIF(outputUrl: string, auth: string, maxWidth: number): Promise<Uint8Array> {
+// Returns both the image data and the compression-count header
+async function resizeAndConvertToAVIF(
+  outputUrl: string, 
+  auth: string, 
+  maxWidth: number
+): Promise<{ bytes: Uint8Array; compressionCount?: string }> {
   const operations = {
     resize: {
       method: "fit",
@@ -44,8 +74,14 @@ async function resizeAndConvertToAVIF(outputUrl: string, auth: string, maxWidth:
     throw new Error(`TinyPNG conversion failed: ${convertResponse.status} - ${errorText}`);
   }
 
+  // Get compression count from response header
+  const compressionCount = convertResponse.headers.get("compression-count") ?? undefined;
   const avifData = await convertResponse.arrayBuffer();
-  return new Uint8Array(avifData);
+  
+  return { 
+    bytes: new Uint8Array(avifData),
+    compressionCount
+  };
 }
 
 serve(async (req) => {
@@ -114,15 +150,20 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: "Nėra autorizacijos" }, 401);
     }
 
-    // Check against environment variable instead of database
+    // Check against environment variable (secure method)
     const adminPassword = Deno.env.get("ADMIN_PASSWORD");
     if (!adminPassword) {
       console.error("ADMIN_PASSWORD not configured");
       return jsonResponse({ success: false, error: "Serverio konfigūracijos klaida" }, 500);
     }
 
-    if (password !== adminPassword) {
-      console.error("Password mismatch");
+    // Timing-safe password comparison (prevents timing attacks)
+    const passwordMatch = timingSafeEqual(password, adminPassword);
+    if (!passwordMatch) {
+      const clientIp = getClientIP(req);
+      console.error(`Password mismatch from IP: ${clientIp}`);
+      // Small delay to slow down brute force attempts
+      await new Promise(resolve => setTimeout(resolve, 250));
       return jsonResponse({ success: false, error: "Neteisingas slaptažodis" }, 401);
     }
 
@@ -224,6 +265,14 @@ serve(async (req) => {
       const originalData = new Uint8Array(await imageFile.arrayBuffer());
       const originalSize = originalData.byteLength;
 
+      // Check file size limit
+      if (originalSize > MAX_FILE_BYTES) {
+        return jsonResponse({
+          success: false,
+          error: `Failas per didelis. Maksimalus dydis: ${Math.round(MAX_FILE_BYTES / 1024 / 1024)}MB`
+        }, 413);
+      }
+
       console.log(`Compressing image: ${imageFile.name} (${Math.round(originalSize/1024)}KB)`);
 
       try {
@@ -251,21 +300,25 @@ serve(async (req) => {
         const uploadResult = await uploadResponse.json();
         const outputUrl = uploadResult.output.url;
         
-        // Get compression count from TinyPNG API (this is month total AFTER this shrink request)
-        // We use 4 API calls total per upload: 1 shrink + 3 resize/convert operations
+        // Get compression count from TinyPNG API (month total after shrink)
         const monthTotalAfterShrink = uploadResponse.headers.get("compression-count") || "?";
-        const thisUploadCost = 4; // 1 shrink + 3 resize ops
-        const monthTotalAfterUpload = monthTotalAfterShrink !== "?" 
-          ? (parseInt(monthTotalAfterShrink) + 3).toString() 
-          : "?";
-        console.log(`TinyPNG API usage: ${thisUploadCost} calls for this upload, ${monthTotalAfterUpload} total this month`);
+        console.log(`TinyPNG compression-count after shrink: ${monthTotalAfterShrink}`);
 
         // Step 2: Resize and convert to 3 sizes in parallel (3 API calls)
-        const [mainAvif, thumbAvif, thumbSmallAvif] = await Promise.all([
-          resizeAndConvertToAVIF(outputUrl, auth, 1920),
-          resizeAndConvertToAVIF(outputUrl, auth, 400),
-          resizeAndConvertToAVIF(outputUrl, auth, 200)
+        const [mainResult, thumbResult, thumbSmallResult] = await Promise.all([
+          resizeAndConvertToAVIF(outputUrl, auth, MAX_WIDTH),
+          resizeAndConvertToAVIF(outputUrl, auth, THUMBNAIL_WIDTH),
+          resizeAndConvertToAVIF(outputUrl, auth, THUMBNAIL_SMALL_WIDTH)
         ]);
+
+        const mainAvif = mainResult.bytes;
+        const thumbAvif = thumbResult.bytes;
+        const thumbSmallAvif = thumbSmallResult.bytes;
+        
+        // Get final compression count from any resize response (all should have same count)
+        const monthTotalAfterUpload = thumbSmallResult.compressionCount || monthTotalAfterShrink;
+        const thisUploadCost = 4; // 1 shrink + 3 resize ops
+        console.log(`TinyPNG API usage: ${thisUploadCost} calls for this upload, ${monthTotalAfterUpload} total this month`);
 
         console.log(`Compressed sizes: main=${Math.round(mainAvif.byteLength/1024)}KB, thumb=${Math.round(thumbAvif.byteLength/1024)}KB, small=${Math.round(thumbSmallAvif.byteLength/1024)}KB`);
 

@@ -6,6 +6,23 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT = 60;
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
 
+// Timing-safe password comparison (XOR-based, prevents timing attacks)
+function timingSafeEqual(a: string, b: string): boolean {
+  const ea = new TextEncoder().encode(a);
+  const eb = new TextEncoder().encode(b);
+
+  // Always iterate over the max length to reduce timing leakage
+  const len = Math.max(ea.length, eb.length);
+  let diff = ea.length ^ eb.length;
+
+  for (let i = 0; i < len; i++) {
+    const va = ea[i] ?? 0;
+    const vb = eb[i] ?? 0;
+    diff |= va ^ vb;
+  }
+  return diff === 0;
+}
+
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const record = rateLimitMap.get(ip);
@@ -84,13 +101,29 @@ serve(async (req) => {
       );
     }
 
-    // Check password in control_password table
-    const { data: passwordData, error: passwordError } = await supabase
-      .from("control_password")
-      .select("password")
-      .single();
+    // Check password against ADMIN_PASSWORD env var
+    const adminPassword = Deno.env.get("ADMIN_PASSWORD");
+    if (!adminPassword) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Serverio konfigūracijos klaida",
+        }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
 
-    if (passwordError || !passwordData || passwordData.password !== password) {
+    // Validate password with timing-safe comparison
+    const passwordMatch = timingSafeEqual(password, adminPassword);
+    if (!passwordMatch) {
+      // Small delay to slow down brute force attempts
+      await new Promise(resolve => setTimeout(resolve, 250));
       return new Response(
         JSON.stringify({
           success: false,
@@ -186,18 +219,28 @@ serve(async (req) => {
         return jsonResponse({ success: false, error: "ID nenurodytas" }, 400);
       }
 
-      const updateData: any = {
-        unlimited: unlimited || false,
-        note: note || null,
-      };
+      // Build update data - only include fields that are explicitly provided
+      const updateData: any = {};
+      
+      // Only update unlimited if explicitly provided as boolean
+      if (typeof unlimited === "boolean") {
+        updateData.unlimited = unlimited;
+      }
+      
+      // Only update note if provided (null is valid to clear note)
+      if (note !== undefined) {
+        updateData.note = note || null;
+      }
 
-      if (!unlimited) {
+      // If not unlimited, require dates
+      if (unlimited === false) {
         if (!valid_from || !valid_to) {
           return jsonResponse({ success: false, error: "Reikalingos galiojimo datos" }, 400);
         }
         updateData.valid_from = valid_from;
         updateData.valid_to = valid_to;
-      } else {
+      } else if (unlimited === true) {
+        // If explicitly set to unlimited, clear dates
         updateData.valid_from = null;
         updateData.valid_to = null;
       }

@@ -6,6 +6,30 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT = 60;
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
 
+// Timing-safe password comparison (XOR-based, prevents timing attacks)
+function timingSafeEqual(a: string, b: string): boolean {
+  const ea = new TextEncoder().encode(a);
+  const eb = new TextEncoder().encode(b);
+
+  // Always iterate over the max length to reduce timing leakage
+  const len = Math.max(ea.length, eb.length);
+  let diff = ea.length ^ eb.length;
+
+  for (let i = 0; i < len; i++) {
+    const va = ea[i] ?? 0;
+    const vb = eb[i] ?? 0;
+    diff |= va ^ vb;
+  }
+  return diff === 0;
+}
+
+// Parse client IP from headers
+function getClientIP(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for") ?? "";
+  const clientIp = xff.split(",")[0].trim() || req.headers.get("x-real-ip") || "unknown";
+  return clientIp;
+}
+
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const record = rateLimitMap.get(ip);
@@ -34,16 +58,14 @@ serve(async (req) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers": "Content-Type, x-password, Authorization, apikey",
       },
     });
   }
 
   try {
     // Get client IP for rate limiting
-    const clientIp = req.headers.get("x-forwarded-for") || 
-                     req.headers.get("x-real-ip") || 
-                     "unknown";
+    const clientIp = getClientIP(req);
 
     // Check rate limit
     if (!checkRateLimit(clientIp)) {
@@ -62,8 +84,8 @@ serve(async (req) => {
       );
     }
 
-    // Parse request body
-    const { password } = await req.json();
+    // Get password from header (not body - more secure)
+    const password = req.headers.get("x-password");
 
     if (!password) {
       return new Response(
@@ -86,18 +108,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check password in control_password table
-    const { data, error } = await supabase
-      .from("control_password")
-      .select("password")
-      .single();
-
-    if (error) {
-      console.error("Error fetching password:", error);
+    // Check password against ADMIN_PASSWORD env var
+    const adminPassword = Deno.env.get("ADMIN_PASSWORD");
+    if (!adminPassword) {
+      console.error("ADMIN_PASSWORD not configured");
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Klaida tikrinant slaptažodį",
+          error: "Serverio konfigūracijos klaida",
         }),
         {
           status: 500,
@@ -109,8 +127,12 @@ serve(async (req) => {
       );
     }
 
-    // Validate password
-    if (data.password !== password) {
+    // Validate password with timing-safe comparison
+    const passwordMatch = timingSafeEqual(password, adminPassword);
+    if (!passwordMatch) {
+      console.error(`Password mismatch from IP: ${clientIp}`);
+      // Small delay to slow down brute force attempts
+      await new Promise(resolve => setTimeout(resolve, 250));
       return new Response(
         JSON.stringify({
           success: false,
