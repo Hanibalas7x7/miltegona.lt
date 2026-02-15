@@ -797,23 +797,38 @@ if (galleryImageInput) {
 // Helper function to get image dimensions
 async function getImageDimensions(file) {
     return new Promise((resolve, reject) => {
-        const img = new Image();
-        const url = URL.createObjectURL(file);
+        // Ensure we have a valid file
+        if (!file || !file.type.startsWith('image/')) {
+            reject(new Error('Netinkamas failo tipas'));
+            return;
+        }
+
+        const reader = new FileReader();
         
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            resolve({
-                width: img.naturalWidth,
-                height: img.naturalHeight
-            });
+        reader.onload = (e) => {
+            const img = new Image();
+            
+            img.onload = () => {
+                resolve({
+                    width: img.naturalWidth,
+                    height: img.naturalHeight
+                });
+            };
+            
+            img.onerror = () => {
+                reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+            };
+            
+            // Use data URL instead of blob URL - forces Chrome to load into memory
+            img.src = e.target.result;
         };
         
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+        reader.onerror = () => {
+            reject(new Error('Nepavyko perskaityti failo'));
         };
         
-        img.src = url;
+        // Force file into memory on mobile Chrome
+        reader.readAsDataURL(file);
     });
 }
 
