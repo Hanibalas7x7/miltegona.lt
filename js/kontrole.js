@@ -989,7 +989,20 @@ async function getImageDimensions(file) {
         throw new Error('Neteisingas failo tipas');
     }
     
-    // Try FileReader first (better for mobile Chrome camera roll)
+    // Try createImageBitmap first (best for mobile Chrome recent photos)
+    if (typeof createImageBitmap === 'function') {
+        try {
+            debugLogMessage('Trying createImageBitmap method...');
+            const bitmap = await createImageBitmap(file);
+            debugLogMessage(`✓ ImageBitmap success: ${bitmap.width}x${bitmap.height}`);
+            bitmap.close(); // Free memory
+            return { width: bitmap.width, height: bitmap.height };
+        } catch (bitmapError) {
+            debugLogMessage(`✗ ImageBitmap failed: ${bitmapError.message}`, true);
+        }
+    }
+    
+    // Try FileReader second
     try {
         debugLogMessage('Trying FileReader method...');
         const result = await getImageDimensionsViaFileReader(file);
@@ -997,7 +1010,7 @@ async function getImageDimensions(file) {
         return result;
     } catch (fileReaderError) {
         debugLogMessage('✗ FileReader failed: ' + fileReaderError.message, true);
-        // Fallback to URL.createObjectURL (works for file browser selection)
+        // Fallback to URL.createObjectURL
         try {
             debugLogMessage('Trying ObjectURL method...');
             const result = await getImageDimensionsViaObjectURL(file);
@@ -1005,7 +1018,7 @@ async function getImageDimensions(file) {
             return result;
         } catch (objectUrlError) {
             debugLogMessage('✗ ObjectURL failed: ' + objectUrlError.message, true);
-            debugLogMessage('Both methods failed', true);
+            debugLogMessage('All methods failed', true);
             throw new Error('Nepavyko nuskaityti nuotraukos dimensijų');
         }
     }
