@@ -1104,3 +1104,41 @@ window.deleteGalleryImage = async function(id) {
     }
 };
 
+// Mobile: Hide header on scroll down, show on scroll up
+(function() {
+    if (window.innerWidth > 768) return; // Only for mobile
+    
+    const header = document.querySelector('.control-header');
+    if (!header) return;
+    
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    
+    function updateHeaderVisibility() {
+        const currentScrollY = window.scrollY;
+        
+        // Don't hide if at the very top
+        if (currentScrollY < 10) {
+            header.classList.remove('hide-on-scroll');
+        } 
+        // Hide when scrolling down
+        else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+            header.classList.add('hide-on-scroll');
+        } 
+        // Show when scrolling up
+        else if (currentScrollY < lastScrollY) {
+            header.classList.remove('hide-on-scroll');
+        }
+        
+        lastScrollY = currentScrollY;
+        ticking = false;
+    }
+    
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(updateHeaderVisibility);
+            ticking = true;
+        }
+    });
+})();
+

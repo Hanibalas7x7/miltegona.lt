@@ -86,6 +86,17 @@
     z-index: 100;
 }
 
+/* Mobile: hide header on scroll down */
+@media (max-width: 768px) {
+    .control-header {
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .control-header.hide-on-scroll {
+        transform: translateY(-100%);
+    }
+}
+
 .control-header .header-content {
     display: flex;
     align-items: center;
