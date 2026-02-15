@@ -1139,6 +1139,6 @@ window.deleteGalleryImage = async function(id) {
             window.requestAnimationFrame(updateHeaderVisibility);
             ticking = true;
         }
-    });
+    }, { passive: true });
 })();
 
