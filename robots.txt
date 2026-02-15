@@ -15,5 +15,5 @@ Allow: /css/
 Allow: /js/
 Allow: /assets/
 
-# Sitemap (dynamic - includes gallery images)
-Sitemap: https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/sitemap
+# Sitemap (auto-updated daily via GitHub Actions)
+Sitemap: https://miltegona.lt/sitemap.xml

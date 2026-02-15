@@ -1,0 +1,39 @@
+name: Update Sitemap
+
+on:
+  schedule:
+    # Run every day at 3 AM UTC (6 AM Lithuania time)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Fetch sitemap from Supabase
+        run: |
+          curl -o sitemap.xml https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/sitemap
+          
+      - name: Check if sitemap changed
+        id: check_changes
+        run: |
+          git add sitemap.xml
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Auto-update sitemap with latest gallery images"
+          git push
