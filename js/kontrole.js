@@ -826,82 +826,97 @@ if (galleryImageInput) {
 // Helper function to get image dimensions
 async function getImageDimensions(file) {
     return new Promise((resolve, reject) => {
+        const reader = new FileReader();
         const img = new Image();
-        const url = URL.createObjectURL(file);
+        let timeoutId;
         
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            resolve({
-                width: img.naturalWidth,
-                height: img.naturalHeight
-            });
+        // Set 10 second timeout
+        timeoutId = setTimeout(() => {
+            reader.abort();
+            reject(new Error('Nuotraukos nuskaitymas užtruko per ilgai'));
+        }, 10000);
+        
+        reader.onload = (e) => {
+            img.onload = () => {
+                clearTimeout(timeoutId);
+                resolve({
+                    width: img.naturalWidth,
+                    height: img.naturalHeight
+                });
+            };
+            
+            img.onerror = () => {
+                clearTimeout(timeoutId);
+                reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+            };
+            
+            img.src = e.target.result;
         };
         
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+        reader.onerror = () => {
+            clearTimeout(timeoutId);
+            reject(new Error('Nepavyko nuskaityti failo'));
         };
         
-        img.src = url;
+        reader.readAsDataURL(file);
     });
 }
 
 // Helper function to convert image to AVIF blob at specific size
 async function imageToAVIF(file, maxWidth, quality = 0.8) {
     return new Promise((resolve, reject) => {
+        const reader = new FileReader();
         const img = new Image();
-        const url = URL.createObjectURL(file);
         
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            
-            // Calculate dimensions
-            let width = img.width;
-            let height = img.height;
-            
-            if (width > maxWidth) {
-                height = Math.round((height / width) * maxWidth);
-                width = maxWidth;
-            }
-            
-            // Create canvas
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Try AVIF first, fallback to WebP, then JPEG
-            canvas.toBlob(
-                (blob) => {
-                    if (blob) {
-                        console.log(`Converted to AVIF: ${width}x${height} = ${(blob.size/1024).toFixed(1)}KB`);
-                        resolve({ blob, width, height });
-                    } else {
-                        // AVIF not supported, try WebP
-                        console.warn('AVIF not supported, trying WebP');
-                        canvas.toBlob(
-                            (webpBlob) => {
-                                if (webpBlob) {
-                                    console.log(`Converted to WebP: ${width}x${height} = ${(webpBlob.size/1024).toFixed(1)}KB`);
-                                    resolve({ blob: webpBlob, width, height });
-                                } else {
-                                    // WebP also failed, use JPEG
-                                    canvas.toBlob(
-                                        (jpegBlob) => {
-                                            if (jpegBlob) {
-                                                console.log(`Converted to JPEG: ${width}x${height} = ${(jpegBlob.size/1024).toFixed(1)}KB`);
-                                                resolve({ blob: jpegBlob, width, height });
-                                            } else {
-                                                reject(new Error('Nepavyko konvertuoti nuotraukos'));
-                                            }
-                                        },
-                                        'image/jpeg',
-                                        quality
-                                    );
-                                }
-                            },
+        reader.onload = (e) => {
+            img.onload = () => {
+                // Calculate dimensions
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxWidth) {
+                    height = Math.round((height / width) * maxWidth);
+                    width = maxWidth;
+                }
+                
+                // Create canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Try AVIF first, fallback to WebP, then JPEG
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            console.log(`Converted to AVIF: ${width}x${height} = ${(blob.size/1024).toFixed(1)}KB`);
+                            resolve({ blob, width, height });
+                        } else {
+                            // AVIF not supported, try WebP
+                            console.warn('AVIF not supported, trying WebP');
+                            canvas.toBlob(
+                                (webpBlob) => {
+                                    if (webpBlob) {
+                                        console.log(`Converted to WebP: ${width}x${height} = ${(webpBlob.size/1024).toFixed(1)}KB`);
+                                        resolve({ blob: webpBlob, width, height });
+                                    } else {
+                                        // WebP also failed, use JPEG
+                                        canvas.toBlob(
+                                            (jpegBlob) => {
+                                                if (jpegBlob) {
+                                                    console.log(`Converted to JPEG: ${width}x${height} = ${(jpegBlob.size/1024).toFixed(1)}KB`);
+                                                    resolve({ blob: jpegBlob, width, height });
+                                                } else {
+                                                    reject(new Error('Nepavyko konvertuoti nuotraukos'));
+                                                }
+                                            },
+                                            'image/jpeg',
+                                            quality
+                                        );
+                                    }
+                                },
                             'image/webp',
                             quality
                         );
@@ -913,11 +928,17 @@ async function imageToAVIF(file, maxWidth, quality = 0.8) {
         };
         
         img.onerror = () => {
-            URL.revokeObjectURL(url);
             reject(new Error('Nepavyko įkelti nuotrauką'));
         };
         
-        img.src = url;
+        img.src = e.target.result;
+    };
+    
+    reader.onerror = () => {
+        reject(new Error('Nepavyko nuskaityti failo'));
+    };
+    
+    reader.readAsDataURL(file);
     });
 }
 
