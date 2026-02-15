@@ -842,12 +842,21 @@ if (galleryImageInput) {
         if (file) {
             debugLogMessage(`File selected: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`);
             
+            // Validate file object
+            debugLogMessage(`File validation: type=${file.type}, size=${file.size}, lastModified=${file.lastModified}`);
+            if (!file.type) {
+                debugLogMessage('⚠️ File.type is empty!', true);
+            }
+            if (!file.size) {
+                debugLogMessage('⚠️ File.size is 0!', true);
+            }
+            
             // Try to load preview with timeout and fallback
             try {
                 await loadPreviewWithTimeout(file);
-                debugLogMessage('Preview loaded successfully');
+                debugLogMessage('✓ Preview loaded successfully');
             } catch (error) {
-                debugLogMessage('Preview load failed: ' + error.message, true);
+                debugLogMessage(`✗ Preview load failed: ${error ? error.message : 'unknown error'}`, true);
                 // Even if preview fails, try to continue with upload
                 uploadPreview.style.display = 'none';
             }
@@ -863,9 +872,14 @@ async function loadPreviewWithTimeout(file) {
         let timeoutId;
         
         try {
+            // Validate file before creating ObjectURL
+            if (!file || !(file instanceof File) || !file.size) {
+                throw new Error('Invalid file object');
+            }
             objectUrl = URL.createObjectURL(file);
+            debugLogMessage(`ObjectURL created: ${objectUrl.substring(0, 30)}...`);
         } catch (error) {
-            debugLogMessage('ObjectURL creation failed, trying FileReader', true);
+            debugLogMessage(`ObjectURL creation failed: ${error.message}, trying FileReader`, true);
             // Fallback to FileReader
             return loadPreviewViaFileReader(file).then(resolve).catch(reject);
         }
@@ -889,10 +903,10 @@ async function loadPreviewWithTimeout(file) {
             resolve();
         };
         
-        img.onerror = () => {
+        img.onerror = (event) => {
             clearTimeout(timeoutId);
             if (objectUrl) URL.revokeObjectURL(objectUrl);
-            debugLogMessage('ObjectURL preview failed, trying FileReader', true);
+            debugLogMessage(`ObjectURL preview failed: ${event.type}, trying FileReader`, true);
             loadPreviewViaFileReader(file).then(resolve).catch(reject);
         };
         
@@ -921,13 +935,22 @@ async function loadPreviewViaFileReader(file) {
             }
         };
         
-        reader.onerror = (error) => {
+        reader.onerror = () => {
             clearTimeout(timeoutId);
-            debugLogMessage('FileReader error: ' + (error.message || 'unknown'), true);
-            reject(error || new Error('FileReader error'));
+            const errorMsg = reader.error ? reader.error.message : 'unknown';
+            const errorName = reader.error ? reader.error.name : 'unknown';
+            debugLogMessage(`FileReader error: ${errorName} - ${errorMsg}`, true);
+            reject(reader.error || new Error('FileReader error'));
         };
         
-        reader.readAsDataURL(file);
+        try {
+            debugLogMessage('Starting FileReader.readAsDataURL...');
+            reader.readAsDataURL(file);
+        } catch (error) {
+            clearTimeout(timeoutId);
+            debugLogMessage(`FileReader.readAsDataURL threw: ${error.message}`, true);
+            reject(error);
+        }
     });
 }
 
