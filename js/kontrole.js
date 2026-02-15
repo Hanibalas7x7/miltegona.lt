@@ -798,35 +798,48 @@ if (galleryImageInput) {
 async function getImageDimensions(file) {
     return new Promise((resolve, reject) => {
         const img = new Image();
+        let settled = false;
         
         // Use FileReader instead of createObjectURL for better mobile compatibility
         const reader = new FileReader();
         
         // Add timeout for slow mobile connections
         const timeout = setTimeout(() => {
-            reject(new Error('Failo įkėlimas užtruko per ilgai'));
+            if (!settled) {
+                settled = true;
+                reject(new Error('Failo įkėlimas užtruko per ilgai'));
+            }
         }, 30000); // 30 seconds
         
         reader.onload = (e) => {
             img.onload = () => {
-                clearTimeout(timeout);
-                resolve({
-                    width: img.naturalWidth,
-                    height: img.naturalHeight
-                });
+                if (!settled) {
+                    settled = true;
+                    clearTimeout(timeout);
+                    resolve({
+                        width: img.naturalWidth,
+                        height: img.naturalHeight
+                    });
+                }
             };
             
             img.onerror = () => {
-                clearTimeout(timeout);
-                reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+                if (!settled) {
+                    settled = true;
+                    clearTimeout(timeout);
+                    reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+                }
             };
             
             img.src = e.target.result;
         };
         
         reader.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error('Nepavyko nuskaityti failo'));
+            if (!settled) {
+                settled = true;
+                clearTimeout(timeout);
+                reject(new Error('Nepavyko nuskaityti failo'));
+            }
         };
         
         reader.readAsDataURL(file);
