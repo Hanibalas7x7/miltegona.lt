@@ -1272,10 +1272,16 @@ if (galleryUploadForm) {
             uploadLoadingOverlay.style.display = 'flex';
             loadingStatusText.textContent = 'Nuskaitoma nuotrauka...';
             
-            // Get image dimensions
-            debugLogMessage('Calling getImageDimensions...');
-            const imgDimensions = await getImageDimensions(file);
-            debugLogMessage(`Got dimensions: ${imgDimensions.width}x${imgDimensions.height}`);
+            // Try to get image dimensions (optional for mobile Chrome recent photos)
+            let imgDimensions = null;
+            try {
+                debugLogMessage('Calling getImageDimensions...');
+                imgDimensions = await getImageDimensions(file);
+                debugLogMessage(`Got dimensions: ${imgDimensions.width}x${imgDimensions.height}`);
+            } catch (dimensionError) {
+                debugLogMessage(`⚠️ Could not get dimensions: ${dimensionError.message}`, true);
+                debugLogMessage('Will upload without dimensions - server will extract them', true);
+            }
             
             // Create FormData with original image (Edge Function will compress via TinyPNG API)
             const formData = new FormData();
@@ -1283,8 +1289,12 @@ if (galleryUploadForm) {
             formData.append('category', document.getElementById('gallery-category').value);
             formData.append('title', document.getElementById('gallery-title').value);
             formData.append('description', document.getElementById('gallery-description').value);
-            formData.append('width', imgDimensions.width.toString());
-            formData.append('height', imgDimensions.height.toString());
+            
+            // Add dimensions if available (Edge Function will extract if missing)
+            if (imgDimensions) {
+                formData.append('width', imgDimensions.width.toString());
+                formData.append('height', imgDimensions.height.toString());
+            }
             
             const password = localStorage.getItem('kontrole_password');
             

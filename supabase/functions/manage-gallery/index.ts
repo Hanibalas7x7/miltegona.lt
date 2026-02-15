@@ -225,8 +225,8 @@ serve(async (req) => {
       const category = formData.get("category") as string;
       const title = formData.get("title") as string || null;
       const description = formData.get("description") as string || null;
-      const originalWidth = formData.get("width") as string;
-      const originalHeight = formData.get("height") as string;
+      const originalWidth = formData.get("width") as string | null;
+      const originalHeight = formData.get("height") as string | null;
 
       if (!imageFile) {
         return jsonResponse({ success: false, error: "Nėra failo" }, 400);
@@ -244,21 +244,24 @@ serve(async (req) => {
         return jsonResponse({ success: false, error: "Neteisinga kategorija" }, 400);
       }
 
-      // Validate dimensions
-      if (!originalWidth || !originalHeight) {
-        return jsonResponse({ success: false, error: "Nenurodyta nuotraukos dimensijos" }, 400);
-      }
+      // Validate dimensions if provided (optional - will be extracted from TinyPNG if missing)
+      let origWidth: number | null = null;
+      let origHeight: number | null = null;
+      
+      if (originalWidth && originalHeight) {
+        origWidth = parseInt(originalWidth);
+        origHeight = parseInt(originalHeight);
 
-      const origWidth = parseInt(originalWidth);
-      const origHeight = parseInt(originalHeight);
-
-      if (!Number.isFinite(origWidth) || !Number.isFinite(origHeight) || 
-          origWidth <= 0 || origHeight <= 0 || 
-          origWidth > MAX_DIMENSION || origHeight > MAX_DIMENSION) {
-        return jsonResponse({ 
-          success: false, 
-          error: "Neteisingos nuotraukos dimensijos" 
-        }, 400);
+        if (!Number.isFinite(origWidth) || !Number.isFinite(origHeight) || 
+            origWidth <= 0 || origHeight <= 0 || 
+            origWidth > MAX_DIMENSION || origHeight > MAX_DIMENSION) {
+          return jsonResponse({ 
+            success: false, 
+            error: "Neteisingos nuotraukos dimensijos" 
+          }, 400);
+        }
+      } else {
+        console.log("Dimensions not provided - will extract from TinyPNG API");
       }
 
       // Get original image data
@@ -299,6 +302,24 @@ serve(async (req) => {
 
         const uploadResult = await uploadResponse.json();
         const outputUrl = uploadResult.output.url;
+        
+        // Extract dimensions from TinyPNG if not provided by client
+        if (origWidth === null || origHeight === null) {
+          origWidth = uploadResult.output.width;
+          origHeight = uploadResult.output.height;
+          console.log(`Extracted dimensions from TinyPNG: ${origWidth}x${origHeight}`);
+          
+          // Validate extracted dimensions
+          if (!Number.isFinite(origWidth) || !Number.isFinite(origHeight) || 
+              origWidth! <= 0 || origHeight! <= 0 || 
+              origWidth! > MAX_DIMENSION || origHeight! > MAX_DIMENSION) {
+            throw new Error("Invalid dimensions from TinyPNG API");
+          }
+        }
+        
+        // At this point, origWidth and origHeight are guaranteed to be non-null numbers
+        const finalWidth = origWidth!;
+        const finalHeight = origHeight!;
         
         // Get compression count from TinyPNG API (month total after shrink)
         const monthTotalAfterShrink = uploadResponse.headers.get("compression-count") || "?";
@@ -372,18 +393,18 @@ serve(async (req) => {
         }
 
         // Calculate dimensions based on original image and resize ratios
-        const aspectRatio = origWidth / origHeight;
+        const aspectRatio = finalWidth / finalHeight;
         
         // Main image dimensions (max 1920px wide)
-        const width = Math.min(origWidth, 1920);
+        const width = Math.min(finalWidth, 1920);
         const height = Math.round(width / aspectRatio);
         
         // Thumbnail dimensions (400px wide)
-        const thumbWidth = Math.min(origWidth, 400);
+        const thumbWidth = Math.min(finalWidth, 400);
         const thumbHeight = Math.round(thumbWidth / aspectRatio);
         
         // Small thumbnail dimensions (200px wide)
-        const thumbSmallWidth = Math.min(origWidth, 200);
+        const thumbSmallWidth = Math.min(finalWidth, 200);
         const thumbSmallHeight = Math.round(thumbSmallWidth / aspectRatio);
 
         // Save metadata to database
