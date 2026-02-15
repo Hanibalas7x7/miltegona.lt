@@ -812,6 +812,8 @@ async function getImageDimensions(file) {
         }, 30000); // 30 seconds
         
         reader.onload = (e) => {
+            if (settled) return; // Don't set up handlers if already settled
+            
             img.onload = () => {
                 if (!settled) {
                     settled = true;
