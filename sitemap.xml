@@ -26,6 +26,11 @@
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <image:image>
+      <image:loc>https://xyzttzqvbescdpihvyfu.supabase.co/storage/v1/object/public/gallery-images/baldai/1771118930097.avif</image:loc>
+      <image:title>Miltelinio dažymo darbas</image:title>
+      <image:caption>Miltelinio dažymo paslaugos - UAB Miltegona</image:caption>
+    </image:image>
+    <image:image>
       <image:loc>https://xyzttzqvbescdpihvyfu.supabase.co/storage/v1/object/public/gallery-images/pramone/1771114230075.avif</image:loc>
       <image:title>Miltelinio dažymo darbas</image:title>
       <image:caption>Miltelinio dažymo paslaugos - UAB Miltegona</image:caption>
