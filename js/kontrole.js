@@ -808,57 +808,10 @@ const uploadPreview = document.getElementById('upload-preview');
 const previewImage = document.getElementById('preview-image');
 const previewSize = document.getElementById('preview-size');
 
-// Debug logging for mobile
-const debugInfo = document.getElementById('debug-info');
-const debugLog = document.getElementById('debug-log');
-const clearDebugBtn = document.getElementById('clear-debug');
-const copyDebugBtn = document.getElementById('copy-debug');
-
+// Debug logging (console only)
 function debugLogMessage(message, isError = false) {
-    console.log(message);
-    if (debugLog) {
-        const time = new Date().toLocaleTimeString('lt-LT');
-        const color = isError ? '#ff6b6b' : '#4ecdc4';
-        const entry = document.createElement('div');
-        entry.style.cssText = `margin-bottom: 0.25rem; color: ${color};`;
-        entry.textContent = `[${time}] ${message}`;
-        debugLog.appendChild(entry);
-        if (debugInfo) {
-            debugInfo.style.display = 'block';
-            debugLog.scrollTop = debugLog.scrollHeight;
-        }
-    }
-}
-
-if (copyDebugBtn) {
-    copyDebugBtn.addEventListener('click', async () => {
-        if (debugLog) {
-            const text = debugLog.innerText;
-            try {
-                await navigator.clipboard.writeText(text);
-                copyDebugBtn.textContent = '✓ Nukopijuota';
-                copyDebugBtn.style.color = '#4caf50';
-                setTimeout(() => {
-                    copyDebugBtn.textContent = 'Kopijuoti';
-                    copyDebugBtn.style.color = '#4caf50';
-                }, 2000);
-            } catch (err) {
-                copyDebugBtn.textContent = '✗ Klaida';
-                copyDebugBtn.style.color = '#ff6b6b';
-                setTimeout(() => {
-                    copyDebugBtn.textContent = 'Kopijuoti';
-                    copyDebugBtn.style.color = '#4caf50';
-                }, 2000);
-            }
-        }
-    });
-}
-
-if (clearDebugBtn) {
-    clearDebugBtn.addEventListener('click', () => {
-        if (debugLog) debugLog.innerHTML = '';
-        if (debugInfo) debugInfo.style.display = 'none';
-    });
+    const prefix = isError ? '❌' : '✓';
+    console.log(`${prefix} ${message}`);
 }
 
 if (galleryImageInput) {
