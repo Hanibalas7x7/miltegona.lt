@@ -823,12 +823,17 @@ async function getImageDimensions(file) {
     const cachedWidth = galleryImageInput?.dataset.width;
     const cachedHeight = galleryImageInput?.dataset.height;
     
-    if (cachedWidth && cachedHeight) {
-        console.log('Using cached dimensions from preview:', cachedWidth, 'x', cachedHeight);
-        return {
-            width: parseInt(cachedWidth),
-            height: parseInt(cachedHeight)
-        };
+    if (cachedWidth !== undefined && cachedHeight !== undefined) {
+        const width = parseInt(cachedWidth);
+        const height = parseInt(cachedHeight);
+        
+        // Validate parsed dimensions
+        if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+            console.log('Using cached dimensions from preview:', width, 'x', height);
+            return { width, height };
+        }
+        
+        console.log('Cached dimensions invalid, falling back to FileReader');
     }
     
     // Fallback: use FileReader (works on all mobile browsers)
