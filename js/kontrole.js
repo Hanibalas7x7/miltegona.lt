@@ -785,8 +785,25 @@ if (galleryImageInput) {
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                previewImage.src = e.target.result;
-                previewSize.textContent = `Originalus dydis: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+                // Create image and get dimensions immediately
+                const img = new Image();
+                img.onload = () => {
+                    // Store dimensions on the input element for later use
+                    galleryImageInput.dataset.width = img.naturalWidth;
+                    galleryImageInput.dataset.height = img.naturalHeight;
+                    
+                    previewImage.src = e.target.result;
+                    previewSize.textContent = `Originalus dydis: ${(file.size / 1024 / 1024).toFixed(2)}MB (${img.naturalWidth}×${img.naturalHeight}px)`;
+                    uploadPreview.style.display = 'block';
+                };
+                img.onerror = () => {
+                    previewSize.textContent = 'Klaida nuskaitant nuotrauką';
+                    uploadPreview.style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = () => {
+                previewSize.textContent = 'Klaida skaitant failą';
                 uploadPreview.style.display = 'block';
             };
             reader.readAsDataURL(file);
@@ -796,24 +813,50 @@ if (galleryImageInput) {
 
 // Helper function to get image dimensions
 async function getImageDimensions(file) {
+    // Try to get cached dimensions from input element first (set during preview)
+    const cachedWidth = galleryImageInput?.dataset.width;
+    const cachedHeight = galleryImageInput?.dataset.height;
+    
+    if (cachedWidth && cachedHeight) {
+        console.log('Using cached dimensions from preview:', cachedWidth, 'x', cachedHeight);
+        return {
+            width: parseInt(cachedWidth),
+            height: parseInt(cachedHeight)
+        };
+    }
+    
+    // Fallback: use FileReader (works on all mobile browsers)
+    console.log('Cache not found, reading dimensions with FileReader');
     return new Promise((resolve, reject) => {
-        const img = new Image();
-        const url = URL.createObjectURL(file);
+        if (!file || !file.type.startsWith('image/')) {
+            reject(new Error('Netinkamas failo tipas'));
+            return;
+        }
+
+        const reader = new FileReader();
         
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            resolve({
-                width: img.naturalWidth,
-                height: img.naturalHeight
-            });
+        reader.onload = (e) => {
+            const img = new Image();
+            
+            img.onload = () => {
+                resolve({
+                    width: img.naturalWidth,
+                    height: img.naturalHeight
+                });
+            };
+            
+            img.onerror = () => {
+                reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+            };
+            
+            img.src = e.target.result;
         };
         
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+        reader.onerror = () => {
+            reject(new Error('Nepavyko perskaityti failo'));
         };
         
-        img.src = url;
+        reader.readAsDataURL(file);
     });
 }
 
