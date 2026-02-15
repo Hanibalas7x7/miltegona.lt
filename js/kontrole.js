@@ -797,12 +797,18 @@ if (galleryImageInput) {
                     uploadPreview.style.display = 'block';
                 };
                 img.onerror = () => {
+                    // Clear cached dimensions on error
+                    delete galleryImageInput.dataset.width;
+                    delete galleryImageInput.dataset.height;
                     previewSize.textContent = 'Klaida nuskaitant nuotrauką';
                     uploadPreview.style.display = 'block';
                 };
                 img.src = e.target.result;
             };
             reader.onerror = () => {
+                // Clear cached dimensions on error
+                delete galleryImageInput.dataset.width;
+                delete galleryImageInput.dataset.height;
                 previewSize.textContent = 'Klaida skaitant failą';
                 uploadPreview.style.display = 'block';
             };
