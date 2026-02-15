@@ -808,15 +808,48 @@ const uploadPreview = document.getElementById('upload-preview');
 const previewImage = document.getElementById('preview-image');
 const previewSize = document.getElementById('preview-size');
 
+// Debug logging for mobile
+const debugInfo = document.getElementById('debug-info');
+const debugLog = document.getElementById('debug-log');
+const clearDebugBtn = document.getElementById('clear-debug');
+
+function debugLogMessage(message, isError = false) {
+    console.log(message);
+    if (debugLog) {
+        const time = new Date().toLocaleTimeString('lt-LT');
+        const color = isError ? '#ff6b6b' : '#4ecdc4';
+        const entry = document.createElement('div');
+        entry.style.cssText = `margin-bottom: 0.25rem; color: ${color};`;
+        entry.textContent = `[${time}] ${message}`;
+        debugLog.appendChild(entry);
+        if (debugInfo) {
+            debugInfo.style.display = 'block';
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+    }
+}
+
+if (clearDebugBtn) {
+    clearDebugBtn.addEventListener('click', () => {
+        if (debugLog) debugLog.innerHTML = '';
+        if (debugInfo) debugInfo.style.display = 'none';
+    });
+}
+
 if (galleryImageInput) {
     galleryImageInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
+            debugLogMessage(`File selected: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`);
             const reader = new FileReader();
             reader.onload = (e) => {
                 previewImage.src = e.target.result;
                 previewSize.textContent = `Originalus dydis: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
                 uploadPreview.style.display = 'block';
+                debugLogMessage('Preview loaded successfully');
+            };
+            reader.onerror = () => {
+                debugLogMessage('Preview load failed', true);
             };
             reader.readAsDataURL(file);
         }
@@ -825,27 +858,31 @@ if (galleryImageInput) {
 
 // Helper function to get image dimensions
 async function getImageDimensions(file) {
-    console.log('Getting image dimensions for:', file.name, file.type, file.size);
+    debugLogMessage(`Getting dimensions: ${file.name}, ${file.type}, ${(file.size/1024).toFixed(0)}KB`);
     
     // Validate file type
     if (!file.type || !file.type.startsWith('image/')) {
+        debugLogMessage('Invalid file type: ' + file.type, true);
         throw new Error('Neteisingas failo tipas');
     }
     
     // Try FileReader first (better for mobile Chrome camera roll)
     try {
+        debugLogMessage('Trying FileReader method...');
         const result = await getImageDimensionsViaFileReader(file);
-        console.log('FileReader success:', result);
+        debugLogMessage(`✓ FileReader success: ${result.width}x${result.height}`);
         return result;
     } catch (fileReaderError) {
-        console.warn('FileReader failed, trying URL.createObjectURL:', fileReaderError.message);
+        debugLogMessage('✗ FileReader failed: ' + fileReaderError.message, true);
         // Fallback to URL.createObjectURL (works for file browser selection)
         try {
+            debugLogMessage('Trying ObjectURL method...');
             const result = await getImageDimensionsViaObjectURL(file);
-            console.log('ObjectURL success:', result);
+            debugLogMessage(`✓ ObjectURL success: ${result.width}x${result.height}`);
             return result;
         } catch (objectUrlError) {
-            console.error('Both methods failed:', { fileReaderError, objectUrlError });
+            debugLogMessage('✗ ObjectURL failed: ' + objectUrlError.message, true);
+            debugLogMessage('Both methods failed', true);
             throw new Error('Nepavyko nuskaityti nuotraukos dimensijų');
         }
     }
@@ -893,12 +930,13 @@ async function getImageDimensionsViaFileReader(file) {
                 clearTimeout(timeoutId);
                 
                 if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-                    console.log('Image loaded via FileReader:', img.naturalWidth, 'x', img.naturalHeight);
+                    debugLogMessage(`FileReader img.onload: ${img.naturalWidth}x${img.naturalHeight}`);
                     resolve({
                         width: img.naturalWidth,
                         height: img.naturalHeight
                     });
                 } else {
+                    debugLogMessage(`Invalid dimensions: ${img.naturalWidth}x${img.naturalHeight}`, true);
                     reject(new Error('Invalid image dimensions: ' + img.naturalWidth + 'x' + img.naturalHeight));
                 }
             };
@@ -960,12 +998,13 @@ async function getImageDimensionsViaObjectURL(file) {
             if (url) URL.revokeObjectURL(url);
             
             if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-                console.log('Image loaded via ObjectURL:', img.naturalWidth, 'x', img.naturalHeight);
+                debugLogMessage(`ObjectURL img.onload: ${img.naturalWidth}x${img.naturalHeight}`);
                 resolve({
                     width: img.naturalWidth,
                     height: img.naturalHeight
                 });
             } else {
+                debugLogMessage(`Invalid dimensions: ${img.naturalWidth}x${img.naturalHeight}`, true);
                 reject(new Error('Invalid image dimensions: ' + img.naturalWidth + 'x' + img.naturalHeight));
             }
         };
