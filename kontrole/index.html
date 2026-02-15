@@ -129,7 +129,10 @@
                         <div id="debug-info" style="display: none; background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-family: monospace; font-size: 0.85rem; color: rgba(255,255,255,0.8); max-height: 200px; overflow-y: auto;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <strong style="color: #fec107;">Debug Info:</strong>
-                                <button type="button" id="clear-debug" style="background: rgba(255,193,7,0.2); border: 1px solid rgba(255,193,7,0.5); color: #fec107; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Clear</button>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button type="button" id="copy-debug" style="background: rgba(76,175,80,0.2); border: 1px solid rgba(76,175,80,0.5); color: #4caf50; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Kopijuoti</button>
+                                    <button type="button" id="clear-debug" style="background: rgba(255,193,7,0.2); border: 1px solid rgba(255,193,7,0.5); color: #fec107; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Clear</button>
+                                </div>
                             </div>
                             <div id="debug-log"></div>
                         </div>

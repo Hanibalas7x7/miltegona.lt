@@ -812,6 +812,7 @@ const previewSize = document.getElementById('preview-size');
 const debugInfo = document.getElementById('debug-info');
 const debugLog = document.getElementById('debug-log');
 const clearDebugBtn = document.getElementById('clear-debug');
+const copyDebugBtn = document.getElementById('copy-debug');
 
 function debugLogMessage(message, isError = false) {
     console.log(message);
@@ -827,6 +828,30 @@ function debugLogMessage(message, isError = false) {
             debugLog.scrollTop = debugLog.scrollHeight;
         }
     }
+}
+
+if (copyDebugBtn) {
+    copyDebugBtn.addEventListener('click', async () => {
+        if (debugLog) {
+            const text = debugLog.innerText;
+            try {
+                await navigator.clipboard.writeText(text);
+                copyDebugBtn.textContent = '✓ Nukopijuota';
+                copyDebugBtn.style.color = '#4caf50';
+                setTimeout(() => {
+                    copyDebugBtn.textContent = 'Kopijuoti';
+                    copyDebugBtn.style.color = '#4caf50';
+                }, 2000);
+            } catch (err) {
+                copyDebugBtn.textContent = '✗ Klaida';
+                copyDebugBtn.style.color = '#ff6b6b';
+                setTimeout(() => {
+                    copyDebugBtn.textContent = 'Kopijuoti';
+                    copyDebugBtn.style.color = '#4caf50';
+                }, 2000);
+            }
+        }
+    });
 }
 
 if (clearDebugBtn) {
