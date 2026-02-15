@@ -994,9 +994,10 @@ async function getImageDimensions(file) {
         try {
             debugLogMessage('Trying createImageBitmap method...');
             const bitmap = await createImageBitmap(file);
-            debugLogMessage(`✓ ImageBitmap success: ${bitmap.width}x${bitmap.height}`);
+            const dimensions = { width: bitmap.width, height: bitmap.height };
+            debugLogMessage(`✓ ImageBitmap success: ${dimensions.width}x${dimensions.height}`);
             bitmap.close(); // Free memory
-            return { width: bitmap.width, height: bitmap.height };
+            return dimensions;
         } catch (bitmapError) {
             debugLogMessage(`✗ ImageBitmap failed: ${bitmapError.message}`, true);
         }
