@@ -1,23 +1,66 @@
-// Gallery Dynamic Loader - Automatically loads images from gallery-config.json
+// Suppress Cloudflare cookie warnings in console
+(function() {
+    const originalError = console.error;
+    console.error = function(...args) {
+        const message = args[0]?.toString() || '';
+        if (message.includes('__cf_bm') || message.includes('invalid domain')) {
+            return; // Ignore Cloudflare cookie warnings
+        }
+        originalError.apply(console, args);
+    };
+})();
+
+// Gallery Dynamic Loader - Loads images from Supabase
 document.addEventListener('DOMContentLoaded', async function() {
     const galleryGrid = document.querySelector('.gallery-grid');
     const filterButtons = document.querySelectorAll('.filter-btn');
     let allImages = [];
 
-    // Load gallery configuration
+    // Supabase configuration
+    const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
+    const GALLERY_EDGE_URL = `${SUPABASE_URL}/functions/v1/manage-gallery`;
+    const STORAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/gallery-images`;
+
+    // Category mapping
+    const CATEGORY_NAMES = {
+        'metalwork': 'Metalinės konstrukcijos',
+        'furniture': 'Baldai',
+        'automotive': 'Automobilių dalys',
+        'industrial': 'Pramoninė įranga'
+    };
+
+    // Load gallery from Supabase
     try {
-        const response = await fetch('/gallery-config.json');
-        const data = await response.json();
-        allImages = data.images;
+        const response = await fetch(GALLERY_EDGE_URL, {
+            method: 'GET'
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Klaida įkeliant nuotraukas');
+        }
+
+        // Transform Supabase data to gallery format
+        allImages = result.data.map(img => ({
+            id: img.id,
+            title: img.title || '',  // Don't fallback to filename
+            description: img.description || '',
+            category: img.category,
+            category_name: CATEGORY_NAMES[img.category],
+            path: `${STORAGE_URL}/${img.storage_path}`,
+            thumbnail: `${STORAGE_URL}/${img.thumbnail_path}`,
+            thumbnail_small: `${STORAGE_URL}/${img.thumbnail_small_path}`,
+            width: img.width,
+            height: img.height
+        }));
 
         // Generate gallery items
         if (allImages.length === 0) {
             galleryGrid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                     <p style="font-size: 1.2rem; color: var(--text-light);">
-                        📸 Dar nėra nuotraukų galerijoje.<br><br>
-                        Įkelkite nuotraukas į /assets/gallery/ folderius ir paleiskite:<br>
-                        <code style="background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 4px; display: inline-block; margin-top: 10px;">python generate_gallery.py</code>
+                        📸 Galerija tuščia. Įkelkite pirmas nuotraukas per kontrolės skiltį.
                     </p>
                 </div>
             `;
@@ -30,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         galleryGrid.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                 <p style="font-size: 1.2rem; color: #ff6b6b;">
-                    ❌ Klaida įkeliant galeriją. Patikrinkite gallery-config.json failą.
+                    ❌ Klaida įkeliant galeriją: ${error.message}
                 </p>
             </div>
         `;
@@ -56,9 +99,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         galleryGrid.innerHTML = filteredImages.map(image => `
             <div class="gallery-item" data-category="${image.category}">
                 <div class="gallery-image">
-                    <img src="${image.path}" alt="${image.title}" loading="lazy">
+                    <img 
+                        srcset="${image.thumbnail_small} 200w, ${image.thumbnail} 400w, ${image.path} 1920w"
+                        sizes="(max-width: 768px) 200px, (max-width: 1200px) 400px, 400px"
+                        src="${image.thumbnail}" 
+                        alt="${image.title || image.category_name}" 
+                        loading="lazy">
                     <div class="gallery-overlay">
-                        <h3>${image.title}</h3>
+                        ${image.title ? `<h3>${image.title}</h3>` : ''}
                         <p>${image.category_name}</p>
                     </div>
                 </div>
@@ -66,10 +114,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         `).join('');
 
         // Add click handlers for lightbox
-        document.querySelectorAll('.gallery-item').forEach(item => {
+        document.querySelectorAll('.gallery-item').forEach((item, index) => {
             item.addEventListener('click', function() {
-                const img = this.querySelector('img');
-                openLightbox(img.src, img.alt);
+                openLightbox(index, filteredImages);
             });
         });
     }
@@ -86,30 +133,93 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     // Lightbox functionality
-    function openLightbox(src, alt) {
+    let currentLightbox = null;
+    let currentIndex = 0;
+    let currentImages = [];
+
+    function openLightbox(index, images) {
+        currentIndex = index;
+        currentImages = images;
+        showLightboxImage();
+    }
+
+    function showLightboxImage() {
+        const image = currentImages[currentIndex];
+        
+        // Remove old lightbox if exists
+        if (currentLightbox) {
+            currentLightbox.remove();
+        }
+
         const lightbox = document.createElement('div');
         lightbox.className = 'lightbox';
         lightbox.innerHTML = `
             <div class="lightbox-content">
                 <span class="lightbox-close">&times;</span>
-                <img src="${src}" alt="${alt}">
-                <div class="lightbox-caption">${alt}</div>
+                ${currentImages.length > 1 ? `
+                    <button class="lightbox-prev" aria-label="Ankstesnė">‹</button>
+                    <button class="lightbox-next" aria-label="Kita">›</button>
+                ` : ''}
+                <img src="${image.path}" alt="${image.title || image.category_name}">
+                ${image.title ? `<div class="lightbox-caption">${image.title}</div>` : ''}
             </div>
         `;
         document.body.appendChild(lightbox);
+        currentLightbox = lightbox;
 
         setTimeout(() => lightbox.classList.add('active'), 10);
 
-        lightbox.querySelector('.lightbox-close').addEventListener('click', () => {
-            lightbox.classList.remove('active');
-            setTimeout(() => lightbox.remove(), 300);
-        });
+        // Close button
+        lightbox.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
+        // Navigation buttons
+        if (currentImages.length > 1) {
+            lightbox.querySelector('.lightbox-prev').addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+                showLightboxImage();
+            });
+
+            lightbox.querySelector('.lightbox-next').addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentIndex = (currentIndex + 1) % currentImages.length;
+                showLightboxImage();
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', handleKeyboard);
+
+        // Click outside to close
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
-                lightbox.classList.remove('active');
-                setTimeout(() => lightbox.remove(), 300);
+                closeLightbox();
             }
         });
+    }
+
+    function handleKeyboard(e) {
+        if (!currentLightbox) return;
+        
+        if (e.key === 'Escape') {
+            closeLightbox();
+        } else if (e.key === 'ArrowLeft' && currentImages.length > 1) {
+            currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+            showLightboxImage();
+        } else if (e.key === 'ArrowRight' && currentImages.length > 1) {
+            currentIndex = (currentIndex + 1) % currentImages.length;
+            showLightboxImage();
+        }
+    }
+
+    function closeLightbox() {
+        if (currentLightbox) {
+            currentLightbox.classList.remove('active');
+            setTimeout(() => {
+                currentLightbox.remove();
+                currentLightbox = null;
+            }, 300);
+            document.removeEventListener('keydown', handleKeyboard);
+        }
     }
 });

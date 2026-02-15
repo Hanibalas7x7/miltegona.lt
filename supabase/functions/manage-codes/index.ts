@@ -110,6 +110,18 @@ serve(async (req) => {
 
     // LIST - Get all codes
     if (method === "GET") {
+      // Cleanup: Delete codes that expired more than 7 days ago
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const sevenDaysAgoStr = sevenDaysAgo.toISOString();
+      
+      await supabase
+        .from("gate_codes")
+        .delete()
+        .eq("unlimited", false)
+        .lt("valid_to", sevenDaysAgoStr);
+      
+      // Get remaining codes
       const { data, error } = await supabase
         .from("gate_codes")
         .select("*")
@@ -164,6 +176,43 @@ serve(async (req) => {
       }
 
       return jsonResponse({ success: true, message: "Kodas ištrintas" });
+    }
+
+    // UPDATE - Edit code validity
+    if (method === "POST" && body.action === "update") {
+      const { id, valid_from, valid_to, unlimited, note } = body;
+
+      if (!id) {
+        return jsonResponse({ success: false, error: "ID nenurodytas" }, 400);
+      }
+
+      const updateData: any = {
+        unlimited: unlimited || false,
+        note: note || null,
+      };
+
+      if (!unlimited) {
+        if (!valid_from || !valid_to) {
+          return jsonResponse({ success: false, error: "Reikalingos galiojimo datos" }, 400);
+        }
+        updateData.valid_from = valid_from;
+        updateData.valid_to = valid_to;
+      } else {
+        updateData.valid_from = null;
+        updateData.valid_to = null;
+      }
+
+      const { error } = await supabase
+        .from("gate_codes")
+        .update(updateData)
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error updating code:", error);
+        return jsonResponse({ success: false, error: "Klaida atnaujinant kodą" }, 500);
+      }
+
+      return jsonResponse({ success: true, message: "Kodas atnaujintas" });
     }
 
     return jsonResponse({ success: false, error: "Nežinomas veiksmas" }, 400);

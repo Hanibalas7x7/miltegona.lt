@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
     <!-- Login Screen -->
@@ -35,14 +36,24 @@
             <div class="container">
                 <div class="header-content">
                     <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="Miltegona" class="header-logo">
-                    <h1>Vartų Kontrolė</h1>
+                    <h1>Kontrolės Panelė</h1>
                     <button id="logout-btn" class="btn btn-secondary">Atsijungti</button>
                 </div>
             </div>
         </header>
 
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <div class="container">
+                <button class="tab-btn active" data-tab="gates">Vartų Kontrolė</button>
+                <button class="tab-btn" data-tab="gallery">Galerija</button>
+            </div>
+        </nav>
+
         <main class="control-main">
             <div class="container">
+                <!-- Gates Tab -->
+                <div id="gates-tab" class="tab-content active">
                 <!-- Code Generator -->
                 <section class="panel-section">
                     <h2>Generuoti Naują Kodą</h2>
@@ -99,6 +110,64 @@
                         <p class="loading-message">Kraunama...</p>
                     </div>
                 </section>
+                </div>
+
+                <!-- Gallery Tab -->
+                <div id="gallery-tab" class="tab-content" style="display: none;">
+                    <section class="panel-section">
+                        <h2>Įkelti Naują Nuotrauką</h2>
+                        <form id="gallery-upload-form" class="gallery-upload-form">
+                            <div class="form-group">
+                                <label for="gallery-category">Kategorija</label>
+                                <select id="gallery-category" required>
+                                    <option value="metalwork">Metalinės konstrukcijos</option>
+                                    <option value="furniture">Baldai</option>
+                                    <option value="automotive">Automobilių dalys</option>
+                                    <option value="industrial">Pramoninė įranga</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="gallery-image">Nuotrauka (max 100MB)</label>
+                                <input type="file" id="gallery-image" accept="image/jpeg,image/jpg,image/png,image/webp" required>
+                                <small class="form-hint">Bus automatiškai suspaustas į AVIF formatą su TinyPNG API (95-99% kompresija)</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gallery-title">Pavadinimas (neprivaloma)</label>
+                                <input type="text" id="gallery-title" placeholder="Pvz., Tvora RAL 7016">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gallery-description">Aprašymas (neprivaloma)</label>
+                                <textarea id="gallery-description" rows="3" placeholder="Trumpas darbo aprašymas"></textarea>
+                            </div>
+
+                            <div id="upload-preview" class="upload-preview" style="display: none;">
+                                <img id="preview-image" src="" alt="Preview">
+                                <div class="preview-info">
+                                    <p id="preview-size"></p>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="upload-btn">Įkelti Nuotrauką</button>
+                        </form>
+                    </section>
+
+                    <section class="panel-section">
+                        <h2>Nuotraukų galerija</h2>
+                        <div class="gallery-filter">
+                            <button class="filter-btn active" data-category="all">Visos</button>
+                            <button class="filter-btn" data-category="metalwork">Konstrukcijos</button>
+                            <button class="filter-btn" data-category="furniture">Baldai</button>
+                            <button class="filter-btn" data-category="automotive">Automobiliai</button>
+                            <button class="filter-btn" data-category="industrial">Pramonė</button>
+                        </div>
+                        <div id="gallery-grid" class="gallery-grid">
+                            <p class="loading-message">Kraunama...</p>
+                        </div>
+                    </section>
+                </div>
             </div>
         </main>
     </div>
@@ -129,7 +198,61 @@
         </div>
     </div>
 
+    <!-- Edit Code Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Redaguoti Kodą</h3>
+            <form id="edit-form" class="edit-form">
+                <div class="form-group">
+                    <label>Kodas</label>
+                    <input type="text" id="edit-code-display" readonly class="readonly-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-code-type">Galiojimo Laikas</label>
+                    <select id="edit-code-type" required>
+                        <option value="single">Konkreti diena</option>
+                        <option value="range">Datų intervalas</option>
+                        <option value="unlimited">Neribotai</option>
+                    </select>
+                </div>
+
+                <div id="edit-single-date-group" class="form-group date-group">
+                    <label for="edit-single-date">Pasirinkite Datą</label>
+                    <input type="date" id="edit-single-date">
+                    <small class="form-hint">Kodas galioja visą pasirinktą dieną (00:00 - 23:59)</small>
+                </div>
+
+                <div id="edit-range-date-group" class="form-group date-group" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-start-date">Nuo</label>
+                            <input type="date" id="edit-start-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-end-date">Iki</label>
+                            <input type="date" id="edit-end-date">
+                        </div>
+                    </div>
+                    <small class="form-hint">Kodas galioja nuo pasirinktos datos pradžios iki datos pabaigos</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-code-note">Pastaba (neprivaloma)</label>
+                    <input type="text" id="edit-code-note" placeholder="Pvz., Kliento vardas">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary">Atšaukti</button>
+                    <button type="submit" class="btn btn-primary">Išsaugoti</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/lt.js"></script>
     <script src="/js/kontrole.js"></script>
 </body>
 </html>

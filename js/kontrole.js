@@ -1,5 +1,19 @@
+// Suppress Cloudflare cookie warnings in console
+(function() {
+    const originalError = console.error;
+    console.error = function(...args) {
+        const message = args[0]?.toString() || '';
+        if (message.includes('__cf_bm') || message.includes('invalid domain')) {
+            return; // Ignore Cloudflare cookie warnings
+        }
+        originalError.apply(console, args);
+    };
+})();
+
 // Edge Functions Configuration
 const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
+const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
+const GALLERY_EDGE_URL = `${EDGE_FUNCTIONS_URL}/manage-gallery`;
 
 // Elements
 const loginScreen = document.getElementById('login-screen');
@@ -20,7 +34,22 @@ const copyLinkBtn = document.getElementById('copy-link-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const filterBtns = document.querySelectorAll('.filter-btn');
 
+// Edit modal elements
+const editModal = document.getElementById('edit-modal');
+const editForm = document.getElementById('edit-form');
+const editCodeDisplay = document.getElementById('edit-code-display');
+const editCodeTypeSelect = document.getElementById('edit-code-type');
+const editSingleDateGroup = document.getElementById('edit-single-date-group');
+const editRangeDateGroup = document.getElementById('edit-range-date-group');
+const editSingleDateInput = document.getElementById('edit-single-date');
+const editValidFromInput = document.getElementById('edit-start-date');
+const editValidToInput = document.getElementById('edit-end-date');
+const editNoteInput = document.getElementById('edit-code-note');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
 let currentFilter = 'all';
+let allCodes = []; // Store all codes for editing
+let currentEditingId = null;
 
 // Generate random 8-character code
 function generateCode() {
@@ -222,10 +251,12 @@ async function loadCodes() {
         
         if (result.data.length === 0) {
             codesList.innerHTML = '<p class="empty-message">Dar nėra sukurtų kodų</p>';
+            allCodes = [];
             return;
         }
         
-        displayCodes(result.data);
+        allCodes = result.data; // Store for editing
+        displayCodes(allCodes);
         
     } catch (error) {
         console.error('Error loading codes:', error);
@@ -235,13 +266,14 @@ async function loadCodes() {
 
 // Display codes
 function displayCodes(codes) {
-    const now = new Date();
+    // Get current date in Lithuanian timezone as YYYY-MM-DD string
+    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Vilnius' });
     
     let filteredCodes = codes;
     if (currentFilter === 'active') {
-        filteredCodes = codes.filter(code => isCodeActive(code, now));
+        filteredCodes = codes.filter(code => isCodeActive(code, today));
     } else if (currentFilter === 'expired') {
-        filteredCodes = codes.filter(code => !isCodeActive(code, now));
+        filteredCodes = codes.filter(code => !isCodeActive(code, today));
     }
     
     if (filteredCodes.length === 0) {
@@ -250,7 +282,7 @@ function displayCodes(codes) {
     }
     
     codesList.innerHTML = filteredCodes.map(code => {
-        const status = getCodeStatus(code, now);
+        const status = getCodeStatus(code, today);
         const statusInfo = getStatusInfo(status);
         const validityText = getValidityText(code);
         
@@ -281,6 +313,12 @@ function displayCodes(codes) {
                             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                         </svg>
                     </button>
+                    <button class="btn-icon" onclick="editCode('${code.id}')" title="Redaguoti">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
                     <button class="btn-icon delete" onclick="deleteCode('${code.id}')" title="Ištrinti">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"></polyline>
@@ -293,23 +331,28 @@ function displayCodes(codes) {
     }).join('');
 }
 
+// Convert ISO timestamp to Lithuanian timezone date string (YYYY-MM-DD)
+function getDateInLithuaniaTimezone(isoString) {
+    return new Date(isoString).toLocaleDateString('sv-SE', { timeZone: 'Europe/Vilnius' });
+}
+
 // Check if code is active
-function isCodeActive(code, now) {
+function isCodeActive(code, today) {
     if (code.unlimited) return true;
-    const validFrom = new Date(code.valid_from);
-    const validTo = new Date(code.valid_to);
-    return now >= validFrom && now <= validTo;
+    const validFrom = getDateInLithuaniaTimezone(code.valid_from);
+    const validTo = getDateInLithuaniaTimezone(code.valid_to);
+    return today >= validFrom && today <= validTo;
 }
 
 // Get code status
-function getCodeStatus(code, now) {
+function getCodeStatus(code, today) {
     if (code.unlimited) return 'active';
     
-    const validFrom = new Date(code.valid_from);
-    const validTo = new Date(code.valid_to);
+    const validFrom = getDateInLithuaniaTimezone(code.valid_from);
+    const validTo = getDateInLithuaniaTimezone(code.valid_to);
     
-    if (now < validFrom) return 'pending'; // Dar negalioja
-    if (now > validTo) return 'expired'; // Pasibaigęs
+    if (today < validFrom) return 'pending'; // Dar negalioja
+    if (today > validTo) return 'expired'; // Pasibaigęs
     return 'active'; // Aktyvus
 }
 
@@ -419,6 +462,43 @@ window.deleteCode = async function(id) {
         console.error('Error deleting code:', error);
         showMessage(error.message || 'Klaida trinant kodą', 'error');
     }
+};
+
+// Edit code
+window.editCode = function(id) {
+    // Find code in allCodes array
+    const code = allCodes.find(c => c.id === id);
+    if (!code) {
+        showMessage('Kodas nerastas', 'error');
+        return;
+    }
+    
+    currentEditingId = id;
+    
+    // Populate form fields
+    editCodeDisplay.value = code.code;
+    editNoteInput.value = code.note || '';
+    
+    // Determine code type and set dates
+    if (code.unlimited) {
+        editCodeTypeSelect.value = 'unlimited';
+        editSingleDateGroup.style.display = 'none';
+        editRangeDateGroup.style.display = 'none';
+    } else if (code.valid_from === code.valid_to) {
+        editCodeTypeSelect.value = 'single';
+        editSingleDateInput.value = code.valid_from;
+        editSingleDateGroup.style.display = 'block';
+        editRangeDateGroup.style.display = 'none';
+    } else {
+        editCodeTypeSelect.value = 'range';
+        editValidFromInput.value = code.valid_from;
+        editValidToInput.value = code.valid_to;
+        editSingleDateGroup.style.display = 'none';
+        editRangeDateGroup.style.display = 'block';
+    }
+    
+    // Show modal
+    editModal.classList.add('show');
 };
 
 // Filter codes
@@ -546,3 +626,444 @@ function showMessage(message, type) {
         okBtn.style.opacity = '1';
     });
 }
+
+// Edit modal event listeners
+editCodeTypeSelect.addEventListener('change', (e) => {
+    const type = e.target.value;
+    if (type === 'single') {
+        editSingleDateGroup.style.display = 'block';
+        editRangeDateGroup.style.display = 'none';
+    } else if (type === 'range') {
+        editSingleDateGroup.style.display = 'none';
+        editRangeDateGroup.style.display = 'block';
+    } else { // unlimited
+        editSingleDateGroup.style.display = 'none';
+        editRangeDateGroup.style.display = 'none';
+    }
+});
+
+cancelEditBtn.addEventListener('click', () => {
+    editModal.classList.remove('show');
+    currentEditingId = null;
+});
+
+editForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!currentEditingId) {
+        showMessage('Klaida: kodas nerastas', 'error');
+        return;
+    }
+    
+    const type = editCodeTypeSelect.value;
+    const note = editNoteInput.value.trim();
+    
+    let valid_from, valid_to, unlimited;
+    
+    if (type === 'unlimited') {
+        unlimited = true;
+        valid_from = null;
+        valid_to = null;
+    } else if (type === 'single') {
+        const date = editSingleDateInput.value;
+        if (!date) {
+            showMessage('Prašome pasirinkti datą', 'error');
+            return;
+        }
+        unlimited = false;
+        valid_from = date;
+        valid_to = date;
+    } else { // range
+        valid_from = editValidFromInput.value;
+        valid_to = editValidToInput.value;
+        if (!valid_from || !valid_to) {
+            showMessage('Prašome pasirinkti abi datas', 'error');
+            return;
+        }
+        if (valid_from > valid_to) {
+            showMessage('Pradžios data negali būti vėlesnė už pabaigos datą', 'error');
+            return;
+        }
+        unlimited = false;
+    }
+    
+    try {
+        const password = localStorage.getItem('kontrole_password');
+        
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/manage-codes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-password': password
+            },
+            body: JSON.stringify({
+                action: 'update',
+                id: currentEditingId,
+                valid_from: valid_from,
+                valid_to: valid_to,
+                unlimited: unlimited,
+                note: note
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Klaida atnaujinant kodą');
+        }
+        
+        showMessage('Kodas atnaujintas', 'success');
+        editModal.classList.remove('show');
+        currentEditingId = null;
+        loadCodes();
+    } catch (error) {
+        console.error('Error updating code:', error);
+        showMessage(error.message || 'Klaida atnaujinant kodą', 'error');
+    }
+});
+
+// Initialize flatpickr for all date inputs with Lithuanian locale
+document.addEventListener('DOMContentLoaded', () => {
+    const dateConfig = {
+        locale: 'lt',
+        dateFormat: 'Y-m-d',
+        altInput: true,
+        altFormat: 'Y-m-d',
+        allowInput: true
+    };
+    
+    // Main form date inputs
+    flatpickr('#single-date', dateConfig);
+    flatpickr('#start-date', dateConfig);
+    flatpickr('#end-date', dateConfig);
+    
+    // Edit form date inputs
+    flatpickr('#edit-single-date', dateConfig);
+    flatpickr('#edit-start-date', dateConfig);
+    flatpickr('#edit-end-date', dateConfig);
+});
+
+// ==================== GALLERY MANAGEMENT ====================
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const targetTab = btn.dataset.tab;
+        
+        // Update buttons
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        });
+        
+        const targetContent = document.getElementById(`${targetTab}-tab`);
+        if (targetContent) {
+            targetContent.classList.add('active');
+            targetContent.style.display = 'block';
+            
+            // Load gallery when switching to gallery tab
+            if (targetTab === 'gallery') {
+                loadGalleryImages();
+            }
+        }
+    });
+});
+
+// Gallery image preview
+const galleryImageInput = document.getElementById('gallery-image');
+const uploadPreview = document.getElementById('upload-preview');
+const previewImage = document.getElementById('preview-image');
+const previewSize = document.getElementById('preview-size');
+
+if (galleryImageInput) {
+    galleryImageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewSize.textContent = `Originalus dydis: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+                uploadPreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+// Helper function to convert image to AVIF blob at specific size
+async function imageToAVIF(file, maxWidth, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            
+            // Calculate dimensions
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > maxWidth) {
+                height = Math.round((height / width) * maxWidth);
+                width = maxWidth;
+            }
+            
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Try AVIF first, fallback to WebP, then JPEG
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        console.log(`Converted to AVIF: ${width}x${height} = ${(blob.size/1024).toFixed(1)}KB`);
+                        resolve({ blob, width, height });
+                    } else {
+                        // AVIF not supported, try WebP
+                        console.warn('AVIF not supported, trying WebP');
+                        canvas.toBlob(
+                            (webpBlob) => {
+                                if (webpBlob) {
+                                    console.log(`Converted to WebP: ${width}x${height} = ${(webpBlob.size/1024).toFixed(1)}KB`);
+                                    resolve({ blob: webpBlob, width, height });
+                                } else {
+                                    // WebP also failed, use JPEG
+                                    canvas.toBlob(
+                                        (jpegBlob) => {
+                                            if (jpegBlob) {
+                                                console.log(`Converted to JPEG: ${width}x${height} = ${(jpegBlob.size/1024).toFixed(1)}KB`);
+                                                resolve({ blob: jpegBlob, width, height });
+                                            } else {
+                                                reject(new Error('Nepavyko konvertuoti nuotraukos'));
+                                            }
+                                        },
+                                        'image/jpeg',
+                                        quality
+                                    );
+                                }
+                            },
+                            'image/webp',
+                            quality
+                        );
+                    }
+                },
+                'image/avif',
+                quality
+            );
+        };
+        
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Nepavyko įkelti nuotrauką'));
+        };
+        
+        img.src = url;
+    });
+}
+
+// Gallery upload form
+const galleryUploadForm = document.getElementById('gallery-upload-form');
+if (galleryUploadForm) {
+    galleryUploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const uploadBtn = document.getElementById('upload-btn');
+        const originalText = uploadBtn.textContent;
+        uploadBtn.disabled = true;
+        
+        try {
+            const file = galleryImageInput.files[0];
+            if (!file) {
+                throw new Error('Pasirinkite nuotrauką');
+            }
+            
+            const originalSize = file.size;
+            
+            // Show progress
+            uploadBtn.textContent = 'Komprimuojama į AVIF su TinyPNG...';
+            
+            // Create FormData with original image (Edge Function will compress via TinyPNG API)
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('category', document.getElementById('gallery-category').value);
+            formData.append('title', document.getElementById('gallery-title').value);
+            formData.append('description', document.getElementById('gallery-description').value);
+            
+            const password = localStorage.getItem('kontrole_password');
+            
+            uploadBtn.textContent = 'Įkeliama...';
+            
+            const response = await fetch(GALLERY_EDGE_URL, {
+                method: 'POST',
+                headers: {
+                    'x-password': password
+                },
+                body: formData
+            });
+            
+            const result = await response.json();
+            console.log('Upload response:', { status: response.status, result });
+            
+            if (!result.success) {
+                const errorMsg = result.details ? `${result.error}: ${result.details}` : result.error;
+                throw new Error(errorMsg || 'Klaida įkeliant nuotrauką');
+            }
+            
+            const totalSize = result.data?.file_size || 0;
+            const compressionRatio = totalSize > 0 ? ((1 - (totalSize / originalSize)) * 100).toFixed(1) : '?';
+            const apiUsage = result.data?.apiUsage || '?';
+            
+            showMessage(`Nuotrauka įkelta! Kompresija: ${compressionRatio}% (${(originalSize/1024/1024).toFixed(1)}MB → ${(totalSize/1024).toFixed(0)}KB AVIF). TinyPNG API: ${apiUsage}/500 šį mėnesį`, 'success');
+            
+            // Reset form
+            galleryUploadForm.reset();
+            uploadPreview.style.display = 'none';
+            
+            // Reload gallery
+            loadGalleryImages();
+            
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            showMessage(error.message || 'Klaida įkeliant nuotrauką', 'error');
+        } finally {
+            uploadBtn.textContent = originalText;
+            uploadBtn.disabled = false;
+        }
+    });
+}
+
+// Gallery filter
+let currentGalleryFilter = 'all';
+document.querySelectorAll('.gallery-filter .filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.gallery-filter .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentGalleryFilter = btn.dataset.category;
+        loadGalleryImages(currentGalleryFilter);
+    });
+});
+
+// Load gallery images
+async function loadGalleryImages(category = 'all') {
+    const galleryGrid = document.getElementById('gallery-grid');
+    if (!galleryGrid) return;
+    
+    galleryGrid.innerHTML = '<p class="loading-message">Kraunama...</p>';
+    
+    try {
+        const password = localStorage.getItem('kontrole_password');
+        if (!password) {
+            galleryGrid.innerHTML = '<p class="error-message">Prisijunkite pirmiausia</p>';
+            return;
+        }
+        
+        const url = category === 'all' 
+            ? GALLERY_EDGE_URL 
+            : `${GALLERY_EDGE_URL}?category=${category}`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'x-password': password
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+            const errorMsg = result.error || result.details || response.statusText || 'Nežinoma klaida';
+            console.error('Gallery API error:', { status: response.status, result });
+            throw new Error(`Klaida gaunant nuotraukas: ${errorMsg}`);
+        }
+        
+        const images = result.data;
+        
+        if (images.length === 0) {
+            galleryGrid.innerHTML = '<p class="empty-message">Nėra nuotraukų</p>';
+            return;
+        }
+        
+        galleryGrid.innerHTML = images.map(img => {
+            const bucketUrl = `${EDGE_FUNCTIONS_URL.replace('/functions/v1', '')}/storage/v1/object/public/gallery-images`;
+            const thumbnailUrl = `${bucketUrl}/${img.thumbnail_path}`;
+            const thumbnailSmallUrl = img.thumbnail_small_path ? `${bucketUrl}/${img.thumbnail_small_path}` : thumbnailUrl;
+            const fullUrl = `${bucketUrl}/${img.storage_path}`;
+            
+            const categoryNames = {
+                'metalwork': 'Metalinės konstrukcijos',
+                'furniture': 'Baldai',
+                'automotive': 'Automobilių dalys',
+                'industrial': 'Pramoninė įranga'
+            };
+            
+            return `
+                <div class="gallery-item">
+                    <img src="${thumbnailUrl}" 
+                         srcset="${thumbnailSmallUrl} 200w, ${thumbnailUrl} 400w"
+                         sizes="(max-width: 768px) 150px, 250px"
+                         alt="${img.title || 'Gallery image'}" 
+                         class="gallery-item-image" 
+                         onclick="window.open('${fullUrl}', '_blank')">
+                    <div class="gallery-item-info">
+                        <div class="gallery-item-title">${img.title || img.filename}</div>
+                        <div class="gallery-item-meta">
+                            <span class="gallery-item-category">${categoryNames[img.category]}</span>
+                            <span>${(img.file_size / 1024).toFixed(0)}KB</span>
+                        </div>
+                        ${img.description ? `<p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">${img.description}</p>` : ''}
+                        <div class="gallery-item-actions">
+                            <button class="btn-delete" onclick="deleteGalleryImage('${img.id}')">Ištrinti</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Error loading gallery:', error);
+        galleryGrid.innerHTML = `<p class="error-message">${error.message}</p>`;
+    }
+}
+
+// Delete gallery image
+window.deleteGalleryImage = async function(id) {
+    if (!confirm('Ar tikrai norite ištrinti šią nuotrauką?')) return;
+    
+    try {
+        const password = localStorage.getItem('kontrole_password');
+        
+        const response = await fetch(GALLERY_EDGE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-password': password
+            },
+            body: JSON.stringify({
+                action: 'delete',
+                id: id
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Klaida trinant nuotrauką');
+        }
+        
+        showMessage('Nuotrauka ištrinta', 'success');
+        loadGalleryImages(currentGalleryFilter);
+        
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        showMessage(error.message || 'Klaida trinant nuotrauką', 'error');
+    }
+};
+
