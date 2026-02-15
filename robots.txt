@@ -1,6 +1,16 @@
 User-agent: *
 Allow: /
 
+# Disallow admin panels and control systems
+Disallow: /kontrole/
+Disallow: /darbuotojai/
+Disallow: /atidaryti/
+Disallow: /sekimas/
+
+# Disallow API endpoints
+Disallow: /logImpressions
+Disallow: /php/
+
 # Disallow old HTML files (we use clean URLs now)
 Disallow: /about.html
 Disallow: /services.html

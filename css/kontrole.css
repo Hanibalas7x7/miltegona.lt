@@ -79,11 +79,17 @@
 
 .control-header {
     background: var(--bg-light);
-    padding: 1.5rem 0;
+    padding: 0.75rem 0;
     box-shadow: var(--shadow-md);
     position: sticky;
     top: 0;
     z-index: 100;
+    transition: transform 0.3s ease-in-out;
+    will-change: transform;
+}
+
+.control-header.hidden {
+    transform: translateY(-100%);
 }
 
 .control-header .header-content {
@@ -93,30 +99,35 @@
 }
 
 .control-header .header-logo {
-    height: 50px;
+    height: 36px;
 }
 
 .control-header h1 {
     color: var(--text-dark);
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     flex: 1;
-    margin: 0 2rem;
+    margin: 0 1.5rem;
 }
 
 .control-main {
-    padding: 3rem 0;
+    padding: 0;
 }
 
 .panel-section {
-    background: var(--bg-light);
+    background: #1a1d23;
     padding: 2rem;
-    border-radius: 12px;
-    box-shadow: var(--shadow-lg);
-    margin-bottom: 2rem;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel-section:first-child {
+    border-top: none;
 }
 
 .panel-section h2 {
-    color: var(--text-dark);
+    color: rgba(255, 255, 255, 0.9);
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
 }
@@ -140,18 +151,19 @@
 }
 
 .form-group label {
-    color: var(--text-dark);
+    color: rgba(255, 255, 255, 0.85);
     margin-bottom: 0.5rem;
     font-weight: 500;
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
     padding: 0.875rem;
-    background: var(--bg-white);
-    border: 2px solid var(--border-color);
+    background: #262b35;
+    border: 2px solid #3d4450;
     border-radius: 8px;
-    color: var(--text-dark);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 1rem;
     transition: all 0.3s;
 }
@@ -166,14 +178,16 @@
     display: block;
     margin-top: 6px;
     font-size: 13px;
-    color: #666;
+    color: rgba(255, 255, 255, 0.5);
     font-style: italic;
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
     outline: none;
     border-color: var(--primary-color);
+    background: #2d323d;
     box-shadow: 0 0 0 3px rgba(252, 157, 23, 0.1);
 }
 
@@ -305,7 +319,7 @@
 .loading-message,
 .empty-message {
     text-align: center;
-    color: var(--text-light);
+    color: rgba(255, 255, 255, 0.6);
     padding: 2rem;
     font-style: italic;
 }
@@ -556,38 +570,45 @@
 
 /* Tab Navigation */
 .tab-nav {
-    background: var(--bg-light);
-    border-bottom: 2px solid var(--border);
-    padding: 0;
+    background: var(--bg-dark);
+    padding: 1rem 0 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .tab-nav .container {
     display: flex;
-    gap: 0;
+    gap: 0.75rem;
 }
 
 .tab-btn {
-    background: none;
-    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     padding: 1rem 2rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.6);
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
-    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    border-radius: 12px 12px 0 0;
     position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tab-btn:hover {
-    color: var(--primary);
-    background: rgba(254, 193, 0, 0.05);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fec107;
+    border-color: rgba(254, 193, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(254, 193, 0, 0.15);
 }
 
 .tab-btn.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-    background: rgba(254, 193, 0, 0.1);
+    background: #1a1d23;
+    color: #fec107;
+    border-color: rgba(254, 193, 0, 0.4);
+    border-bottom-color: #1a1d23;
+    box-shadow: 0 -2px 8px rgba(254, 193, 0, 0.2), 0 4px 0 #1a1d23;
+    transform: translateY(-3px);
 }
 
 .tab-content {
@@ -601,10 +622,10 @@
 /* Gallery Upload Form */
 .gallery-upload-form {
     max-width: 600px;
-    background: var(--bg-light);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: var(--shadow-md);
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .gallery-upload-form .form-group {
@@ -622,11 +643,11 @@
 .gallery-upload-form select,
 .gallery-upload-form input[type="text"] {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.875rem;
     border: 2px solid #3d4450;
     border-radius: 8px;
     background: #262b35;
-    color: var(--text-dark);
+    color: rgba(255, 255, 255, 0.9);
     font-family: inherit;
     font-size: 1rem;
     transition: all 0.3s;
@@ -647,7 +668,7 @@
     border: 2px dashed #3d4450;
     border-radius: 8px;
     background: #262b35;
-    color: var(--text-dark);
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     transition: all 0.3s;
 }
@@ -660,11 +681,11 @@
 
 .gallery-upload-form textarea {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.875rem;
     border: 2px solid #3d4450;
     border-radius: 8px;
     background: #262b35;
-    color: var(--text-dark);
+    color: rgba(255, 255, 255, 0.9);
     font-family: inherit;
     font-size: 1rem;
     resize: vertical;
@@ -797,8 +818,12 @@
 
 /* Responsive Gallery */
 @media (max-width: 768px) {
+    .tab-nav .container {
+        gap: 0.5rem;
+    }
+    
     .tab-btn {
-        padding: 0.75rem 1rem;
+        padding: 0.875rem 1.25rem;
         font-size: 0.9rem;
     }
     

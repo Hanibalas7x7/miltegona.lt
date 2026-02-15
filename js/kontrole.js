@@ -10,6 +10,35 @@
     };
 })();
 
+// Header scroll functionality
+let lastScrollY = 0;
+let ticking = false;
+
+function updateHeaderVisibility() {
+    const header = document.querySelector('.control-header');
+    if (!header) return;
+    
+    const currentScrollY = window.scrollY;
+    
+    if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down & past threshold
+        header.classList.add('hidden');
+    } else {
+        // Scrolling up or at top
+        header.classList.remove('hidden');
+    }
+    
+    lastScrollY = currentScrollY;
+    ticking = false;
+}
+
+window.addEventListener('scroll', () => {
+    if (!ticking) {
+        window.requestAnimationFrame(updateHeaderVisibility);
+        ticking = true;
+    }
+}, { passive: true });
+
 // Edge Functions Configuration
 const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
 const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
