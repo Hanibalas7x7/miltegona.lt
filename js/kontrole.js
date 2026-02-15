@@ -798,22 +798,36 @@ if (galleryImageInput) {
 async function getImageDimensions(file) {
     return new Promise((resolve, reject) => {
         const img = new Image();
-        const url = URL.createObjectURL(file);
         
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            resolve({
-                width: img.naturalWidth,
-                height: img.naturalHeight
-            });
+        // Use FileReader instead of createObjectURL for better mobile compatibility
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            img.onload = () => {
+                resolve({
+                    width: img.naturalWidth,
+                    height: img.naturalHeight
+                });
+            };
+            
+            img.onerror = () => {
+                reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+            };
+            
+            img.src = e.target.result;
         };
         
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+        reader.onerror = () => {
+            reject(new Error('Nepavyko nuskaityti failo'));
         };
         
-        img.src = url;
+        // Add timeout for slow mobile connections
+        const timeout = setTimeout(() => {
+            reject(new Error('Failo įkėlimas užtruko per ilgai'));
+        }, 30000); // 30 seconds
+        
+        reader.onloadend = () => clearTimeout(timeout);
+        reader.readAsDataURL(file);
     });
 }
 
