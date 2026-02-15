@@ -807,7 +807,7 @@ async function getImageDimensions(file) {
         const timeout = setTimeout(() => {
             if (!settled) {
                 settled = true;
-                reject(new Error('Failo įkėlimas užtruko per ilgai'));
+                reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų - užtruko per ilgai'));
             }
         }, 30000); // 30 seconds
         
