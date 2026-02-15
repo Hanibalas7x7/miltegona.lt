@@ -15,5 +15,5 @@ Allow: /css/
 Allow: /js/
 Allow: /assets/
 
-# Sitemap
-Sitemap: https://miltegona.lt/sitemap.xml
+# Sitemap (dynamic - includes gallery images)
+Sitemap: https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/sitemap

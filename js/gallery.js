@@ -55,6 +55,31 @@ document.addEventListener('DOMContentLoaded', async function() {
             height: img.height
         }));
 
+        // Add structured data for SEO (Google Image Search)
+        if (allImages.length > 0) {
+            const schemaData = {
+                "@context": "https://schema.org",
+                "@type": "ImageGallery",
+                "name": "Miltelinio dažymo darbų galerija - UAB Miltegona",
+                "description": "Peržiūrėkite mūsų atliktų miltelinio dažymo darbų galeriją. Metalinės konstrukcijos, baldai, automobilių dalys ir pramoninė įranga.",
+                "image": allImages.map(img => ({
+                    "@type": "ImageObject",
+                    "contentUrl": img.path,
+                    "thumbnail": img.thumbnail,
+                    "name": img.title || img.category_name,
+                    "description": img.description || `${img.category_name} - miltelinis dažymas`,
+                    "width": img.width,
+                    "height": img.height,
+                    "encodingFormat": "image/avif"
+                }))
+            };
+            
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.text = JSON.stringify(schemaData);
+            document.head.appendChild(script);
+        }
+
         // Generate gallery items
         if (allImages.length === 0) {
             galleryGrid.innerHTML = `
