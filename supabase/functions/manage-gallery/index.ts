@@ -3,9 +3,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 // Configuration
 const ALLOWED_CATEGORIES = ['metalwork', 'furniture', 'automotive', 'industrial'];
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
 const MAX_WIDTH = 1920;
 const THUMBNAIL_WIDTH = 400;
 const THUMBNAIL_SMALL_WIDTH = 200;
+const MAX_DIMENSION = 20000; // Reasonable max for width/height
 
 // Category mapping
 const CATEGORY_FOLDERS = {
@@ -56,7 +58,7 @@ serve(async (req) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, x-password",
+        "Access-Control-Allow-Headers": "Content-Type, x-password, Authorization, apikey",
         "Access-Control-Max-Age": "86400",
       },
     });
@@ -106,28 +108,21 @@ serve(async (req) => {
       return jsonResponse({ success: true, data });
     }
 
-    // Verify password for POST/DELETE operations
+    // Verify password for POST operations
     const password = req.headers.get("x-password");
     if (!password) {
       return jsonResponse({ success: false, error: "Nėra autorizacijos" }, 401);
     }
 
-    const { data: passwordData, error: passwordError } = await supabase
-      .from("control_password")
-      .select("password")
-      .single();
-
-    if (passwordError) {
-      console.error("Password fetch error:", passwordError);
-      return jsonResponse({ 
-        success: false, 
-        error: "Klaida tikrinant slaptažodį", 
-        details: passwordError.message 
-      }, 500);
+    // Check against environment variable instead of database
+    const adminPassword = Deno.env.get("ADMIN_PASSWORD");
+    if (!adminPassword) {
+      console.error("ADMIN_PASSWORD not configured");
+      return jsonResponse({ success: false, error: "Serverio konfigūracijos klaida" }, 500);
     }
 
-    if (!passwordData || passwordData.password !== password) {
-      console.error("Password mismatch:", { received: password, expected: passwordData?.password });
+    if (password !== adminPassword) {
+      console.error("Password mismatch");
       return jsonResponse({ success: false, error: "Neteisingas slaptažodis" }, 401);
     }
 
@@ -196,12 +191,33 @@ serve(async (req) => {
         return jsonResponse({ success: false, error: "Nėra failo" }, 400);
       }
 
+      // Validate MIME type
+      if (!ALLOWED_MIME_TYPES.includes(imageFile.type)) {
+        return jsonResponse({ 
+          success: false, 
+          error: "Leidžiami tik JPG ir PNG failai" 
+        }, 400);
+      }
+
       if (!category || !ALLOWED_CATEGORIES.includes(category)) {
         return jsonResponse({ success: false, error: "Neteisinga kategorija" }, 400);
       }
 
+      // Validate dimensions
       if (!originalWidth || !originalHeight) {
         return jsonResponse({ success: false, error: "Nenurodyta nuotraukos dimensijos" }, 400);
+      }
+
+      const origWidth = parseInt(originalWidth);
+      const origHeight = parseInt(originalHeight);
+
+      if (!Number.isFinite(origWidth) || !Number.isFinite(origHeight) || 
+          origWidth <= 0 || origHeight <= 0 || 
+          origWidth > MAX_DIMENSION || origHeight > MAX_DIMENSION) {
+        return jsonResponse({ 
+          success: false, 
+          error: "Neteisingos nuotraukos dimensijos" 
+        }, 400);
       }
 
       // Get original image data
@@ -253,12 +269,12 @@ serve(async (req) => {
 
         console.log(`Compressed sizes: main=${Math.round(mainAvif.byteLength/1024)}KB, thumb=${Math.round(thumbAvif.byteLength/1024)}KB, small=${Math.round(thumbSmallAvif.byteLength/1024)}KB`);
 
-        // Generate filenames
-        const timestamp = Date.now();
+        // Generate filenames with UUID to avoid timestamp collisions
+        const uuid = crypto.randomUUID();
         const folderName = CATEGORY_FOLDERS[category];
-        const mainPath = `${folderName}/${timestamp}.avif`;
-        const thumbPath = `${folderName}/${timestamp}_thumb.avif`;
-        const thumbSmallPath = `${folderName}/${timestamp}_thumb_small.avif`;
+        const mainPath = `${folderName}/${uuid}.avif`;
+        const thumbPath = `${folderName}/${uuid}_thumb.avif`;
+        const thumbSmallPath = `${folderName}/${uuid}_thumb_small.avif`;
 
         // Upload main image to storage
         const { error: uploadError } = await supabase.storage
@@ -303,8 +319,6 @@ serve(async (req) => {
         }
 
         // Calculate dimensions based on original image and resize ratios
-        const origWidth = parseInt(originalWidth);
-        const origHeight = parseInt(originalHeight);
         const aspectRatio = origWidth / origHeight;
         
         // Main image dimensions (max 1920px wide)
