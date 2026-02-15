@@ -837,22 +837,97 @@ if (clearDebugBtn) {
 }
 
 if (galleryImageInput) {
-    galleryImageInput.addEventListener('change', (e) => {
+    galleryImageInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
             debugLogMessage(`File selected: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`);
-            const reader = new FileReader();
-            reader.onload = (e) => {
+            
+            // Try to load preview with timeout and fallback
+            try {
+                await loadPreviewWithTimeout(file);
+                debugLogMessage('Preview loaded successfully');
+            } catch (error) {
+                debugLogMessage('Preview load failed: ' + error.message, true);
+                // Even if preview fails, try to continue with upload
+                uploadPreview.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Helper to load preview with timeout
+async function loadPreviewWithTimeout(file) {
+    return new Promise((resolve, reject) => {
+        // Try ObjectURL first for preview (more reliable on mobile)
+        let objectUrl;
+        let timeoutId;
+        
+        try {
+            objectUrl = URL.createObjectURL(file);
+        } catch (error) {
+            debugLogMessage('ObjectURL creation failed, trying FileReader', true);
+            // Fallback to FileReader
+            return loadPreviewViaFileReader(file).then(resolve).catch(reject);
+        }
+        
+        timeoutId = setTimeout(() => {
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            debugLogMessage('Preview timeout, trying FileReader', true);
+            loadPreviewViaFileReader(file).then(resolve).catch(reject);
+        }, 10000);
+        
+        const img = new Image();
+        img.onload = () => {
+            clearTimeout(timeoutId);
+            previewImage.src = objectUrl;
+            previewSize.textContent = `Originalus dydis: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+            uploadPreview.style.display = 'block';
+            // Don't revoke URL yet - image still needs it
+            setTimeout(() => {
+                if (objectUrl) URL.revokeObjectURL(objectUrl);
+            }, 1000);
+            resolve();
+        };
+        
+        img.onerror = () => {
+            clearTimeout(timeoutId);
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            debugLogMessage('ObjectURL preview failed, trying FileReader', true);
+            loadPreviewViaFileReader(file).then(resolve).catch(reject);
+        };
+        
+        img.src = objectUrl;
+    });
+}
+
+// Fallback preview loader via FileReader
+async function loadPreviewViaFileReader(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        let timeoutId = setTimeout(() => {
+            reader.abort();
+            reject(new Error('FileReader timeout'));
+        }, 15000);
+        
+        reader.onload = (e) => {
+            clearTimeout(timeoutId);
+            if (e.target && e.target.result) {
                 previewImage.src = e.target.result;
                 previewSize.textContent = `Originalus dydis: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
                 uploadPreview.style.display = 'block';
-                debugLogMessage('Preview loaded successfully');
-            };
-            reader.onerror = () => {
-                debugLogMessage('Preview load failed', true);
-            };
-            reader.readAsDataURL(file);
-        }
+                resolve();
+            } else {
+                reject(new Error('FileReader empty result'));
+            }
+        };
+        
+        reader.onerror = (error) => {
+            clearTimeout(timeoutId);
+            debugLogMessage('FileReader error: ' + (error.message || 'unknown'), true);
+            reject(error || new Error('FileReader error'));
+        };
+        
+        reader.readAsDataURL(file);
     });
 }
 
@@ -907,23 +982,28 @@ async function getImageDimensionsViaFileReader(file) {
         
         reader.onload = (e) => {
             if (resolved) return;
+            debugLogMessage('FileReader.onload triggered');
             
             if (!e.target || !e.target.result) {
                 resolved = true;
                 clearTimeout(timeoutId);
+                debugLogMessage('FileReader: empty result', true);
                 reject(new Error('FileReader returned empty result'));
                 return;
             }
             
             // Check if result is valid base64
             const result = e.target.result;
+            debugLogMessage(`FileReader result length: ${result.length}`);
             if (typeof result !== 'string' || result.length < 100) {
                 resolved = true;
                 clearTimeout(timeoutId);
+                debugLogMessage(`FileReader: result too short (${result.length})`, true);
                 reject(new Error('FileReader result too short'));
                 return;
             }
             
+            debugLogMessage('Setting up img.onload...');
             img.onload = () => {
                 if (resolved) return;
                 resolved = true;
@@ -945,11 +1025,12 @@ async function getImageDimensionsViaFileReader(file) {
                 if (resolved) return;
                 resolved = true;
                 clearTimeout(timeoutId);
-                console.error('Image load error:', error);
+                debugLogMessage('FileReader img.onerror: ' + (error?.message || 'unknown'), true);
                 reject(new Error('Image load error'));
             };
             
             // Small delay to ensure DOM is ready (mobile Chrome quirk)
+            debugLogMessage('Setting img.src with 50ms delay...');
             setTimeout(() => {
                 img.src = result;
             }, 50);
@@ -959,9 +1040,11 @@ async function getImageDimensionsViaFileReader(file) {
             if (resolved) return;
             resolved = true;
             clearTimeout(timeoutId);
-            console.error('FileReader error:', error);
+            debugLogMessage('FileReader.onerror: ' + (error?.message || 'unknown'), true);
             reject(new Error('FileReader error'));
         };
+        
+        debugLogMessage('Starting FileReader.readAsDataURL...');
         
         reader.readAsDataURL(file);
     });
@@ -1108,6 +1191,7 @@ const loadingStatusText = document.getElementById('loading-status-text');
 if (galleryUploadForm) {
     galleryUploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        debugLogMessage('=== Upload form submitted ===');
         
         const uploadBtn = document.getElementById('upload-btn');
         const originalText = uploadBtn.textContent;
@@ -1116,9 +1200,11 @@ if (galleryUploadForm) {
         try {
             const file = galleryImageInput.files[0];
             if (!file) {
+                debugLogMessage('No file selected', true);
                 throw new Error('Pasirinkite nuotrauką');
             }
             
+            debugLogMessage(`Upload starting: ${file.name}`);
             const originalSize = file.size;
             
             // Show loading overlay
@@ -1126,7 +1212,9 @@ if (galleryUploadForm) {
             loadingStatusText.textContent = 'Nuskaitoma nuotrauka...';
             
             // Get image dimensions
+            debugLogMessage('Calling getImageDimensions...');
             const imgDimensions = await getImageDimensions(file);
+            debugLogMessage(`Got dimensions: ${imgDimensions.width}x${imgDimensions.height}`);
             
             // Create FormData with original image (Edge Function will compress via TinyPNG API)
             const formData = new FormData();
@@ -1175,6 +1263,7 @@ if (galleryUploadForm) {
             
         } catch (error) {
             console.error('Error uploading image:', error);
+            debugLogMessage(`ERROR: ${error.message}`, true);
             showMessage(error.message || 'Klaida įkeliant nuotrauką', 'error');
         } finally {
             // Hide loading overlay
