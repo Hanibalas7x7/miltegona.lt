@@ -55,7 +55,7 @@ serve(async (req) => {
     return new Response("ok", {
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, GET, DELETE, OPTIONS",
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, x-password",
         "Access-Control-Max-Age": "86400",
       },
@@ -189,6 +189,8 @@ serve(async (req) => {
       const category = formData.get("category") as string;
       const title = formData.get("title") as string || null;
       const description = formData.get("description") as string || null;
+      const originalWidth = formData.get("width") as string;
+      const originalHeight = formData.get("height") as string;
 
       if (!imageFile) {
         return jsonResponse({ success: false, error: "Nėra failo" }, 400);
@@ -196,6 +198,10 @@ serve(async (req) => {
 
       if (!category || !ALLOWED_CATEGORIES.includes(category)) {
         return jsonResponse({ success: false, error: "Neteisinga kategorija" }, 400);
+      }
+
+      if (!originalWidth || !originalHeight) {
+        return jsonResponse({ success: false, error: "Nenurodyta nuotraukos dimensijos" }, 400);
       }
 
       // Get original image data
@@ -229,11 +235,14 @@ serve(async (req) => {
         const uploadResult = await uploadResponse.json();
         const outputUrl = uploadResult.output.url;
         
-        // Get compression count from TinyPNG API response headers
-        // We use 4 API calls total: 1 shrink + 3 resize/convert operations
-        const compressionCount = uploadResponse.headers.get("compression-count") || "?";
-        const totalApiCalls = compressionCount !== "?" ? parseInt(compressionCount) + 3 : "?";
-        console.log(`TinyPNG API usage: ${totalApiCalls} compressions this month (${compressionCount} + 3 resize ops)`);
+        // Get compression count from TinyPNG API (this is month total AFTER this shrink request)
+        // We use 4 API calls total per upload: 1 shrink + 3 resize/convert operations
+        const monthTotalAfterShrink = uploadResponse.headers.get("compression-count") || "?";
+        const thisUploadCost = 4; // 1 shrink + 3 resize ops
+        const monthTotalAfterUpload = monthTotalAfterShrink !== "?" 
+          ? (parseInt(monthTotalAfterShrink) + 3).toString() 
+          : "?";
+        console.log(`TinyPNG API usage: ${thisUploadCost} calls for this upload, ${monthTotalAfterUpload} total this month`);
 
         // Step 2: Resize and convert to 3 sizes in parallel (3 API calls)
         const [mainAvif, thumbAvif, thumbSmallAvif] = await Promise.all([
@@ -264,30 +273,51 @@ serve(async (req) => {
           return jsonResponse({ success: false, error: "Klaida įkeliant nuotrauką", details: uploadError.message }, 500);
         }
 
-        // Upload thumbnails
-        await supabase.storage
+        // Upload thumbnails (with error handling)
+        const { error: thumbError } = await supabase.storage
           .from("gallery-images")
           .upload(thumbPath, thumbAvif, {
             contentType: "image/avif",
             cacheControl: "31536000",
           });
 
-        await supabase.storage
+        if (thumbError) {
+          console.error("Error uploading thumbnail:", thumbError);
+          // Cleanup main image
+          await supabase.storage.from("gallery-images").remove([mainPath]);
+          return jsonResponse({ success: false, error: "Klaida įkeliant thumbnail", details: thumbError.message }, 500);
+        }
+
+        const { error: thumbSmallError } = await supabase.storage
           .from("gallery-images")
           .upload(thumbSmallPath, thumbSmallAvif, {
             contentType: "image/avif",
             cacheControl: "31536000",
           });
 
-        // Get image dimensions (we'll need to decode the AVIF to get exact dimensions)
-        // For now, estimate based on the resize parameters
-        const aspectRatio = 1.333; // Will be more accurate with actual decoding
-        const width = 1920;
-        const height = Math.round(width * aspectRatio);
-        const thumbWidth = 400;
-        const thumbHeight = Math.round(thumbWidth * aspectRatio);
-        const thumbSmallWidth = 200;
-        const thumbSmallHeight = Math.round(thumbSmallWidth * aspectRatio);
+        if (thumbSmallError) {
+          console.error("Error uploading small thumbnail:", thumbSmallError);
+          // Cleanup main + thumbnail
+          await supabase.storage.from("gallery-images").remove([mainPath, thumbPath]);
+          return jsonResponse({ success: false, error: "Klaida įkeliant mažą thumbnail", details: thumbSmallError.message }, 500);
+        }
+
+        // Calculate dimensions based on original image and resize ratios
+        const origWidth = parseInt(originalWidth);
+        const origHeight = parseInt(originalHeight);
+        const aspectRatio = origWidth / origHeight;
+        
+        // Main image dimensions (max 1920px wide)
+        const width = Math.min(origWidth, 1920);
+        const height = Math.round(width / aspectRatio);
+        
+        // Thumbnail dimensions (400px wide)
+        const thumbWidth = Math.min(origWidth, 400);
+        const thumbHeight = Math.round(thumbWidth / aspectRatio);
+        
+        // Small thumbnail dimensions (200px wide)
+        const thumbSmallWidth = Math.min(origWidth, 200);
+        const thumbSmallHeight = Math.round(thumbSmallWidth / aspectRatio);
 
         // Save metadata to database
         const { data: insertedData, error: dbError } = await supabase
@@ -331,7 +361,10 @@ serve(async (req) => {
             compressedSize: totalSize,
             compressionRatio: `${compressionRatio}%`,
             tinypng: true,
-            apiUsage: totalApiCalls
+            apiUsage: {
+              thisUpload: thisUploadCost,
+              monthTotal: monthTotalAfterUpload
+            }
           }
         });
       } catch (tinifyError) {
@@ -358,7 +391,7 @@ function jsonResponse(data: any, status = 200) {
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, GET, DELETE, OPTIONS",
+      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, x-password, Authorization, apikey",
     },
   });

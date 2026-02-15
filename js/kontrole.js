@@ -794,6 +794,29 @@ if (galleryImageInput) {
     });
 }
 
+// Helper function to get image dimensions
+async function getImageDimensions(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            resolve({
+                width: img.naturalWidth,
+                height: img.naturalHeight
+            });
+        };
+        
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Nepavyko nuskaityti nuotraukos dimensijų'));
+        };
+        
+        img.src = url;
+    });
+}
+
 // Helper function to convert image to AVIF blob at specific size
 async function imageToAVIF(file, maxWidth, quality = 0.8) {
     return new Promise((resolve, reject) => {
@@ -892,7 +915,10 @@ if (galleryUploadForm) {
             
             // Show loading overlay
             uploadLoadingOverlay.style.display = 'flex';
-            loadingStatusText.textContent = 'Komprimuojama į AVIF su TinyPNG...';
+            loadingStatusText.textContent = 'Nuskaitoma nuotrauka...';
+            
+            // Get image dimensions
+            const imgDimensions = await getImageDimensions(file);
             
             // Create FormData with original image (Edge Function will compress via TinyPNG API)
             const formData = new FormData();
@@ -900,10 +926,12 @@ if (galleryUploadForm) {
             formData.append('category', document.getElementById('gallery-category').value);
             formData.append('title', document.getElementById('gallery-title').value);
             formData.append('description', document.getElementById('gallery-description').value);
+            formData.append('width', imgDimensions.width.toString());
+            formData.append('height', imgDimensions.height.toString());
             
             const password = localStorage.getItem('kontrole_password');
             
-            loadingStatusText.textContent = 'Įkeliama į Supabase...';
+            loadingStatusText.textContent = 'Komprimuojama į AVIF su TinyPNG...';
             
             const response = await fetch(GALLERY_EDGE_URL, {
                 method: 'POST',
@@ -923,9 +951,12 @@ if (galleryUploadForm) {
             
             const totalSize = result.data?.file_size || 0;
             const compressionRatio = totalSize > 0 ? ((1 - (totalSize / originalSize)) * 100).toFixed(1) : '?';
-            const apiUsage = result.data?.apiUsage || '?';
+            const apiUsage = result.data?.apiUsage;
+            const apiUsageText = apiUsage && typeof apiUsage === 'object' 
+                ? `${apiUsage.thisUpload} šiam įkėlimui, ${apiUsage.monthTotal} iš viso šį mėnesį` 
+                : apiUsage || '?';
             
-            showMessage(`Nuotrauka įkelta! Kompresija: ${compressionRatio}% (${(originalSize/1024/1024).toFixed(1)}MB → ${(totalSize/1024).toFixed(0)}KB AVIF). TinyPNG API: ${apiUsage}/500 šį mėnesį`, 'success');
+            showMessage(`Nuotrauka įkelta! Kompresija: ${compressionRatio}% (${(originalSize/1024/1024).toFixed(1)}MB → ${(totalSize/1024).toFixed(0)}KB AVIF). TinyPNG API: ${apiUsageText}`, 'success');
             
             // Reset form
             galleryUploadForm.reset();
