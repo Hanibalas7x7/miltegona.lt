@@ -1,0 +1,42 @@
+# Cloudflare Pages - Custom Headers
+# Pakeičia .htaccess cache taisykles
+
+# Nuotraukos ir ikonos - 1 metai
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+# Šriftai - 1 metai
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+/*.eot
+  Cache-Control: public, max-age=31536000, immutable
+
+# CSS ir JS - 1 mėnuo
+/*.css
+  Cache-Control: public, max-age=2592000
+/*.js
+  Cache-Control: public, max-age=2592000
+
+# HTML - 1 valanda
+/*.html
+  Cache-Control: public, max-age=3600
+
+# Saugumo headeriai (visi puslapiai)
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin

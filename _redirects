@@ -1,0 +1,3 @@
+# Cloudflare Pages - Redirects
+# www -> non-www
+https://www.miltegona.lt/* https://miltegona.lt/:splat 301
