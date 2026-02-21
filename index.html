@@ -31,6 +31,14 @@
     <link rel="preload" as="image" href="assets/main_pic-desktop.jpg" media="(min-width: 769px)" fetchpriority="high">
     <link rel="preload" as="style" href="css/style.css">
     
+    <!-- Inline CSS for critical hero background to avoid render blocking -->
+    <style>
+        .hero { background-image: url('assets/main_pic-desktop.jpg'); }
+        @media (max-width: 768px) {
+            .hero { background-image: url('assets/main_pic-mobile.jpg') !important; }
+        }
+    </style>
+    
     <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="512x512" href="/assets/android-chrome-512x512-dOqEyR4jnBSMWDw1.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/assets/android-chrome-512x512-dOqEyR4jnBSMWDw1.png">
@@ -182,7 +190,7 @@
 
     <main>
     <!-- Hero Section -->
-    <section class="hero" style="background-image: url('assets/main_pic-desktop.jpg');">
+    <section class="hero">
         <div class="hero-overlay"></div>
         <div class="container">
             <div class="hero-content">
