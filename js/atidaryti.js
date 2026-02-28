@@ -45,13 +45,16 @@ async function validateCode(code) {
         try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 10000);
-            response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code }),
-                signal: controller.signal
-            });
-            clearTimeout(timeout);
+            try {
+                response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code }),
+                    signal: controller.signal
+                });
+            } finally {
+                clearTimeout(timeout);
+            }
             break; // success
         } catch (err) {
             console.error(`Attempt ${attempt}/3 failed:`, err);
@@ -139,13 +142,17 @@ async function loadLightStatus() {
         try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 10000);
-            const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, action: 'get_status' }),
-                signal: controller.signal
-            });
-            clearTimeout(timeout);
+            let response;
+            try {
+                response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, action: 'get_status' }),
+                    signal: controller.signal
+                });
+            } finally {
+                clearTimeout(timeout);
+            }
             
             const result = await response.json();
             console.log('Light status response:', result);
@@ -191,13 +198,17 @@ async function performAction(action, buttonElement, successMessage) {
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
-        const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, action }),
-            signal: controller.signal
-        });
-        clearTimeout(timeout);
+        let response;
+        try {
+            response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, action }),
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timeout);
+        }
         
         const result = await response.json();
         console.log('Action response:', action, result);
