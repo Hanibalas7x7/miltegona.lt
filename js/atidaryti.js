@@ -43,11 +43,15 @@ async function validateCode(code) {
     let response;
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
             response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
+                body: JSON.stringify({ code }),
+                signal: controller.signal
             });
+            clearTimeout(timeout);
             break; // success
         } catch (err) {
             console.error(`Attempt ${attempt}/3 failed:`, err);
@@ -133,11 +137,15 @@ function showSuccessState() {
 async function loadLightStatus() {
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
             const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, action: 'get_status' })
+                body: JSON.stringify({ code, action: 'get_status' }),
+                signal: controller.signal
             });
+            clearTimeout(timeout);
             
             const result = await response.json();
             console.log('Light status response:', result);
@@ -181,11 +189,15 @@ async function performAction(action, buttonElement, successMessage) {
     gateStatus.className = 'gate-status sending';
     
     try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
         const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, action })
+            body: JSON.stringify({ code, action }),
+            signal: controller.signal
         });
+        clearTimeout(timeout);
         
         const result = await response.json();
         console.log('Action response:', action, result);
