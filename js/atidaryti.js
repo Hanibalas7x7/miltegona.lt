@@ -40,16 +40,28 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // Validate code
 async function validateCode(code) {
+    let response;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            break; // success
+        } catch (err) {
+            console.error(`Attempt ${attempt}/3 failed:`, err);
+            if (attempt < 3) {
+                const loadingP = loadingState.querySelector('p');
+                if (loadingP) loadingP.textContent = `Jungiamasi... (${attempt}/3)`;
+                await new Promise(r => setTimeout(r, 2000));
+            } else {
+                showInvalidState('Serveris nepasiekiamas. Patikrinkite ryšį ir bandykite dar kartą.');
+                return;
+            }
+        }
+    }
     try {
-        // Call Edge Function to validate code (uses SERVICE_ROLE_KEY internally)
-        const response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ code })
-        });
-        
         const result = await response.json();
         
         if (!result.success) {
@@ -87,7 +99,9 @@ function showValidState() {
     loadingState.style.display = 'none';
     validState.style.display = 'block';
     
-    // Load light status
+    // Load light status in background - don't block UI
+    lightBtnText.textContent = 'Šviesa';
+    toggleLightBtn.disabled = false;
     loadLightStatus();
 }
 
@@ -117,34 +131,31 @@ function showSuccessState() {
 
 // Load light status
 async function loadLightStatus() {
-    try {
-        lightBtnText.textContent = 'Tikrinama...';
-        toggleLightBtn.disabled = true;
-        
-        const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, action: 'get_status' })
-        });
-        
-        const result = await response.json();
-        console.log('Light status response:', result);
-        
-        if (result.success && result.data) {
-            // result.data contains the unified-control response
-            lightState = result.data.state;
-            console.log('Light state:', lightState);
-            updateLightButton();
-        } else {
-            console.error('Failed to get light status:', result);
-            lightBtnText.textContent = 'Šviesa (nežinoma būsena)';
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            const response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, action: 'get_status' })
+            });
+            
+            const result = await response.json();
+            console.log('Light status response:', result);
+            
+            if (result.success && result.data) {
+                lightState = result.data.state;
+                console.log('Light state:', lightState);
+                updateLightButton();
+            } else {
+                console.error('Failed to get light status:', result);
+            }
+            return; // success - exit loop
+        } catch (error) {
+            console.error(`Error loading light status (attempt ${attempt}/3):`, error);
+            if (attempt < 3) {
+                await new Promise(r => setTimeout(r, 2000)); // wait 2s before retry
+            }
         }
-        
-        toggleLightBtn.disabled = false;
-    } catch (error) {
-        console.error('Error loading light status:', error);
-        lightBtnText.textContent = 'Šviesa (klaida)';
-        toggleLightBtn.disabled = false;
     }
 }
 
