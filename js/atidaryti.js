@@ -27,8 +27,15 @@ window.addEventListener('DOMContentLoaded', async () => {
         showInvalidState('Kodas nerastas nuorodoje');
         return;
     }
-    
+
+    // Update loading text after 2s so it doesn't look frozen
+    const slowTimer = setTimeout(() => {
+        const loadingP = loadingState.querySelector('p');
+        if (loadingP) loadingP.textContent = 'Jungiamasi prie serverio...';
+    }, 2000);
+
     await validateCode(code);
+    clearTimeout(slowTimer);
 });
 
 // Validate code
