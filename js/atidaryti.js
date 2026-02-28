@@ -41,32 +41,22 @@ window.addEventListener('DOMContentLoaded', async () => {
 // Validate code
 async function validateCode(code) {
     let response;
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
         try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 20000);
-            try {
-                response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code }),
-                    signal: controller.signal
-                });
-            } finally {
-                clearTimeout(timeout);
-            }
-            break; // success
-        } catch (err) {
-            console.error(`Attempt ${attempt}/3 failed:`, err);
-            if (attempt < 3) {
-                const loadingP = loadingState.querySelector('p');
-                if (loadingP) loadingP.textContent = `Jungiamasi... (${attempt}/3)`;
-                await new Promise(r => setTimeout(r, 2000));
-            } else {
-                showInvalidState('Serveris nepasiekiamas. Patikrinkite ryšį ir bandykite dar kartą.');
-                return;
-            }
+            response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code }),
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timeout);
         }
+    } catch (err) {
+        showInvalidState('Serveris nepasiekiamas. Patikrinkite ryšį ir bandykite dar kartą.');
+        return;
     }
     try {
         const result = await response.json();
