@@ -44,7 +44,7 @@ async function validateCode(code) {
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 10000);
+            const timeout = setTimeout(() => controller.abort(), 20000);
             try {
                 response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
                     method: 'POST',
@@ -141,7 +141,7 @@ async function loadLightStatus() {
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 10000);
+            const timeout = setTimeout(() => controller.abort(), 25000);
             let response;
             try {
                 response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
@@ -197,7 +197,7 @@ async function performAction(action, buttonElement, successMessage) {
     
     try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
+        const timeout = setTimeout(() => controller.abort(), 25000);
         let response;
         try {
             response = await fetch(`${EDGE_FUNCTIONS_URL}/validate-code-control`, {
