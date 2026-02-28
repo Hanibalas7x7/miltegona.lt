@@ -25,11 +25,17 @@
 /*.eot
   Cache-Control: public, max-age=31536000, immutable
 
-# CSS ir JS - 1 mėnuo
+# CSS - 1 valanda
 /*.css
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=3600
+
+# JS - 1 valanda (ne mėnuo - norim greitai taisyti)
 /*.js
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=3600
+
+# Atidaryti JS - visada naujas (kritinis saugumui)
+/js/atidaryti.js
+  Cache-Control: no-cache, must-revalidate
 
 # HTML - 1 valanda
 /*.html
