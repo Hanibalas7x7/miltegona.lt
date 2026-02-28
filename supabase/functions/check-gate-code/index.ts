@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 // Rate limiting: 60 requests per hour per IP
@@ -26,7 +25,7 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // CORS headers
   if (req.method === "OPTIONS") {
     return new Response("ok", {
