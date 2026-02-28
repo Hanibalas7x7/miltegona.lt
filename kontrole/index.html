@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Kontrol─Śs Panel─Ś - UAB Miltegona</title>
+    <title>Kontrolės Panelė - UAB Miltegona</title>
     
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/kontrole.css">
@@ -18,10 +18,10 @@
     <div id="login-screen" class="auth-screen">
         <div class="auth-container">
             <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="Miltegona" class="auth-logo">
-            <h1>Kontrol─Śs Panel─Ś</h1>
+            <h1>Kontrolės Panelė</h1>
             <form id="login-form" class="auth-form">
                 <div class="form-group">
-                    <label for="password">Slapta┼Šodis</label>
+                    <label for="password">Slaptažodis</label>
                     <input type="password" id="password" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-primary">Prisijungti</button>
@@ -36,7 +36,7 @@
             <div class="container">
                 <div class="header-content">
                     <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="Miltegona" class="header-logo">
-                    <h1>Kontrol─Śs Panel─Ś</h1>
+                    <h1>Kontrolės Panelė</h1>
                     <button id="logout-btn" class="btn btn-secondary">Atsijungti</button>
                 </div>
             </div>
@@ -45,7 +45,7 @@
         <!-- Tab Navigation -->
         <nav class="tab-nav">
             <div class="container">
-                <button class="tab-btn active" data-tab="gates">Vart┼│ Kontrol─Ś</button>
+                <button class="tab-btn active" data-tab="gates">Vartų Kontrolė</button>
                 <button class="tab-btn" data-tab="gallery">Galerija</button>
             </div>
         </nav>
@@ -56,23 +56,23 @@
                 <div id="gates-tab" class="tab-content active">
                 <!-- Code Generator -->
                 <section class="panel-section">
-                    <h2>Generuoti Nauj─ģ Kod─ģ</h2>
+                    <h2>Generuoti Naują Kodą</h2>
                     <form id="code-form" class="code-form">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="code-type">Galiojimo Laikas</label>
                                 <select id="code-type" required>
                                     <option value="single">Konkreti diena</option>
-                                    <option value="range">Dat┼│ intervalas</option>
+                                    <option value="range">Datų intervalas</option>
                                     <option value="unlimited">Neribotai</option>
                                 </select>
                             </div>
                         </div>
 
                         <div id="single-date-group" class="form-group date-group">
-                            <label for="single-date">Pasirinkite Dat─ģ</label>
+                            <label for="single-date">Pasirinkite Datą</label>
                             <input type="date" id="single-date" value="">
-                            <small class="form-hint">Kodas galioja vis─ģ pasirinkt─ģ dien─ģ (00:00 - 23:59)</small>
+                            <small class="form-hint">Kodas galioja visą pasirinktą dieną (00:00 - 23:59)</small>
                         </div>
 
                         <div id="range-date-group" class="form-group date-group" style="display: none;">
@@ -86,7 +86,7 @@
                                     <input type="date" id="end-date" value="">
                                 </div>
                             </div>
-                            <small class="form-hint">Kodas galioja nuo pasirinktos datos prad┼Šios iki datos pabaigos</small>
+                            <small class="form-hint">Kodas galioja nuo pasirinktos datos pradžios iki datos pabaigos</small>
                         </div>
 
                         <div class="form-group">
@@ -94,17 +94,17 @@
                             <input type="text" id="code-note" placeholder="Pvz., Kliento vardas">
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Generuoti Kod─ģ</button>
+                        <button type="submit" class="btn btn-primary">Generuoti Kodą</button>
                     </form>
                 </section>
 
                 <!-- Active Codes List -->
                 <section class="panel-section">
-                    <h2>Aktyv┼½s Kodai</h2>
+                    <h2>Aktyvūs Kodai</h2>
                     <div class="codes-filter">
                         <button class="filter-btn active" data-filter="all">Visi</button>
-                        <button class="filter-btn" data-filter="active">Aktyv┼½s</button>
-                        <button class="filter-btn" data-filter="expired">Pasibaig─Ö</button>
+                        <button class="filter-btn" data-filter="active">Aktyvūs</button>
+                        <button class="filter-btn" data-filter="expired">Pasibaigę</button>
                     </div>
                     <div id="codes-list" class="codes-list">
                         <p class="loading-message">Kraunama...</p>
@@ -118,28 +118,28 @@
                     <div id="upload-loading-overlay" class="upload-loading-overlay" style="display: none;">
                         <div class="loading-content">
                             <div class="spinner"></div>
-                            <p id="loading-status-text">Komprimuojama ─» AVIF su TinyPNG...</p>
+                            <p id="loading-status-text">Komprimuojama į AVIF su TinyPNG...</p>
                         </div>
                     </div>
                     
                     <section class="panel-section">
-                        <h2>─«kelti Nauj─ģ Nuotrauk─ģ</h2>
+                        <h2>Įkelti Naują Nuotrauką</h2>
                         
                         <form id="gallery-upload-form" class="gallery-upload-form">
                             <div class="form-group">
                                 <label for="gallery-category">Kategorija</label>
                                 <select id="gallery-category" required>
-                                    <option value="metalwork">Metalin─Śs konstrukcijos</option>
+                                    <option value="metalwork">Metalinės konstrukcijos</option>
                                     <option value="furniture">Baldai</option>
-                                    <option value="automotive">Automobili┼│ dalys</option>
-                                    <option value="industrial">Pramonin─Ś ─»ranga</option>
+                                    <option value="automotive">Automobilių dalys</option>
+                                    <option value="industrial">Pramoninė įranga</option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
                                 <label for="gallery-image">Nuotrauka (max 100MB)</label>
                                 <input type="file" id="gallery-image" accept="image/jpeg,image/jpg,image/png,image/webp" required>
-                                <small class="form-hint">Bus automati┼Īkai suspaustas ─» AVIF format─ģ su TinyPNG API (95-99% kompresija)</small>
+                                <small class="form-hint">Bus automatiškai suspaustas į AVIF formatą su TinyPNG API (95-99% kompresija)</small>
                             </div>
 
                             <div class="form-group">
@@ -148,8 +148,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="gallery-description">Apra┼Īymas (neprivaloma)</label>
-                                <textarea id="gallery-description" rows="3" placeholder="Trumpas darbo apra┼Īymas"></textarea>
+                                <label for="gallery-description">Aprašymas (neprivaloma)</label>
+                                <textarea id="gallery-description" rows="3" placeholder="Trumpas darbo aprašymas"></textarea>
                             </div>
 
                             <div id="upload-preview" class="upload-preview" style="display: none;">
@@ -159,18 +159,18 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary" id="upload-btn">─«kelti Nuotrauk─ģ</button>
+                            <button type="submit" class="btn btn-primary" id="upload-btn">Įkelti Nuotrauką</button>
                         </form>
                     </section>
 
                     <section class="panel-section">
-                        <h2>Nuotrauk┼│ galerija</h2>
+                        <h2>Nuotraukų galerija</h2>
                         <div class="gallery-filter">
                             <button class="filter-btn active" data-category="all">Visos</button>
                             <button class="filter-btn" data-category="metalwork">Konstrukcijos</button>
                             <button class="filter-btn" data-category="furniture">Baldai</button>
                             <button class="filter-btn" data-category="automotive">Automobiliai</button>
-                            <button class="filter-btn" data-category="industrial">Pramon─Ś</button>
+                            <button class="filter-btn" data-category="industrial">Pramonė</button>
                         </div>
                         <div id="gallery-grid" class="gallery-grid">
                             <p class="loading-message">Kraunama...</p>
@@ -196,21 +196,21 @@
             </div>
             <div class="link-display">
                 <input type="text" id="generated-link" readonly>
-                <button id="copy-link-btn" class="btn-icon" title="Kopijuoti nuorod─ģ">
+                <button id="copy-link-btn" class="btn-icon" title="Kopijuoti nuorodą">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                 </button>
             </div>
-            <button id="close-modal-btn" class="btn btn-primary">U┼Šdaryti</button>
+            <button id="close-modal-btn" class="btn btn-primary">Uždaryti</button>
         </div>
     </div>
 
     <!-- Edit Code Modal -->
     <div id="edit-modal" class="modal">
         <div class="modal-content">
-            <h3>Redaguoti Kod─ģ</h3>
+            <h3>Redaguoti Kodą</h3>
             <form id="edit-form" class="edit-form">
                 <div class="form-group">
                     <label>Kodas</label>
@@ -221,15 +221,15 @@
                     <label for="edit-code-type">Galiojimo Laikas</label>
                     <select id="edit-code-type" required>
                         <option value="single">Konkreti diena</option>
-                        <option value="range">Dat┼│ intervalas</option>
+                        <option value="range">Datų intervalas</option>
                         <option value="unlimited">Neribotai</option>
                     </select>
                 </div>
 
                 <div id="edit-single-date-group" class="form-group date-group">
-                    <label for="edit-single-date">Pasirinkite Dat─ģ</label>
+                    <label for="edit-single-date">Pasirinkite Datą</label>
                     <input type="date" id="edit-single-date">
-                    <small class="form-hint">Kodas galioja vis─ģ pasirinkt─ģ dien─ģ (00:00 - 23:59)</small>
+                    <small class="form-hint">Kodas galioja visą pasirinktą dieną (00:00 - 23:59)</small>
                 </div>
 
                 <div id="edit-range-date-group" class="form-group date-group" style="display: none;">
@@ -243,7 +243,7 @@
                             <input type="date" id="edit-end-date">
                         </div>
                     </div>
-                    <small class="form-hint">Kodas galioja nuo pasirinktos datos prad┼Šios iki datos pabaigos</small>
+                    <small class="form-hint">Kodas galioja nuo pasirinktos datos pradžios iki datos pabaigos</small>
                 </div>
 
                 <div class="form-group">
@@ -252,8 +252,8 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary">At┼Īaukti</button>
-                    <button type="submit" class="btn btn-primary">I┼Īsaugoti</button>
+                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary">Atšaukti</button>
+                    <button type="submit" class="btn btn-primary">Išsaugoti</button>
                 </div>
             </form>
         </div>

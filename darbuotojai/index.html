@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Darbuotoj┼│ Portalas - UAB Miltegona</title>
+    <title>Darbuotojų Portalas - UAB Miltegona</title>
     
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/style.css">
@@ -23,17 +23,17 @@
         <div class="auth-container">
             <div class="auth-header">
                 <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="Miltegona" class="auth-logo">
-                <h1>Darbuotoj┼│ Portalas</h1>
-                <p>Prisijunkite su savo el. pa┼Ītu</p>
+                <h1>Darbuotojų Portalas</h1>
+                <p>Prisijunkite su savo el. paštu</p>
             </div>
             <form id="login-form" class="auth-form">
                 <div class="form-group">
-                    <label for="email" class="form-label">El. pa┼Ītas</label>
+                    <label for="email" class="form-label">El. paštas</label>
                     <input type="email" id="email" class="form-input" required autocomplete="email" placeholder="vardas@email.com">
                 </div>
                 <div class="form-group">
-                    <label for="password" class="form-label">Slapta┼Šodis</label>
-                    <input type="password" id="password" class="form-input" required autocomplete="current-password" placeholder="ŌĆóŌĆóŌĆóŌĆóŌĆóŌĆóŌĆóŌĆó">
+                    <label for="password" class="form-label">Slaptažodis</label>
+                    <input type="password" id="password" class="form-input" required autocomplete="current-password" placeholder="••••••••">
                 </div>
                 <button type="submit" class="btn btn-primary">Prisijungti</button>
                 <div id="login-error" class="error-message"></div>
@@ -47,7 +47,7 @@
             <div class="container">
                 <div class="header-content">
                     <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="Miltegona" class="header-logo">
-                    <h1>Darbuotoj┼│ Portalas</h1>
+                    <h1>Darbuotojų Portalas</h1>
                     <button id="logout-btn" class="btn btn-secondary">Atsijungti</button>
                 </div>
             </div>
@@ -61,15 +61,15 @@
 
                 <!-- Navigation Tabs -->
                 <div class="tabs">
-                    <button class="tab-btn active" data-tab="suvestine">M─Śnesio Suvestin─Ś</button>
-                    <button class="tab-btn" data-tab="atlyginimai">M─Śnesio Atlyginimai</button>
-                    <button class="tab-btn" data-tab="paints">Da┼Š┼│ Valdymas</button>
+                    <button class="tab-btn active" data-tab="suvestine">Mėnesio Suvestinė</button>
+                    <button class="tab-btn" data-tab="atlyginimai">Mėnesio Atlyginimai</button>
+                    <button class="tab-btn" data-tab="paints">Dažų Valdymas</button>
                 </div>
 
-                <!-- Tab: M─Śnesio Suvestin─Ś -->
+                <!-- Tab: Mėnesio Suvestinė -->
                 <div id="tab-suvestine" class="tab-content active">
                     <section class="panel-section">
-                        <h2>M─Śnesio Suvestin─Ś</h2>
+                        <h2>Mėnesio Suvestinė</h2>
                         
                         <!-- Month Selector -->
                         <div class="month-selector">
@@ -92,10 +92,10 @@
                     </section>
                 </div>
 
-                <!-- Tab: M─Śnesio Atlyginimai -->
+                <!-- Tab: Mėnesio Atlyginimai -->
                 <div id="tab-atlyginimai" class="tab-content">
                     <section class="panel-section">
-                        <h2>M─Śnesio Atlyginimai</h2>
+                        <h2>Mėnesio Atlyginimai</h2>
                         
                         <!-- Month Selector -->
                         <div class="month-selector">
@@ -118,14 +118,14 @@
                     </section>
                 </div>
 
-                <!-- Tab: Da┼Š┼│ Valdymas -->
+                <!-- Tab: Dažų Valdymas -->
                 <div id="tab-paints" class="tab-content">
                     <section class="panel-section">
-                        <h2>Da┼Š┼│ Valdymas</h2>
+                        <h2>Dažų Valdymas</h2>
                         
                         <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
-                            <button id="add-paint-btn" class="btn btn-primary">Prid─Śti Naujus Da┼Šus</button>
-                            <input type="text" id="paint-search" class="form-input" placeholder="Ie┼Īkoti pagal ML kod─ģ, spalv─ģ, gamintoj─ģ..." style="max-width: 400px; margin-left: auto;">
+                            <button id="add-paint-btn" class="btn btn-primary">Pridėti Naujus Dažus</button>
+                            <input type="text" id="paint-search" class="form-input" placeholder="Ieškoti pagal ML kodą, spalvą, gamintoją..." style="max-width: 400px; margin-left: auto;">
                         </div>
 
                         <div id="paints-content" class="content-area">
@@ -141,7 +141,7 @@
     <div id="add-paint-modal" class="modal">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0;">Prid─Śti Naujus Da┼Šus</h3>
+                <h3 style="margin: 0;">Pridėti Naujus Dažus</h3>
                 <div style="display: flex; gap: 8px;">
                     <div style="position: relative; width: 44px; height: 44px;">
                         <input type="file" id="scan-camera-input" accept="image/*" capture="environment" style="position: absolute; top: 0; left: 0; width: 44px; height: 44px; opacity: 0; cursor: pointer; z-index: 2;">
@@ -206,14 +206,14 @@
                 <div class="form-group">
                     <label class="form-label">Gruntas</label>
                     <select name="gruntas" class="form-input">
-                        <option value="">N─Śra</option>
+                        <option value="">Nėra</option>
                         <option value="X">X (Paprastas)</option>
                         <option value="Zn">Zn (Su cinku)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Blizgumas</label>
-                    <input type="text" name="blizgumas" class="form-input dropdown-input" list="gloss-list" autocomplete="off" placeholder="Pasirinkite arba ─»ra┼Īykite...">
+                    <input type="text" name="blizgumas" class="form-input dropdown-input" list="gloss-list" autocomplete="off" placeholder="Pasirinkite arba įrašykite...">
                     <datalist id="gloss-list">
                         <option value="High Gloss">
                         <option value="Glossy">
@@ -224,12 +224,12 @@
                     </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Pavir┼Īius</label>
-                    <input type="text" name="pavirsus" class="form-input dropdown-input" list="surface-list" autocomplete="off" placeholder="Pasirinkite arba ─»ra┼Īykite...">
+                    <label class="form-label">Paviršius</label>
+                    <input type="text" name="pavirsus" class="form-input dropdown-input" list="surface-list" autocomplete="off" placeholder="Pasirinkite arba įrašykite...">
                     <datalist id="surface-list">
                         <option value="Smooth">
                         <option value="Apelsinas">
-                        <option value="Sm─Ślis">
+                        <option value="Smėlis">
                         <option value="Hammered">
                         <option value="Antiques">
                     </datalist>
@@ -237,7 +237,7 @@
                 <div class="form-group">
                     <label class="form-label">Efektas</label>
                     <select name="effect" class="form-input">
-                        <option value="">N─Śra efekto</option>
+                        <option value="">Nėra efekto</option>
                         <option value="Normal">Normal</option>
                         <option value="Metallic">Metallic</option>
                         <option value="Clear">Clear</option>
@@ -249,8 +249,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Sud─Śtis</label>
-                    <input type="text" name="sudetis" class="form-input" list="composition-list" autocomplete="off" placeholder="Pasirinkite arba ─»ra┼Īykite..." value="Polyester">
+                    <label class="form-label">Sudėtis</label>
+                    <input type="text" name="sudetis" class="form-input" list="composition-list" autocomplete="off" placeholder="Pasirinkite arba įrašykite..." value="Polyester">
                     <datalist id="composition-list">
                         <option value="Hybrid PE">
                         <option value="Epoxy">
@@ -259,12 +259,12 @@
                     </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Kaina (Ōé¼)</label>
+                    <label class="form-label">Kaina (€)</label>
                     <input type="number" name="kaina" class="form-input" step="0.01" min="0">
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">At┼Īaukti</button>
-                    <button type="submit" class="btn btn-primary">I┼Īsaugoti</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Atšaukti</button>
+                    <button type="submit" class="btn btn-primary">Išsaugoti</button>
                 </div>
             </form>
         </div>
@@ -273,7 +273,7 @@
     <!-- Edit Paint Modal -->
     <div id="edit-paint-modal" class="modal">
         <div class="modal-content">
-            <h3>Redaguoti Da┼Š─ģ</h3>
+            <h3>Redaguoti Dažą</h3>
             <form id="edit-paint-form">
                 <input type="hidden" name="id" id="edit-paint-id">
                 <div class="form-group">
@@ -313,14 +313,14 @@
                 <div class="form-group">
                     <label class="form-label">Gruntas</label>
                     <select name="gruntas" class="form-input">
-                        <option value="">N─Śra</option>
+                        <option value="">Nėra</option>
                         <option value="X">X (Paprastas)</option>
                         <option value="Zn">Zn (Su cinku)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Blizgumas</label>
-                    <input type="text" name="blizgumas" class="form-input dropdown-input" list="gloss-list-edit" autocomplete="off" placeholder="Pasirinkite arba ─»ra┼Īykite...">
+                    <input type="text" name="blizgumas" class="form-input dropdown-input" list="gloss-list-edit" autocomplete="off" placeholder="Pasirinkite arba įrašykite...">
                     <datalist id="gloss-list-edit">
                         <option value="High Gloss">
                         <option value="Glossy">
@@ -331,12 +331,12 @@
                     </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Pavir┼Īius</label>
-                    <input type="text" name="pavirsus" class="form-input dropdown-input" list="surface-list-edit" autocomplete="off" placeholder="Pasirinkite arba ─»ra┼Īykite...">
+                    <label class="form-label">Paviršius</label>
+                    <input type="text" name="pavirsus" class="form-input dropdown-input" list="surface-list-edit" autocomplete="off" placeholder="Pasirinkite arba įrašykite...">
                     <datalist id="surface-list-edit">
                         <option value="Smooth">
                         <option value="Apelsinas">
-                        <option value="Sm─Ślis">
+                        <option value="Smėlis">
                         <option value="Hammered">
                         <option value="Antiques">
                     </datalist>
@@ -344,7 +344,7 @@
                 <div class="form-group">
                     <label class="form-label">Efektas</label>
                     <select name="effect" class="form-input">
-                        <option value="">N─Śra efekto</option>
+                        <option value="">Nėra efekto</option>
                         <option value="Normal">Normal</option>
                         <option value="Metallic">Metallic</option>
                         <option value="Clear">Clear</option>
@@ -356,8 +356,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Sud─Śtis</label>
-                    <input type="text" name="sudetis" class="form-input" list="composition-list-edit" autocomplete="off" placeholder="Pasirinkite arba ─»ra┼Īykite...">
+                    <label class="form-label">Sudėtis</label>
+                    <input type="text" name="sudetis" class="form-input" list="composition-list-edit" autocomplete="off" placeholder="Pasirinkite arba įrašykite...">
                     <datalist id="composition-list-edit">
                         <option value="Hybrid PE">
                         <option value="Epoxy">
@@ -366,12 +366,12 @@
                     </datalist>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Kaina (Ōé¼)</label>
+                    <label class="form-label">Kaina (€)</label>
                     <input type="number" name="kaina" class="form-input" step="0.01" min="0">
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">At┼Īaukti</button>
-                    <button type="submit" class="btn btn-primary">I┼Īsaugoti</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Atšaukti</button>
+                    <button type="submit" class="btn btn-primary">Išsaugoti</button>
                 </div>
             </form>
         </div>
@@ -380,7 +380,7 @@
     <!-- Update Weight Modal -->
     <div id="weight-modal" class="modal">
         <div class="modal-content">
-            <h3>Atnaujinti Svor─»</h3>
+            <h3>Atnaujinti Svorį</h3>
             <form id="update-weight-form">
                 <input type="hidden" name="id" id="weight-paint-id">
                 <div class="form-group">
@@ -397,11 +397,11 @@
                 <div class="form-group">
                     <label class="form-label">Naujas svoris (kg) *</label>
                     <input type="number" name="new_weight" class="form-input" step="0.001" min="0" required>
-                    <p style="font-size: 0.9rem; color: #888; margin-top: 0.25rem;">Jei nustatote 0 kg, da┼Šas bus pa┼Īalintas i┼Ī s─ģra┼Īo</p>
+                    <p style="font-size: 0.9rem; color: #888; margin-top: 0.25rem;">Jei nustatote 0 kg, dažas bus pašalintas iš sąrašo</p>
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeWeightModal()">At┼Īaukti</button>
-                    <button type="submit" class="btn btn-primary">I┼Īsaugoti</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeWeightModal()">Atšaukti</button>
+                    <button type="submit" class="btn btn-primary">Išsaugoti</button>
                 </div>
             </form>
         </div>
@@ -417,7 +417,7 @@
                 </circle>
             </svg>
             <div style="font-size: 18px; font-weight: 500;">Skenuojama...</div>
-            <div style="font-size: 14px; margin-top: 8px; opacity: 0.8;">Pra┼Īome palaukti</div>
+            <div style="font-size: 14px; margin-top: 8px; opacity: 0.8;">Prašome palaukti</div>
         </div>
     </div>
 
@@ -429,7 +429,7 @@
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
                 <h3>Nuskenuota</h3>
-                <button type="button" class="scan-close-btn" onclick="closeScanResultsModal()">├Ś</button>
+                <button type="button" class="scan-close-btn" onclick="closeScanResultsModal()">×</button>
             </div>
             <div id="scan-results-list" class="scan-results-list">
                 <!-- Results will be populated here -->

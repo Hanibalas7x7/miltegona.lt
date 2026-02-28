@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sekite savo u┼Šsakymo status─ģ realiuoju laiku. ─«veskite 5 simboli┼│ u┼Šsakymo kod─ģ ir su┼Šinokite, kokiame etape yra j┼½s┼│ gaminys.">
-    <meta name="keywords" content="u┼Šsakymo sekimas, miltelinis da┼Šymas, sekti u┼Šsakym─ģ, u┼Šsakymo statusas">
-    <title>U┼Šsakymo sekimas - UAB Miltegona</title>
+    <meta name="description" content="Sekite savo užsakymo statusą realiuoju laiku. Įveskite 5 simbolių užsakymo kodą ir sužinokite, kokiame etape yra jūsų gaminys.">
+    <meta name="keywords" content="užsakymo sekimas, miltelinis dažymas, sekti užsakymą, užsakymo statusas">
+    <title>Užsakymo sekimas - UAB Miltegona</title>
     
     <!-- Open Graph -->
-    <meta property="og:title" content="U┼Šsakymo sekimas - UAB Miltegona">
-    <meta property="og:description" content="Sekite savo u┼Šsakymo status─ģ realiuoju laiku">
+    <meta property="og:title" content="Užsakymo sekimas - UAB Miltegona">
+    <meta property="og:description" content="Sekite savo užsakymo statusą realiuoju laiku">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://miltegona.lt/sekimas/">
     
@@ -21,12 +21,12 @@
       "itemListElement": [{
         "@type": "ListItem",
         "position": 1,
-        "name": "Prad┼Šia",
+        "name": "Pradžia",
         "item": "https://miltegona.lt/"
       },{
         "@type": "ListItem",
         "position": 2,
-        "name": "U┼Šsakymo sekimas",
+        "name": "Užsakymo sekimas",
         "item": "https://miltegona.lt/sekimas/"
       }]
     }
@@ -52,7 +52,7 @@
             <div class="header-content">
                 <div class="logo">
                     <a href="/">
-                        <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="UAB Miltegona - miltelinio da┼Šymo paslaugos Kaune" class="logo-img" style="height: 60px; width: auto;">
+                        <img src="/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png" alt="UAB Miltegona - miltelinio dažymo paslaugos Kaune" class="logo-img" style="height: 60px; width: auto;">
                     </a>
                 </div>
                 <button class="mobile-menu-toggle" aria-label="Menu">
@@ -62,11 +62,11 @@
                 </button>
                 <nav class="main-nav">
                     <ul>
-                        <li><a href="/">Prad┼Šia</a></li>
+                        <li><a href="/">Pradžia</a></li>
                         <li><a href="/apie-mus/">Apie mus</a></li>
                         <li><a href="/miltelinis-dazymas/">Paslaugos</a></li>
                         <li><a href="/galerija/">Galerija</a></li>
-                        <li><a href="/kaina/">Skai─Źiuokl─Ś</a></li>
+                        <li><a href="/kaina/">Skaičiuoklė</a></li>
                         <li><a href="/kontaktai/">Kontaktai</a></li>
                         <li><a href="/sekimas/" class="active">Sekimas</a></li>
                     </ul>
@@ -78,8 +78,8 @@
     <!-- Page Header -->
     <section class="page-header">
         <div class="container">
-            <h1>U┼Šsakymo sekimas</h1>
-            <p>─«veskite savo u┼Šsakymo kod─ģ ir steb─Śkite jo b┼½kl─Ö realiuoju laiku</p>
+            <h1>Užsakymo sekimas</h1>
+            <p>Įveskite savo užsakymo kodą ir stebėkite jo būklę realiuoju laiku</p>
         </div>
     </section>
 
@@ -89,8 +89,8 @@
             <!-- Search Box -->
             <div class="tracking-search" id="searchBox">
                 <div class="search-card">
-                    <h2>─«veskite u┼Šsakymo kod─ģ</h2>
-                    <p class="search-description">5 simboli┼│ kod─ģ radote SMS ┼Šinut─Śje arba ant gaminio</p>
+                    <h2>Įveskite užsakymo kodą</h2>
+                    <p class="search-description">5 simbolių kodą radote SMS žinutėje arba ant gaminio</p>
                     
                     <form id="trackingForm" class="tracking-form">
                         <div class="input-group">
@@ -118,7 +118,7 @@
                             <line x1="12" y1="16" x2="12" y2="12"/>
                             <line x1="12" y1="8" x2="12.01" y2="8"/>
                         </svg>
-                        <span>J┼½s┼│ u┼Šsakymo kodas atsi┼│stas SMS ┼Šinute po u┼Šsakymo pri─Śmimo</span>
+                        <span>Jūsų užsakymo kodas atsiųstas SMS žinute po užsakymo priėmimo</span>
                     </div>
                 </div>
             </div>
@@ -138,11 +138,11 @@
                             <line x1="9" y1="9" x2="15" y2="15"/>
                         </svg>
                     </div>
-                    <h3>U┼Šsakymas nerastas</h3>
-                    <p>U┼Šsakymas su kodu <strong id="errorCode"></strong> nerastas sistemoje.</p>
-                    <p class="error-help">Patikrinkite ar teisingai ─»ved─Śte kod─ģ. Kodas yra 5 simboli┼│, pvz. <strong>8ANZ6</strong></p>
+                    <h3>Užsakymas nerastas</h3>
+                    <p>Užsakymas su kodu <strong id="errorCode"></strong> nerastas sistemoje.</p>
+                    <p class="error-help">Patikrinkite ar teisingai įvedėte kodą. Kodas yra 5 simbolių, pvz. <strong>8ANZ6</strong></p>
                     <button class="btn btn-secondary" onclick="document.getElementById('searchBox').scrollIntoView({behavior: 'smooth'}); document.getElementById('orderCode').focus();">
-                        Ie┼Īkoti i┼Ī naujo
+                        Ieškoti iš naujo
                     </button>
                 </div>
             </div>
@@ -150,7 +150,7 @@
             <!-- Loading Spinner -->
             <div class="tracking-loading" id="loadingSpinner" style="display: none;">
                 <div class="spinner"></div>
-                <p>Ie┼Īkoma u┼Šsakymo...</p>
+                <p>Ieškoma užsakymo...</p>
             </div>
         </div>
     </section>
@@ -162,23 +162,23 @@
             <div class="steps-grid">
                 <div class="step-item">
                     <div class="step-number">1</div>
-                    <h3>Priimame u┼Šsakym─ģ</h3>
-                    <p>Po u┼Šsakymo pri─Śmimo i┼Īsiun─Źiame jums SMS su unikaliu 5 simboli┼│ kodu</p>
+                    <h3>Priimame užsakymą</h3>
+                    <p>Po užsakymo priėmimo išsiunčiame jums SMS su unikaliu 5 simbolių kodu</p>
                 </div>
                 <div class="step-item">
                     <div class="step-number">2</div>
-                    <h3>Sekate status─ģ</h3>
-                    <p>─«ved─Ö kod─ģ ┼Īiame puslapyje matote real┼│ gaminio paruo┼Īimo eig─ģ</p>
+                    <h3>Sekate statusą</h3>
+                    <p>Įvedę kodą šiame puslapyje matote realų gaminio paruošimo eigą</p>
                 </div>
                 <div class="step-item">
                     <div class="step-number">3</div>
-                    <h3>Gauname prane┼Īim─ģ</h3>
-                    <p>Kai u┼Šsakymas paruo┼Ītas atsi─Śmimui, gausite SMS prane┼Īim─ģ</p>
+                    <h3>Gauname pranešimą</h3>
+                    <p>Kai užsakymas paruoštas atsiėmimui, gausite SMS pranešimą</p>
                 </div>
                 <div class="step-item">
                     <div class="step-number">4</div>
                     <h3>Atsiimate</h3>
-                    <p>Atvykite ─» m┼½s┼│ sand─Śl─» nurodytu laiku ir atsiimkite u┼Šsakym─ģ</p>
+                    <p>Atvykite į mūsų sandėlį nurodytu laiku ir atsiimkite užsakymą</p>
                 </div>
             </div>
         </div>
@@ -190,16 +190,16 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <img src="/assets/logo_blur-Aq2Qv48BaWH3VXD1.png" alt="UAB Miltegona" class="footer-logo">
-                    <p>Profesionalus miltelinis da┼Šymas nuo 2021 met┼│.</p>
-                    <p class="company-code">─«mon─Śs kodas: 305813612</p>
+                    <p>Profesionalus miltelinis dažymas nuo 2021 metų.</p>
+                    <p class="company-code">Įmonės kodas: 305813612</p>
                 </div>
                 <div class="footer-col">
                     <h3>Nuorodos</h3>
                     <ul>
-                        <li><a href="/">Prad┼Šia</a></li>
+                        <li><a href="/">Pradžia</a></li>
                         <li><a href="/apie-mus/">Apie mus</a></li>
                         <li><a href="/miltelinis-dazymas/">Paslaugos</a></li>
-                        <li><a href="/kaina/">Skai─Źiuokl─Ś</a></li>
+                        <li><a href="/kaina/">Skaičiuoklė</a></li>
                         <li><a href="/kontaktai/">Kontaktai</a></li>
                         <li><a href="/sekimas/">Sekimas</a></li>
                     </ul>
@@ -209,21 +209,21 @@
                     <ul>
                         <li><strong>Pavadinimas:</strong> UAB "Miltegona"</li>
                         <li><strong>Tel:</strong> <a href="tel:+37062502563">+370 625 02563 (Tomas)</a></li>
-                        <li><strong>El. pa┼Ītas:</strong> <a href="mailto:info@miltegona.lt">info@miltegona.lt</a></li>
+                        <li><strong>El. paštas:</strong> <a href="mailto:info@miltegona.lt">info@miltegona.lt</a></li>
                         <li><strong>Adresas:</strong> Ateities pl. 30A, LT-52163 Kaunas</li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h3>Informacija</h3>
                     <ul>
-                        <li><strong>─«mon─Śs kodas:</strong> 305813612</li>
+                        <li><strong>Įmonės kodas:</strong> 305813612</li>
                         <li><strong>PVM kodas:</strong> LT100014222417</li>
                         <li><strong>Darbo laikas:</strong> I-V: 9:00 - 18:00, VI-VII: Nedirbame</li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 UAB Miltegona. Visos teis─Śs saugomos.</p>
+                <p>&copy; 2026 UAB Miltegona. Visos teisės saugomos.</p>
             </div>
         </div>
     </footer>
