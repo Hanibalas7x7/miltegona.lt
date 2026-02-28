@@ -35,21 +35,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function validateCode(code) {
     try {
         // Call Edge Function to validate code (uses SERVICE_ROLE_KEY internally)
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 10000);
-        let response;
-        try {
-            response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ code }),
-                signal: controller.signal
-            });
-        } finally {
-            clearTimeout(timeout);
-        }
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/check-gate-code`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code })
+        });
         
         const result = await response.json();
         
@@ -79,11 +71,7 @@ async function validateCode(code) {
         
     } catch (error) {
         console.error('Error validating code:', error);
-        if (error.name === 'AbortError') {
-            showInvalidState('Serverio klaida: funkcija neatsakė laiku (timeout). Patikrinkite Supabase edge function logus.');
-        } else {
-            showInvalidState('Klaida tikrinant kodą: ' + error.message);
-        }
+        showInvalidState('Klaida tikrinant kodą: ' + error.message);
     }
 }
 
