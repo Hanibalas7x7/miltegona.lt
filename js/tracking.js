@@ -1,5 +1,21 @@
 // Tracking Page JavaScript
 
+// Render RAL color swatches from a spalva string like "9005sm 9011ap 6005bl"
+function renderColorSwatches(spalva) {
+    if (!spalva || spalva === 'Nenurodyta') return spalva || 'Nenurodyta';
+    // Extract all 4-digit RAL codes from the string
+    const codes = [...spalva.matchAll(/\b(\d{4})/g)].map(m => m[1]);
+    if (codes.length === 0) return spalva;
+    const swatches = codes.map(code => {
+        const hex = RAL_COLORS[code];
+        if (!hex) return '';
+        // Determine contrasting text color for the tooltip border
+        const border = parseInt(code) >= 9001 ? '1px solid #aaa' : '1px solid rgba(0,0,0,0.2)';
+        return `<span class="ral-swatch" style="background:${hex};border:${border};" title="RAL ${code}"></span>`;
+    }).join('');
+    return swatches + ' ' + spalva;
+}
+
 // Edge Function URL
 const TRACK_ORDER_ENDPOINT = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/track-order';
 
@@ -127,7 +143,7 @@ function displayResults(order) {
                 <div class="detail-grid">
                     <div class="detail-item">
                         <span class="detail-label">Spalva ir paviršius</span>
-                        <span class="detail-value">${spalva}</span>
+                        <span class="detail-value">${renderColorSwatches(spalva)}</span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Turi būti smėliuojamas</span>
@@ -207,7 +223,7 @@ function displayResults(order) {
                     </div>
                     <div class="timeline-content">
                         <h3>Dažymas</h3>
-                        <p>Miltelinis dažymas spalva: <strong>${spalva}</strong></p>
+                        <p>Miltelinis dažymas spalva: <strong>${renderColorSwatches(spalva)}</strong></p>
                         <span class="status-badge ${isPainted ? 'completed' : (currentProgress === 'painting' ? 'active' : 'pending')}">
                             ${isPainted ? 'Atlikta' : (currentProgress === 'painting' ? 'Vykdoma' : 'Laukiama')}
                         </span>

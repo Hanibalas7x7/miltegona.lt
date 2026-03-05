@@ -572,3 +572,14 @@
 .photo-modal-close:hover {
     opacity: 1;
 }
+
+/* RAL color swatches */
+.ral-swatch {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 3px;
+    flex-shrink: 0;
+}
