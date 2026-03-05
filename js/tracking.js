@@ -257,7 +257,34 @@ function displayResults(order) {
         </div>
     `;
     
-    resultsContainer.innerHTML = html;
+    // Append photos section if available
+    if (order.photos && order.photos.length > 0) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const resultCard = tempDiv.querySelector('.result-card');
+        const photosSection = document.createElement('div');
+        photosSection.className = 'order-photos';
+        photosSection.innerHTML = `
+            <h3>Gaminio nuotraukos</h3>
+            <div class="photos-grid">
+                ${order.photos.map((url, i) => `
+                    <div class="photo-item">
+                        <img src="${url}" alt="Gaminio nuotrauka ${i + 1}" loading="lazy"
+                             onclick="openPhotoModal('${url}')"
+                             onerror="this.parentElement.style.display='none'">
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        // Insert before the last div (search button)
+        const lastDiv = resultCard.querySelector('div[style*="text-align: center"]');
+        resultCard.insertBefore(photosSection, lastDiv);
+        
+        resultsContainer.innerHTML = tempDiv.innerHTML;
+    } else {
+        resultsContainer.innerHTML = html;
+    }
+    
     resultsContainer.style.display = 'block';
     
     // Scroll to results
@@ -286,3 +313,32 @@ window.addEventListener('DOMContentLoaded', function() {
         trackOrder(code.toUpperCase());
     }
 });
+
+// Photo modal
+function openPhotoModal(url) {
+    let modal = document.getElementById('photoModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'photoModal';
+        modal.className = 'photo-modal';
+        modal.innerHTML = `
+            <div class="photo-modal-backdrop" onclick="closePhotoModal()"></div>
+            <div class="photo-modal-content">
+                <button class="photo-modal-close" onclick="closePhotoModal()">&#x2715;</button>
+                <img id="photoModalImg" src="" alt="Gaminio nuotrauka">
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    document.getElementById('photoModalImg').src = url;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closePhotoModal() {
+    const modal = document.getElementById('photoModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
