@@ -38,7 +38,12 @@ serve(async (req) => {
   try {
     const supabaseUrl  = Deno.env.get("SUPABASE_URL")!;
     const serviceKey   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase     = createClient(supabaseUrl, serviceKey);
+
+    if (!supabaseUrl || !serviceKey) {
+      return new Response(JSON.stringify({ ...DEFAULTS, _error: "Missing env vars" }), { headers: CORS_HEADERS });
+    }
+
+    const supabase = createClient(supabaseUrl, serviceKey);
 
     const keys = [
       "painting_price",
@@ -55,7 +60,9 @@ serve(async (req) => {
       .select("setting_key, setting_value")
       .in("setting_key", keys);
 
-    if (error) throw error;
+    if (error) {
+      return new Response(JSON.stringify({ ...DEFAULTS, _error: error.message }), { headers: CORS_HEADERS });
+    }
 
     // Map DB rows using KEY_MAP, fall back to defaults where missing
     const db: Record<string, number> = {};
@@ -75,12 +82,12 @@ serve(async (req) => {
       sandblasting:     db["sandblasting"]     ?? DEFAULTS.sandblasting,
       primer:           db["primer"]           ?? DEFAULTS.primer,
       min_order:        db["min_order"]        ?? DEFAULTS.min_order,
+      _db_rows:         data?.length ?? 0,
     };
 
     return new Response(JSON.stringify(prices), { headers: CORS_HEADERS });
 
   } catch (err) {
-    // On any error, return safe defaults so the calculator still works
-    return new Response(JSON.stringify(DEFAULTS), { headers: CORS_HEADERS });
+    return new Response(JSON.stringify({ ...DEFAULTS, _error: String(err) }), { headers: CORS_HEADERS });
   }
 });
