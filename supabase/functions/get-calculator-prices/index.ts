@@ -67,8 +67,10 @@ serve(async (req) => {
     // Map DB rows using KEY_MAP, fall back to defaults where missing
     const db: Record<string, number> = {};
     for (const row of data ?? []) {
-      // setting_value may be stored as JSON string e.g. "9.0" or plain "9"
-      const raw = row.setting_value?.replace(/^"|"$/g, '');
+      // setting_value is JSONB - may be number, string, or quoted string like "9.0"
+      const raw = typeof row.setting_value === 'string'
+        ? row.setting_value.replace(/^"|"$/g, '')
+        : String(row.setting_value);
       const val = parseFloat(raw);
       const internalKey = KEY_MAP[row.setting_key];
       if (internalKey && !isNaN(val)) db[internalKey] = val;
