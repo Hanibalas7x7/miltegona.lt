@@ -6,9 +6,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const priceBreakdownEl = document.getElementById('price-breakdown');
     const quoteRequestBtn = document.getElementById('quote-request-btn');
 
-    // Minimum order amount
-    const MIN_ORDER = 15;
     const VAT_RATE = 0.21; // 21% PVM
+
+    // --- Prices loaded from Supabase (with fallback defaults) ---
+    let PRICES = {
+        painting_base:   9,  // €/m² base painting (dark RAL)
+        color_light_ral: 1,  // addon for light RAL
+        color_metallic:  2,  // addon for metallic/pearlescent
+        color_ncs:       4,  // addon for NCS / special
+        sandblasting:    10,  // €/m² sandblasting
+        primer:          9,  // €/m² primer
+        min_order:      15,  // € minimum order
+    };
+
+    // Load prices from Edge Function; fall back to defaults silently
+    const EDGE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/get-calculator-prices';
+
+    calculateBtn.disabled = true;
+    calculateBtn.textContent = 'Kraunama...';
+
+    fetch(EDGE_URL)
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => { PRICES = { ...PRICES, ...data }; })
+        .catch(() => { /* silent – defaults remain */ })
+        .finally(() => {
+            calculateBtn.disabled = false;
+            calculateBtn.textContent = 'Skaičiuoti kainą';
+        });
 
     // Store calculation data for quote request
     let calculationData = null;
@@ -86,17 +110,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Base multiplier for all calculations (ilgis x aukštis x plačio_daugiklis x sudėtingumas x svorio_daugiklis)
         const baseMultiplier = (length / 1000) * (height / 1000) * depthMultiplier * complexity * weightMultiplier;
 
-        // Color price per m² based on type
-        let colorPrice = 8; // Dark RAL
+        // Color price per m² based on type (prices from Supabase admin_settings)
+        let colorPrice = PRICES.painting_base; // Dark RAL base
         let colorName = 'Tamsios RAL';
         if (colorTypeValue === 1.2) {
-            colorPrice = 9; // Light RAL
+            colorPrice = PRICES.painting_base + PRICES.color_light_ral;
             colorName = 'Šviesios RAL';
         } else if (colorTypeValue === 1.3) {
-            colorPrice = 10; // Metallic
+            colorPrice = PRICES.painting_base + PRICES.color_metallic;
             colorName = 'Metalik/perlamutras';
         } else if (colorTypeValue === 1.5) {
-            colorPrice = 12; // NCS
+            colorPrice = PRICES.painting_base + PRICES.color_ncs;
             colorName = 'NCS';
         }
 
@@ -112,13 +136,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // SANDBLASTING PRICE: only if sandblasting is selected
         let sandblastingPrice = 0;
         if (isSandblasting) {
-            sandblastingPrice = baseMultiplier * 6;
+            sandblastingPrice = baseMultiplier * PRICES.sandblasting;
         }
 
         // PRIMER PRICE: only if primer is selected
         let primerPrice = 0;
         if (primer) {
-            primerPrice = baseMultiplier * 8;
+            primerPrice = baseMultiplier * PRICES.primer;
         }
 
         // Calculate price per piece
@@ -135,8 +159,8 @@ document.addEventListener('DOMContentLoaded', function() {
         totalPrice += maskingPrice + assemblyPrice + urgentPrice;
 
         // Apply minimum order
-        if (totalPrice < MIN_ORDER) {
-            totalPrice = MIN_ORDER;
+        if (totalPrice < PRICES.min_order) {
+            totalPrice = PRICES.min_order;
         }
 
         // Calculate price with VAT
@@ -191,8 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        if (totalPrice === MIN_ORDER) {
-            breakdownHTML += `<div class="price-item" style="color: var(--primary-color); margin-top: 1rem;"><strong>Minimali užsakymo suma:</strong><strong>${MIN_ORDER} €</strong></div>`;
+        if (totalPrice === PRICES.min_order) {
+            breakdownHTML += `<div class="price-item" style="color: var(--primary-color); margin-top: 1rem;"><strong>Minimali užsakymo suma:</strong><strong>${PRICES.min_order} €</strong></div>`;
         }
 
         priceBreakdownEl.innerHTML = breakdownHTML;
