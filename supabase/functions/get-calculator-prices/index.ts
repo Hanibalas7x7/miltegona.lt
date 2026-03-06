@@ -10,12 +10,12 @@ const CORS_HEADERS = {
 
 // Default fallback prices (used if DB fetch fails)
 const DEFAULTS = {
-  painting_base:        8,  // €/m² base painting price (dark RAL)
+  painting_base:        9,  // €/m² base painting price (dark RAL)
   color_light_ral:      1,  // addon for light RAL
   color_metallic:       2,  // addon for metallic/pearlescent
   color_ncs:            4,  // addon for NCS / special
-  sandblasting:         6,  // €/m² sandblasting
-  primer:               8,  // €/m² primer
+  sandblasting:         10,  // €/m² sandblasting
+  primer:               9,  // €/m² primer
   min_order:           15,  // € minimum order
 };
 
@@ -40,7 +40,7 @@ serve(async (req) => {
     const serviceKey   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     if (!supabaseUrl || !serviceKey) {
-      return new Response(JSON.stringify({ ...DEFAULTS, _error: "Missing env vars" }), { headers: CORS_HEADERS });
+      return new Response(JSON.stringify(DEFAULTS), { headers: CORS_HEADERS });
     }
 
     const supabase = createClient(supabaseUrl, serviceKey);
@@ -61,7 +61,7 @@ serve(async (req) => {
       .in("setting_key", keys);
 
     if (error) {
-      return new Response(JSON.stringify({ ...DEFAULTS, _error: error.message }), { headers: CORS_HEADERS });
+      return new Response(JSON.stringify(DEFAULTS), { headers: CORS_HEADERS });
     }
 
     // Map DB rows using KEY_MAP, fall back to defaults where missing
@@ -84,12 +84,12 @@ serve(async (req) => {
       sandblasting:     db["sandblasting"]     ?? DEFAULTS.sandblasting,
       primer:           db["primer"]           ?? DEFAULTS.primer,
       min_order:        db["min_order"]        ?? DEFAULTS.min_order,
-      _db_rows:         data?.length ?? 0,
     };
 
     return new Response(JSON.stringify(prices), { headers: CORS_HEADERS });
 
   } catch (err) {
-    return new Response(JSON.stringify({ ...DEFAULTS, _error: String(err) }), { headers: CORS_HEADERS });
+    // On any error, return safe defaults so the calculator still works
+    return new Response(JSON.stringify(DEFAULTS), { headers: CORS_HEADERS });
   }
 });
