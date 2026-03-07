@@ -67,9 +67,19 @@ serve(async (req) => {
     sitemap += `
   </url>
   <url>
+    <loc>https://miltegona.lt/kaina/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://miltegona.lt/kontaktai/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://miltegona.lt/sekimas/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>`;
 
