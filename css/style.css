@@ -423,6 +423,7 @@ a {
 .service-card-icon {
     width: 52px;
     height: 52px;
+    min-width: 52px;
     background: rgba(252, 157, 23, 0.1);
     border-radius: 12px;
     display: flex;
@@ -431,6 +432,8 @@ a {
     margin-bottom: 1.25rem;
     color: var(--primary-color);
     transition: background 0.3s ease, transform 0.3s ease;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
 .service-card:hover .service-card-icon {
@@ -441,6 +444,9 @@ a {
 .service-card-icon svg {
     width: 28px;
     height: 28px;
+    max-width: 28px;
+    max-height: 28px;
+    display: block;
 }
 
 .service-card-num {
@@ -713,6 +719,7 @@ a {
     .service-card-icon {
         width: 32px;
         height: 32px;
+        min-width: 32px;
         margin-bottom: 0.6rem;
         border-radius: 8px;
     }
@@ -720,6 +727,8 @@ a {
     .service-card-icon svg {
         width: 18px;
         height: 18px;
+        max-width: 18px;
+        max-height: 18px;
     }
 
     .service-card h3 {
