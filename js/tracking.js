@@ -295,9 +295,9 @@ function displayResults(order) {
                 }).join('')}
             </div>
         `;
-        // Insert before the last div (search button)
-        const lastDiv = resultCard.querySelector('div[style*="text-align: center"]');
-        resultCard.insertBefore(photosSection, lastDiv);
+        // Insert after order-details, before the progress timeline
+        const progressTimeline = resultCard.querySelector('.progress-timeline');
+        resultCard.insertBefore(photosSection, progressTimeline);
         
         resultsContainer.innerHTML = tempDiv.innerHTML;
     } else {
