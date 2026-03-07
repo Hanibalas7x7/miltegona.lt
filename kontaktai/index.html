@@ -67,18 +67,38 @@
     }
     </script>
     
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/contact.css">
+    <!-- Inline critical CSS + full contact.css to eliminate render-blocking -->
+    <style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary-color:#FC9D17;--secondary-color:#d97706;--accent-color:#3ba560;--text-dark:#e5e7eb;--text-light:#9ca3af;--bg-light:#1a1d23;--bg-white:#0f1115;--bg-dark:#000;--border-color:#2d3238;--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 6px -1px rgba(0,0,0,.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.5)}body{font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;color:#e5e7eb;background:#000}.container{max-width:1200px;margin:0 auto;padding:0 20px}img{max-width:100%;height:auto;display:block}a{text-decoration:none;color:inherit}.header{background:rgba(15,17,21,.95);box-shadow:0 2px 10px rgba(0,0,0,.5);position:sticky;top:0;z-index:1000;backdrop-filter:blur(10px)}.header-content{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}.logo{display:flex;align-items:center;gap:1rem}.logo-img{height:44px;width:auto;object-fit:contain}.main-nav ul{display:flex;list-style:none;gap:2rem}.main-nav a{font-weight:500;color:#e5e7eb;transition:color .3s;padding:.5rem 0;position:relative}.main-nav a:hover,.main-nav a.active{color:#FC9D17}.mobile-menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:.5rem}.mobile-menu-toggle span{display:block;width:25px;height:3px;background:#e5e7eb;margin:5px 0;transition:.3s}.page-header{background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:30px 0;text-align:center}.page-header h1{font-size:clamp(1.3rem,5vw,2.25rem);font-weight:700;color:#fff;margin:0}.page-header p{font-size:clamp(.88rem,3vw,1.125rem);color:rgba(255,255,255,.9);margin:8px 0 0}@media(max-width:768px){.mobile-menu-toggle{display:block}.main-nav{position:absolute;top:100%;left:0;right:0;background:#0f1115;box-shadow:var(--shadow-md);max-height:0;overflow:hidden;transition:max-height .3s}.main-nav.active{max-height:400px}.main-nav ul{flex-direction:column;padding:1rem 0;gap:0}.main-nav li{padding:0 20px}.main-nav a{display:block;padding:.75rem 0;border-bottom:1px solid #2d3238}}
+/* Contact Page Styles */
+.contact-section{padding:28px 0}.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem}.contact-info h2,.contact-form-wrapper h2{font-size:1.5rem;color:var(--text-dark);margin-bottom:.5rem}.contact-info>p,.contact-form-wrapper>p{color:var(--text-light);margin-bottom:1rem;line-height:1.6}.contact-details{display:flex;flex-direction:column;gap:.9rem}.contact-item{display:flex;gap:1rem;align-items:flex-start}.contact-icon{flex-shrink:0;width:36px;height:36px;color:var(--primary-color)}.contact-icon svg{width:100%;height:100%}.contact-text h3{font-size:1.2rem;color:var(--text-dark);margin-bottom:.5rem}.contact-text p{color:var(--text-light);line-height:1.7;margin-bottom:.3rem}.contact-text a{color:var(--primary-color);transition:color .3s}.contact-text a:hover{color:var(--secondary-color)}.contact-form{display:flex;flex-direction:column;gap:.9rem}.form-group{display:flex;flex-direction:column}.form-group label{font-weight:500;color:var(--text-dark);margin-bottom:.5rem}.form-group input,.form-group select,.form-group textarea{padding:.875rem;border:2px solid var(--border-color);border-radius:8px;font-family:inherit;font-size:1rem;transition:all .3s;background:var(--bg-white);color:var(--text-dark)}.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(37,99,235,.1)}.form-group textarea{resize:vertical;min-height:80px}.form-group input[type="file"]{padding:.5rem;cursor:pointer}.form-group input[type="file"]::file-selector-button{padding:.5rem 1rem;margin-right:1rem;border:none;background:var(--primary-color);color:#1a1d23;border-radius:6px;cursor:pointer;font-weight:600;transition:background .3s}.form-group input[type="file"]::file-selector-button:hover{background:var(--secondary-color)}.file-info{display:block;margin-top:.5rem;font-size:.85rem;color:#9ca3af;font-style:italic}.checkbox-label{display:flex;align-items:flex-start;gap:.75rem;cursor:pointer}.checkbox-label input[type="checkbox"]{margin-top:.25rem;cursor:pointer}.checkbox-label span{color:var(--text-light);line-height:1.6}.checkbox-label a{color:var(--primary-color)}.contact-form .btn{align-self:flex-start;margin-top:.5rem}.map-section{padding:24px 0;background:var(--bg-light)}.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.25rem}.map-item{border-radius:12px;overflow:hidden;box-shadow:var(--shadow-md)}.map-item iframe{display:block;width:100%}.directions-image{width:100%;height:320px;object-fit:cover;display:block;transition:transform .3s}.image-lightbox{display:block;position:relative;overflow:hidden;border-radius:8px;cursor:zoom-in}.image-lightbox:hover .directions-image{transform:scale(1.05)}.zoom-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}.image-lightbox:hover .zoom-overlay{opacity:1}.zoom-icon{font-size:3rem;color:#fff}.form-group input:invalid:not(:placeholder-shown),.form-group select:invalid:not(:placeholder-shown),.form-group textarea:invalid:not(:placeholder-shown){border-color:#ef4444}.form-group input:valid:not(:placeholder-shown),.form-group select:valid:not(:placeholder-shown),.form-group textarea:valid:not(:placeholder-shown){border-color:#10b981}@media(max-width:968px){.contact-section{padding:36px 0}.contact-grid{grid-template-columns:1fr;gap:2rem}.map-section{padding:36px 0}.map-grid{grid-template-columns:1fr;gap:1.5rem}.directions-image{height:220px}.contact-details{gap:1.25rem}}@media(max-width:480px){.contact-icon{width:32px;height:32px}.form-group input,.form-group select,.form-group textarea{padding:.75rem}}</style>
+    <!-- Non-blocking stylesheet (contact.css fully inlined above) -->
+    <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+    <!-- Preload LCP background image -->
+    <link rel="preload" as="image" href="/assets/choosing-an-abrasive-media-Yg27WVBDpBF5yO5E.webp" type="image/webp" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet"></noscript>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function(){
-            emailjs.init("FvwI2Up9qbx_-G616");
-        })();
+    <!-- Lazy-load CDN scripts only on first form interaction -->
+    <script>
+    (function(){
+        var loaded=false;
+        function loadLibs(){
+            if(loaded)return;loaded=true;
+            var s=document.createElement('script');
+            s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            document.head.appendChild(s);
+            var e=document.createElement('script');
+            e.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+            e.onload=function(){emailjs.init('FvwI2Up9qbx_-G616');};
+            document.head.appendChild(e);
+        }
+        document.addEventListener('DOMContentLoaded',function(){
+            var f=document.getElementById('contact-form');
+            if(f)f.addEventListener('focusin',loadLibs,{once:true});
+        });
+    })();
     </script>
 </head>
 <body>
@@ -124,7 +144,7 @@
     </section>
 
     <!-- Contact Content -->
-    <section class="contact-section" style="background: linear-gradient(rgba(26, 29, 35, 0.92), rgba(26, 29, 35, 0.92)), url('/assets/choosing-an-abrasive-media-Yg27WVBDpBF5yO5E.jpg') center/cover fixed;">
+    <section class="contact-section" style="background: linear-gradient(rgba(26, 29, 35, 0.92), rgba(26, 29, 35, 0.92)), url('/assets/choosing-an-abrasive-media-Yg27WVBDpBF5yO5E.webp') center/cover;">
         <div class="container">
             <div class="contact-grid">
                 <!-- Contact Information -->
@@ -264,6 +284,7 @@
                         style="border:0;" 
                         allowfullscreen="" 
                         loading="lazy" 
+                        title="UAB Miltegona vieta žemėlapyje"
                         referrerpolicy="no-referrer-when-downgrade">
                     </iframe>
                     <div style="margin-top: 16px; text-align: center;">
@@ -278,7 +299,10 @@
                 </div>
                 <div class="map-item">
                     <a href="/assets/map-mxB5ZRVaG8F759L3.png" class="image-lightbox" target="_blank">
-                        <img src="/assets/map-mxB5ZRVaG8F759L3.png" alt="UAB Miltegona žemėlapis - Ateities pl. 30A Kaunas" class="directions-image" loading="lazy">
+                        <picture>
+                            <source srcset="/assets/map-mxB5ZRVaG8F759L3.webp" type="image/webp">
+                            <img src="/assets/map-mxB5ZRVaG8F759L3.png" alt="UAB Miltegona žemėlapis - Ateities pl. 30A Kaunas" class="directions-image" loading="lazy" width="700" height="437">
+                        </picture>
                         <div class="zoom-overlay">
                             <span class="zoom-icon">🔍</span>
                         </div>
