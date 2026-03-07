@@ -10,8 +10,7 @@ function renderColorSwatches(spalva) {
         const hex = RAL_COLORS[code];
         if (!hex) return '';
         // Determine contrasting text color for the tooltip border
-        const border = parseInt(code) >= 9001 ? '1px solid #aaa' : '1px solid rgba(0,0,0,0.2)';
-        return `<span class="ral-swatch" style="background:${hex};border:${border};" title="RAL ${code}"></span>`;
+        return `<span class="ral-swatch" style="background:${hex};" title="RAL ${code}"></span>`;
     }).join('');
     return swatches + ' ' + spalva;
 }
@@ -280,16 +279,20 @@ function displayResults(order) {
         const resultCard = tempDiv.querySelector('.result-card');
         const photosSection = document.createElement('div');
         photosSection.className = 'order-photos';
+        // Daily cache-bust so clients with old cache always get fresh images
+        const cacheBust = new Date().toISOString().split('T')[0];
         photosSection.innerHTML = `
             <h3>Gaminio nuotraukos</h3>
             <div class="photos-grid">
-                ${order.photos.map((url, i) => `
+                ${order.photos.map((url, i) => {
+                    const src = url.includes('?') ? `${url}&cb=${cacheBust}` : `${url}?cb=${cacheBust}`;
+                    return `
                     <div class="photo-item">
-                        <img src="${url}" alt="Gaminio nuotrauka ${i + 1}" loading="lazy"
-                             onclick="openPhotoModal('${url}')"
+                        <img src="${src}" alt="Gaminio nuotrauka ${i + 1}" loading="lazy"
+                             onclick="openPhotoModal('${src}')"
                              onerror="this.parentElement.style.display='none'">
-                    </div>
-                `).join('')}
+                    </div>`;
+                }).join('')}
             </div>
         `;
         // Insert before the last div (search button)

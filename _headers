@@ -25,21 +25,45 @@
 /*.eot
   Cache-Control: public, max-age=31536000, immutable
 
-# CSS - 1 valanda
+# CSS - 1 diena (HTML visada naujas, tai CSS/JS versijuojami per URL parametrą)
 /*.css
-  Cache-Control: public, max-age=3600
+  Cache-Control: public, max-age=86400
 
-# JS - 1 valanda (ne mėnuo - norim greitai taisyti)
+# JS - 1 diena
 /*.js
-  Cache-Control: public, max-age=3600
+  Cache-Control: public, max-age=86400
 
 # Atidaryti JS - visada naujas (kritinis saugumui)
 /js/atidaryti.js
   Cache-Control: no-cache, must-revalidate
 
-# HTML - 1 valanda
+# HTML - visada revalidate (niekada sena cache)
 /*.html
-  Cache-Control: public, max-age=3600
+  Cache-Control: no-cache, must-revalidate
+
+# Directory index puslapiai - visada revalidate
+/
+  Cache-Control: no-cache, must-revalidate
+/sekimas/
+  Cache-Control: no-cache, must-revalidate
+/apie-mus/
+  Cache-Control: no-cache, must-revalidate
+/miltelinis-dazymas/
+  Cache-Control: no-cache, must-revalidate
+/dazai/
+  Cache-Control: no-cache, must-revalidate
+/kaina/
+  Cache-Control: no-cache, must-revalidate
+/kontaktai/
+  Cache-Control: no-cache, must-revalidate
+/galerija/
+  Cache-Control: no-cache, must-revalidate
+/atidaryti/
+  Cache-Control: no-cache, must-revalidate
+/darbuotojai/
+  Cache-Control: no-cache, must-revalidate
+/kontrole/
+  Cache-Control: no-cache, must-revalidate
 
 # Saugumo headeriai (visi puslapiai)
 /*
