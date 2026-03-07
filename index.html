@@ -345,42 +345,6 @@
     </footer>
 
     <script src="js/main.js" defer></script>
-    
-    <!-- Heavily Deferred Google Analytics - loads only after user interaction or 10s -->
-    <script>
-      var gaLoaded = false;
-      
-      function loadGA() {
-        if (gaLoaded) return;
-        gaLoaded = true;
-        
-        var script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-1VLD2QNVLR';
-        document.head.appendChild(script);
-        
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', 'G-1VLD2QNVLR');
-      }
-      
-      // Load GA only after user interaction (scroll, click, touch) or 10 seconds
-      var events = ['scroll', 'click', 'touchstart', 'mousemove'];
-      var loadGAOnce = function() {
-        loadGA();
-        events.forEach(function(event) {
-          window.removeEventListener(event, loadGAOnce);
-        });
-      };
-      
-      events.forEach(function(event) {
-        window.addEventListener(event, loadGAOnce, { passive: true, once: true });
-      });
-      
-      // Fallback: load after 10 seconds if no interaction
-      setTimeout(loadGA, 10000);
-    </script>
+    <script src="/js/cookie-consent.js"></script>
 </body>
 </html>
