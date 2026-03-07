@@ -8,21 +8,13 @@ const STATIC_ASSETS = [
     '/galerija/',
     '/dazai/',
     '/sekimas/',
-    '/css/style.css',
-    '/css/calculator.css',
-    '/css/services.css',
-    '/css/about.css',
-    '/css/contact.css',
-    '/css/gallery.css',
-    '/css/tracking.css',
-    '/js/main.js',
-    '/js/calculator.js',
-    '/js/gallery.js',
-    '/manifest.json',
     '/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png',
 ];
 
-// Install — cache static assets
+// Cache-first asset types (images, fonts — rarely change)
+const CACHE_FIRST_EXT = /\.(png|jpg|jpeg|webp|svg|ico|woff|woff2|ttf)(\?.*)?$/;
+
+// Install — cache core pages and logo
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -40,31 +32,48 @@ self.addEventListener('activate', event => {
     self.clients.claim();
 });
 
-// Fetch — cache-first for static, network-first for API
+// Fetch strategy:
+// - Images/fonts: cache-first (fast, rarely change)
+// - HTML/CSS/JS: network-first (always fresh, cache as offline fallback)
+// - API (Supabase, EmailJS): always network only
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Skip non-GET and supabase API calls
     if (event.request.method !== 'GET') return;
     if (url.hostname.includes('supabase.co')) return;
     if (url.hostname.includes('emailjs.com')) return;
     if (url.hostname.includes('fonts.googleapis.com')) return;
+    if (url.hostname.includes('fonts.gstatic.com')) return;
 
+    // Cache-first for images and fonts
+    if (CACHE_FIRST_EXT.test(url.pathname)) {
+        event.respondWith(
+            caches.match(event.request).then(cached => {
+                if (cached) return cached;
+                return fetch(event.request).then(response => {
+                    if (response.ok) {
+                        const clone = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                    }
+                    return response;
+                });
+            })
+        );
+        return;
+    }
+
+    // Network-first for HTML, CSS, JS — always fresh, cache as offline fallback
     event.respondWith(
-        caches.match(event.request).then(cached => {
-            if (cached) return cached;
-            return fetch(event.request).then(response => {
-                // Cache successful same-origin responses
-                if (response.ok && url.origin === self.location.origin) {
-                    const clone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-                }
-                return response;
-            }).catch(() => {
-                // Offline fallback for navigation
-                if (event.request.mode === 'navigate') {
-                    return caches.match('/');
-                }
+        fetch(event.request).then(response => {
+            if (response.ok && url.origin === self.location.origin) {
+                const clone = response.clone();
+                caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+            }
+            return response;
+        }).catch(() => {
+            return caches.match(event.request).then(cached => {
+                if (cached) return cached;
+                if (event.request.mode === 'navigate') return caches.match('/');
             });
         })
     );
