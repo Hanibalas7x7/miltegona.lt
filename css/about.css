@@ -1,23 +1,5 @@
 /* About Page Specific Styles */
 
-.page-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    padding: 50px 0 40px;
-    text-align: center;
-}
-
-.page-header h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.page-header p {
-    font-size: 1.1rem;
-    opacity: 0.95;
-}
-
 .about-content {
     padding: 48px 0;
 }
@@ -154,18 +136,6 @@
 .about-card:nth-child(4) { transition-delay: 0.30s; }
 
 @media (max-width: 768px) {
-    .page-header {
-        padding: 28px 0 22px;
-    }
-
-    .page-header h1 {
-        font-size: 1.7rem;
-    }
-
-    .page-header p {
-        font-size: 0.95rem;
-    }
-
     .about-content {
         padding: 36px 0;
     }
