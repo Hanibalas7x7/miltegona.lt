@@ -24,10 +24,30 @@
     
     <!-- Breadcrumbs Schema -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [{
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Miltelinis dažymas",
+        "provider": { "@type": "LocalBusiness", "name": "UAB Miltegona", "url": "https://miltegona.lt" },
+        "serviceType": "Miltelinis dažymas",
+        "areaServed": { "@type": "City", "name": "Kaunas" },
+        "description": "Profesionalus metalinių paviršių miltelinis dažymas. Dažome juodą plieną, aliuminį, nerūdijantį plieną. RAL spalvų pasirinkimas.",
+        "offers": { "@type": "Offer", "priceCurrency": "EUR", "price": "8", "description": "Nuo 8 EUR/m²" }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Smėliavimas",
+        "provider": { "@type": "LocalBusiness", "name": "UAB Miltegona", "url": "https://miltegona.lt" },
+        "serviceType": "Paviršių paruošimas",
+        "areaServed": { "@type": "City", "name": "Kaunas" },
+        "description": "Metalinių paviršių smėliavimas prieš dažymą. Pašalina rūdis, senus dažus ir užtikrina gerą dažų sukibimą."
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
         "@type": "ListItem",
         "position": 1,
         "name": "Pradžia",
@@ -38,7 +58,8 @@
         "name": "Miltelinis Dažymas",
         "item": "https://miltegona.lt/miltelinis-dazymas/"
       }]
-    }
+      }
+    ]
     </script>
     
     <link rel="stylesheet" href="/css/style.css">

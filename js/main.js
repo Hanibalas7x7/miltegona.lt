@@ -507,3 +507,28 @@ floatingBtnsStyle.textContent = `
     }
 `;
 document.head.appendChild(floatingBtnsStyle);
+
+// Working Hours Indicator
+(function() {
+    function isWorkingHours() {
+        // Lithuania: UTC+2 (winter) / UTC+3 (summer)
+        var now = new Date();
+        var lt = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Vilnius' }));
+        var day = lt.getDay(); // 0=Sun, 6=Sat
+        var hour = lt.getHours();
+        var min = lt.getMinutes();
+        var timeNum = hour * 100 + min;
+        return day >= 1 && day <= 5 && timeNum >= 900 && timeNum < 1800;
+    }
+
+    var open = isWorkingHours();
+    var badge = document.createElement('li');
+    badge.id = 'workHoursBadge';
+    badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.8rem;font-weight:500;opacity:0.9;pointer-events:none;">'
+        + '<span style="width:8px;height:8px;border-radius:50%;background:' + (open ? '#2ecc71' : '#e74c3c') + ';display:inline-block;box-shadow:0 0 0 2px ' + (open ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)') + ';"></span>'
+        + (open ? 'Dirbame' : 'Nedirbame')
+        + '</span>';
+
+    var nav = document.querySelector('.main-nav ul');
+    if (nav) nav.appendChild(badge);
+})();
