@@ -568,3 +568,192 @@ a {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* === Keyframe Animations (moved from main.js) === */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* === Feature / Service Card Scroll Animation === */
+.feature-card,
+.service-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.feature-card.card-visible,
+.service-card.card-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* === Modal === */
+#modal-ok-btn:hover {
+    opacity: 0.9;
+}
+
+/* === Lightbox === */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    font-weight: 300;
+}
+
+.lightbox-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+/* === Back to Top Button === */
+#backToTop {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+#backToTop.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+#backToTop:hover {
+    background: #e55a2b;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(255, 107, 53, 0.6);
+}
+
+/* === WhatsApp Floating Button === */
+#whatsappBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    animation: whatsappPulse 2s infinite;
+}
+
+#whatsappBtn:hover {
+    background: #20BA5A;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.6);
+}
+
+@keyframes whatsappPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@media (max-width: 768px) {
+    #backToTop {
+        bottom: 80px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+
+    #whatsappBtn {
+        bottom: 15px;
+        right: 15px;
+        width: 55px;
+        height: 55px;
+    }
+}
+
+/* === Working Hours Badge === */
+#workHoursBadge .wh-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+#workHoursBadge .wh-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+#workHoursBadge .wh-dot.open {
+    background: #2ecc71;
+    box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.3);
+}
+
+#workHoursBadge .wh-dot.closed {
+    background: #e74c3c;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
+}

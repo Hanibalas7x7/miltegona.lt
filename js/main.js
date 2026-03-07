@@ -67,17 +67,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                entry.target.classList.add('card-visible');
             }
         });
     }, observerOptions);
 
-    // Observe feature cards and service cards
+    // Observe feature cards and service cards (initial hidden state handled by CSS)
     document.querySelectorAll('.feature-card, .service-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
     });
 
@@ -278,30 +274,8 @@ function showMessage(message, type) {
         }
     });
     
-    // Add animations to document if not present
-    if (!document.querySelector('#modal-animations')) {
-        const style = document.createElement('style');
-        style.id = 'modal-animations';
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-            @keyframes scaleIn {
-                from { transform: scale(0.9); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            #modal-ok-btn:hover {
-                opacity: 0.9;
-            }
-        `;
-        document.head.appendChild(style);
-    }
 }
+// Animations are defined in css/style.css
 
 // Lightbox function
 function openLightbox(imgSrc) {
@@ -314,45 +288,7 @@ function openLightbox(imgSrc) {
         </div>
     `;
     
-    lightbox.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        animation: fadeIn 0.3s ease;
-    `;
-    
-    const content = lightbox.querySelector('.lightbox-content');
-    content.style.cssText = `
-        position: relative;
-        max-width: 90%;
-        max-height: 90%;
-    `;
-    
-    const closeBtn = lightbox.querySelector('.lightbox-close');
-    closeBtn.style.cssText = `
-        position: absolute;
-        top: -40px;
-        right: 0;
-        font-size: 40px;
-        color: white;
-        cursor: pointer;
-        font-weight: 300;
-    `;
-    
-    const img = lightbox.querySelector('img');
-    img.style.cssText = `
-        max-width: 100%;
-        max-height: 90vh;
-        object-fit: contain;
-    `;
-    
+    // Styles for .lightbox, .lightbox-content, .lightbox-close, img are in css/style.css
     document.body.appendChild(lightbox);
     document.body.style.overflow = 'hidden';
     
@@ -365,37 +301,7 @@ function openLightbox(imgSrc) {
     });
 }
 
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-`;
-document.head.appendChild(style);
+// Keyframe animations are defined in css/style.css
 
 // Back to Top Button
 const backToTopBtn = document.createElement('button');
@@ -404,13 +310,16 @@ backToTopBtn.innerHTML = '↑';
 backToTopBtn.setAttribute('aria-label', 'Back to top');
 document.body.appendChild(backToTopBtn);
 
+var _scrollTicking = false;
 window.addEventListener('scroll', function() {
-    if (window.pageYOffset > 300) {
-        backToTopBtn.classList.add('visible');
-    } else {
-        backToTopBtn.classList.remove('visible');
+    if (!_scrollTicking) {
+        requestAnimationFrame(function() {
+            backToTopBtn.classList.toggle('visible', window.scrollY > 300);
+            _scrollTicking = false;
+        });
+        _scrollTicking = true;
     }
-});
+}, { passive: true });
 
 backToTopBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -426,87 +335,7 @@ whatsappBtn.innerHTML = `<svg viewBox="0 0 32 32" width="32" height="32"><path f
 whatsappBtn.setAttribute('aria-label', 'Contact via WhatsApp');
 document.body.appendChild(whatsappBtn);
 
-// Back to Top & WhatsApp CSS
-const floatingBtnsStyle = document.createElement('style');
-floatingBtnsStyle.textContent = `
-    #backToTop {
-        position: fixed;
-        bottom: 90px;
-        right: 20px;
-        background: #ff6b35;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-        cursor: pointer;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        z-index: 999;
-        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
-    }
-    
-    #backToTop.visible {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    #backToTop:hover {
-        background: #e55a2b;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(255, 107, 53, 0.6);
-    }
-    
-    #whatsappBtn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #25D366;
-        color: white;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
-        transition: all 0.3s ease;
-        z-index: 1000;
-        animation: whatsappPulse 2s infinite;
-    }
-    
-    #whatsappBtn:hover {
-        background: #20BA5A;
-        transform: scale(1.1);
-        box-shadow: 0 6px 16px rgba(37, 211, 102, 0.6);
-    }
-    
-    @keyframes whatsappPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-    
-    @media (max-width: 768px) {
-        #backToTop {
-            bottom: 80px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-            font-size: 20px;
-        }
-        
-        #whatsappBtn {
-            bottom: 15px;
-            right: 15px;
-            width: 55px;
-            height: 55px;
-        }
-    }
-`;
-document.head.appendChild(floatingBtnsStyle);
+// #backToTop and #whatsappBtn styles are defined in css/style.css
 
 // Working Hours Indicator
 (function() {
@@ -524,8 +353,8 @@ document.head.appendChild(floatingBtnsStyle);
     var open = isWorkingHours();
     var badge = document.createElement('li');
     badge.id = 'workHoursBadge';
-    badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.8rem;font-weight:500;opacity:0.9;pointer-events:none;">'
-        + '<span style="width:8px;height:8px;border-radius:50%;background:' + (open ? '#2ecc71' : '#e74c3c') + ';display:inline-block;box-shadow:0 0 0 2px ' + (open ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)') + ';"></span>'
+    badge.innerHTML = '<span class="wh-badge">'
+        + '<span class="wh-dot ' + (open ? 'open' : 'closed') + '"></span>'
         + (open ? 'Dirbame' : 'Nedirbame')
         + '</span>';
 
