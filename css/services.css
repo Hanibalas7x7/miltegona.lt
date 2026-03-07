@@ -233,20 +233,30 @@
     }
 
     .technical-specs {
-        padding: 36px 0;
+        padding: 28px 0;
     }
 
     .specs-grid {
-        gap: 0.75rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
     }
 
     .spec-card {
-        padding: 1.25rem 1rem;
+        padding: 1rem 0.75rem;
     }
 
     .spec-icon {
         font-size: 2rem;
         margin-bottom: 0.5rem;
+    }
+
+    .spec-card h3 {
+        font-size: 0.78rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .spec-card p {
+        font-size: 0.85rem;
     }
 
     .process-section {
