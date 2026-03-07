@@ -313,7 +313,7 @@
 
     <!-- Sticky calculate button (mobile) -->
     <div id="stickyCalcBar" class="sticky-calc-bar">
-        <button type="button" onclick="document.getElementById('calculate-btn').click(); this.closest('#stickyCalcBar').style.display='none';" class="btn-primary" style="margin:0;">Skaičiuoti kainą</button>
+        <button type="button" onclick="document.getElementById('calculate-btn').click();" class="btn-primary" style="margin:0;">Skaičiuoti kainą</button>
     </div>
 
     <script src="/js/main.js"></script>
@@ -331,14 +331,16 @@
             });
         }
 
-        // Show sticky bar when real button is scrolled out of view
+        // Show sticky bar only when real button is scrolled above viewport
         const realBtn = document.getElementById('calculate-btn');
         const stickyBar = document.getElementById('stickyCalcBar');
         if (realBtn && stickyBar) {
-            const obs = new IntersectionObserver(entries => {
-                stickyBar.classList.toggle('visible', !entries[0].isIntersecting);
-            }, { threshold: 0 });
-            obs.observe(realBtn);
+            const checkBtn = () => {
+                const rect = realBtn.getBoundingClientRect();
+                stickyBar.classList.toggle('visible', rect.top > window.innerHeight);
+            };
+            window.addEventListener('scroll', checkBtn, { passive: true });
+            checkBtn();
         }
     </script>
 </body>
