@@ -62,8 +62,13 @@
     ]
     </script>
     
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/services.css">
+    <!-- Inline critical CSS + full services.css to eliminate render-blocking -->
+    <style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary-color:#FC9D17;--secondary-color:#d97706;--text-dark:#e5e7eb;--text-light:#9ca3af;--bg-light:#1a1d23;--bg-white:#0f1115;--bg-dark:#000;--border-color:#2d3238;--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 6px -1px rgba(0,0,0,.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.5)}body{font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;color:#e5e7eb;background:#000}.container{max-width:1200px;margin:0 auto;padding:0 20px}img{max-width:100%;height:auto;display:block}a{text-decoration:none;color:inherit}.header{background:rgba(15,17,21,.95);box-shadow:0 2px 10px rgba(0,0,0,.5);position:sticky;top:0;z-index:1000;backdrop-filter:blur(10px)}.header-content{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}.logo{display:flex;align-items:center;gap:1rem}.logo-img{height:44px;width:auto;object-fit:contain}.main-nav ul{display:flex;list-style:none;gap:2rem}.main-nav a{font-weight:500;color:#e5e7eb;transition:color .3s;padding:.5rem 0;position:relative}.main-nav a:hover,.main-nav a.active{color:#FC9D17}.mobile-menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:.5rem}.mobile-menu-toggle span{display:block;width:25px;height:3px;background:#e5e7eb;margin:5px 0;transition:.3s}.page-header{background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:30px 0;text-align:center}.page-header h1{font-size:clamp(1.3rem,5vw,2.25rem);font-weight:700;color:#fff;margin:0}.page-header p{font-size:clamp(.88rem,3vw,1.125rem);color:rgba(255,255,255,.9);margin:8px 0 0}.services-detailed{padding:48px 0}.service-section{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-bottom:6rem}.service-section.reverse{direction:rtl}.service-section.reverse>*{direction:ltr}.service-image-placeholder{width:100%;height:400px;background:linear-gradient(135deg,var(--primary-color) 0%,var(--secondary-color) 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff}.service-image-placeholder svg{width:150px;height:150px;opacity:.5}.service-text h2{font-size:2rem;color:var(--text-dark);margin-bottom:1.5rem}.service-text p{color:var(--text-light);line-height:1.8;margin-bottom:1.5rem}.service-benefits{list-style:none;padding:0}.service-benefits li{padding:.75rem 0 .75rem 2rem;position:relative;color:var(--text-dark)}.service-benefits li::before{content:'✓';position:absolute;left:0;color:var(--primary-color);font-weight:700;font-size:1.2rem}.technical-specs{padding:48px 0;background:var(--bg-light)}.specs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem}.spec-card{text-align:center;padding:2.5rem;background:var(--bg-white);border-radius:12px;box-shadow:var(--shadow-sm);transition:all .3s}.spec-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-md)}.spec-icon{font-size:3rem;margin-bottom:1rem}.spec-card h3{font-size:1.2rem;color:var(--text-dark);margin-bottom:.75rem}.spec-card p{color:var(--primary-color);font-weight:600;font-size:1.1rem}.process-section{padding:48px 0}.process-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;margin-top:3rem}.process-step{text-align:center;padding:2rem 1.5rem;background:var(--bg-light);border-radius:12px;position:relative;transition:all .3s}.process-step:hover{transform:translateY(-5px);box-shadow:var(--shadow-md)}.step-number{width:60px;height:60px;margin:0 auto 1.5rem;background:var(--primary-color);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.75rem;font-weight:700}.process-step h3{font-size:1.3rem;color:var(--text-dark);margin-bottom:.75rem}.process-step p{color:var(--text-light);line-height:1.6}.spec-card,.process-step{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}.spec-card.card-visible,.process-step.card-visible{opacity:1;transform:translateY(0)}.spec-card:nth-child(1),.process-step:nth-child(1){transition-delay:0s}.spec-card:nth-child(2),.process-step:nth-child(2){transition-delay:.1s}.spec-card:nth-child(3),.process-step:nth-child(3){transition-delay:.2s}.spec-card:nth-child(4),.process-step:nth-child(4){transition-delay:.3s}.spec-card:nth-child(5),.process-step:nth-child(5){transition-delay:.4s}.service-section{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}.service-section.card-visible{opacity:1;transform:translateY(0)}@media(max-width:768px){.mobile-menu-toggle{display:block}.main-nav{position:absolute;top:100%;left:0;right:0;background:#0f1115;box-shadow:var(--shadow-md);max-height:0;overflow:hidden;transition:max-height .3s}.main-nav.active{max-height:400px}.main-nav ul{flex-direction:column;padding:1rem 0;gap:0}.main-nav li{padding:0 20px}.main-nav a{display:block;padding:.75rem 0;border-bottom:1px solid #2d3238}.services-detailed{padding:36px 0}.service-section{grid-template-columns:1fr;gap:1.25rem;margin-bottom:2rem}.service-section.reverse{direction:ltr}.service-image-placeholder{height:180px}.service-image-placeholder svg{width:70px;height:70px}.service-text h2{font-size:1.35rem;margin-bottom:.75rem}.service-text p{font-size:.92rem;margin-bottom:.75rem}.service-benefits li{padding:.5rem 0 .5rem 1.5rem;font-size:.92rem}.technical-specs{padding:28px 0}.specs-grid{grid-template-columns:1fr 1fr;gap:.6rem}.spec-card{padding:1rem .75rem}.spec-icon{font-size:2rem;margin-bottom:.5rem}.spec-card h3{font-size:.78rem;margin-bottom:.3rem}.spec-card p{font-size:.85rem}.process-section{padding:36px 0}.process-steps{grid-template-columns:1fr;gap:.75rem;margin-top:1.5rem}.process-step{padding:1rem;display:flex;align-items:center;gap:1rem;text-align:left}.step-number{width:44px;height:44px;min-width:44px;font-size:1.2rem;margin:0}.process-step h3{font-size:1rem;margin-bottom:.2rem}.process-step p{font-size:.88rem}}</style>
+    <!-- Non-blocking stylesheet (services.css fully inlined above) -->
+    <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+    <!-- Preload LCP background image -->
+    <link rel="preload" as="image" href="/assets/over-6-500-powder-coating-colors-dt20220310225503433014-AoPn7p8MMPF8P4lR.webp" type="image/webp" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
@@ -112,11 +117,14 @@
     </section>
 
     <!-- Services Content -->
-    <section class="services-detailed" style="background: linear-gradient(rgba(26, 29, 35, 0.92), rgba(26, 29, 35, 0.92)), url('/assets/over-6-500-powder-coating-colors-dt20220310225503433014-AoPn7p8MMPF8P4lR.jpg') center/cover fixed; backdrop-filter: blur(8px);">
+    <section class="services-detailed" style="background: linear-gradient(rgba(26, 29, 35, 0.92), rgba(26, 29, 35, 0.92)), url('/assets/over-6-500-powder-coating-colors-dt20220310225503433014-AoPn7p8MMPF8P4lR.webp') center/cover fixed; backdrop-filter: blur(8px);">
         <div class="container">
             <div class="service-section">
                 <div class="service-image-placeholder">
-                    <img src="/assets/powder_coating.png" alt="Profesionalus miltelinis dažymas - elektrostatinis metalo pavirsiu dengimas" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                    <picture>
+                        <source srcset="/assets/powder_coating.webp" type="image/webp">
+                        <img src="/assets/powder_coating.png" alt="Profesionalus miltelinis dažymas - elektrostatinis metalo pavirsiu dengimas" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                    </picture>
                 </div>
                 <div class="service-text">
                     <h2>Miltelinis dažymas</h2>
@@ -134,7 +142,10 @@
 
             <div class="service-section reverse">
                 <div class="service-image-placeholder">
-                    <img src="/assets/main-banner-new-AzGOex6l25hvbWnb.jpg" alt="Pavirsiu paruosimas milteliniam dazymui - smeliavimas ir cheminis valymas" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                    <picture>
+                        <source srcset="/assets/main-banner-new-AzGOex6l25hvbWnb.webp" type="image/webp">
+                        <img src="/assets/main-banner-new-AzGOex6l25hvbWnb.jpg" alt="Pavirsiu paruosimas milteliniam dazymui - smeliavimas ir cheminis valymas" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                    </picture>
                 </div>
                 <div class="service-text">
                     <h2>Paviršių paruošimas</h2>
@@ -149,7 +160,10 @@
 
             <div class="service-section">
                 <div class="service-image-placeholder">
-                    <img src="/assets/candy-purple-bike-parts-close-up_orig-d95WOabxNns7N0Ja.jpg" alt="Candy violetines spalvos miltelinis dazymas - dviraciu detaliu dazymo pavyzdys RAL spalva" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                    <picture>
+                        <source srcset="/assets/candy-purple-bike-parts-close-up_orig-d95WOabxNns7N0Ja.webp" type="image/webp">
+                        <img src="/assets/candy-purple-bike-parts-close-up_orig-d95WOabxNns7N0Ja.jpg" alt="Candy violetines spalvos miltelinis dazymas - dviraciu detaliu dazymo pavyzdys RAL spalva" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                    </picture>
                 </div>
                 <div class="service-text">
                     <h2>Spalvų ir dangų pasirinkimas</h2>
@@ -248,7 +262,10 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <img src="/assets/logo_blur-footer.png" alt="UAB Miltegona" class="footer-logo" width="200" height="133" loading="lazy">
+                    <picture>
+                        <source srcset="/assets/logo_blur-footer.webp" type="image/webp">
+                        <img src="/assets/logo_blur-footer.png" alt="UAB Miltegona" class="footer-logo" width="200" height="133" loading="lazy">
+                    </picture>
                     <p>Profesionalus miltelinis dažymas nuo 2021 metų.</p>
                     <p class="company-code">Įmonės kodas: 305813612</p>
                 </div>
