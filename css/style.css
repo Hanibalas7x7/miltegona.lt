@@ -502,16 +502,81 @@ a {
         border-bottom: 1px solid var(--border-color);
     }
 
+    .hero {
+        padding: 16px 0 32px;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
     .hero h2 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .hero p {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .hero-logo {
+        width: 65%;
+        margin-bottom: 0.75rem;
     }
 
     .section-title {
-        font-size: 2rem;
+        font-size: 1.6rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .features {
+        padding: 36px 0;
+    }
+
+    .services-preview {
+        padding: 36px 0;
+    }
+
+    .features-grid {
+        gap: 0.75rem;
+    }
+
+    .services-grid {
+        gap: 0.75rem;
+    }
+
+    .feature-card {
+        padding: 1.25rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-align: left;
+    }
+
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        margin: 0;
+    }
+
+    .feature-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .feature-card p {
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    .service-card {
+        padding: 1.25rem;
+    }
+
+    .service-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
     }
 
     .features-grid,
@@ -534,21 +599,34 @@ a {
 
 @media (max-width: 480px) {
     .hero {
-        padding: 80px 0;
+        padding: 12px 0 28px;
         background-image: url('../assets/main_pic-mobile.jpg') !important;
     }
 
     .hero h1 {
-        font-size: 1.75rem;
+        font-size: 1.55rem;
     }
 
     .hero h2 {
-        font-size: 1.75rem;
+        font-size: 1.55rem;
+    }
+
+    .hero-logo {
+        width: 72%;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
     }
 
     .btn {
-        padding: 0.75rem 1.5rem;
-        font-size: 0.95rem;
+        padding: 0.7rem 1.4rem;
+        font-size: 0.93rem;
+        width: 100%;
+        max-width: 260px;
+        text-align: center;
     }
 }
 
@@ -595,12 +673,23 @@ a {
     to { transform: scale(1); opacity: 1; }
 }
 
+/* === Hero Entrance Animations === */
+@keyframes heroFadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-logo    { animation: heroFadeUp 0.6s 0.05s ease both; }
+.hero h1      { animation: heroFadeUp 0.6s 0.20s ease both; }
+.hero p       { animation: heroFadeUp 0.6s 0.35s ease both; }
+.hero-buttons { animation: heroFadeUp 0.6s 0.50s ease both; }
+
 /* === Feature / Service Card Scroll Animation === */
 .feature-card,
 .service-card {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.55s ease, transform 0.55s ease;
 }
 
 .feature-card.card-visible,
@@ -608,6 +697,15 @@ a {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* Stagger delays */
+.feature-card:nth-child(1) { transition-delay: 0.00s; }
+.feature-card:nth-child(2) { transition-delay: 0.10s; }
+.feature-card:nth-child(3) { transition-delay: 0.20s; }
+.feature-card:nth-child(4) { transition-delay: 0.30s; }
+.service-card:nth-child(1) { transition-delay: 0.00s; }
+.service-card:nth-child(2) { transition-delay: 0.12s; }
+.service-card:nth-child(3) { transition-delay: 0.24s; }
 
 /* === Modal === */
 #modal-ok-btn:hover {
