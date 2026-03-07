@@ -77,6 +77,17 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(card);
     });
 
+    // Section titles slide-in on scroll
+    const titleObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('title-visible');
+                titleObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.section-title').forEach(t => titleObserver.observe(t));
+
     // Supabase client removed - no longer needed for public pages
     // Contact form now uses Edge Functions or backend API
 

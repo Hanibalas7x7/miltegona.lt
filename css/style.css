@@ -218,6 +218,25 @@ a {
     transition: all 0.3s;
     cursor: pointer;
     border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer sweep on hover */
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.18), transparent);
+    transition: left 0.45s ease;
+    pointer-events: none;
+}
+
+.btn:hover::after {
+    left: 140%;
 }
 
 .btn-primary {
@@ -243,6 +262,51 @@ a {
     border-color: var(--accent-color);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+}
+
+/* Hero primary CTA pulse */
+@keyframes ctaPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(30, 96, 56, 0.55); }
+    60%  { box-shadow: 0 0 0 14px rgba(30, 96, 56, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(30, 96, 56, 0); }
+}
+
+.hero-buttons .btn-primary {
+    animation: ctaPulse 2.2s ease-out infinite;
+}
+
+.hero-buttons .btn-primary:hover {
+    animation: none;
+}
+
+/* CTA section button pulse (orange glow) */
+@keyframes ctaPulseOrange {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+    60%  { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.cta .btn-primary {
+    animation: ctaPulseOrange 2.2s ease-out infinite;
+}
+
+.cta .btn-primary:hover {
+    animation: none;
+}
+
+/* Section title slide-in from bottom */
+@keyframes titleSlideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+    animation: titleSlideUp 0.6s ease both;
+    animation-play-state: paused;
+}
+
+.section-title.title-visible {
+    animation-play-state: running;
 }
 
 /* Section Titles */
