@@ -1,4 +1,4 @@
-const CACHE_NAME = 'miltegona-v1';
+const CACHE_NAME = 'miltegona-v2';
 const STATIC_ASSETS = [
     '/',
     '/apie-mus/',
@@ -8,7 +8,8 @@ const STATIC_ASSETS = [
     '/galerija/',
     '/dazai/',
     '/sekimas/',
-    '/assets/miltegona-logo-white-v4-Awv5M7Brq0SlKNEo.png',
+    '/assets/miltegona-logo-white-optimized.webp',
+    '/assets/logo_blur-footer.webp',
 ];
 
 // Cache-first asset types (images, fonts — rarely change)
