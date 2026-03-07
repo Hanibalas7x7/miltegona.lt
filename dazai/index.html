@@ -144,7 +144,7 @@
             table-layout: fixed;
         }
 
-        .paints-table th:nth-child(1) { width: 22%; }
+        .paints-table th:nth-child(1) { width: 150px; }
         .paints-table th:nth-child(2) { width: 11%; }
         .paints-table th:nth-child(3) { width: 13%; }
         .paints-table th:nth-child(4) { width: 9%; }
@@ -238,6 +238,7 @@
         .color-badge {
             display: inline-flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 6px;
             padding: 4px 8px;
             background: linear-gradient(135deg, #FC9D17 0%, #d97706 100%);
@@ -246,9 +247,9 @@
             font-size: 13px;
             font-weight: 600;
             letter-spacing: 0.3px;
-            white-space: normal;
-            word-break: break-word;
             max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
         
         .color-preview {
