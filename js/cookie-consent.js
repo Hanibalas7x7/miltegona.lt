@@ -26,7 +26,7 @@
             'font-size:0.88rem;font-weight:600;cursor:pointer;transition:opacity .2s;',
         '}',
         '.cookie-btn:hover{opacity:0.85;}',
-        '.cookie-btn-accept{background:#ff6b35;color:#fff;}',
+        '.cookie-btn-accept{background:#b03000;color:#fff;}',
         '.cookie-btn-decline{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.2);}',
         '@media(max-width:600px){',
             '.cookie-banner-content{flex-direction:column;align-items:flex-start;}',
