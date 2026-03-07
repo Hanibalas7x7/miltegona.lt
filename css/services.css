@@ -1,7 +1,7 @@
 /* Services Page Specific Styles */
 
 .services-detailed {
-    padding: 80px 0;
+    padding: 48px 0;
 }
 
 .service-section {
@@ -71,7 +71,7 @@
 }
 
 .technical-specs {
-    padding: 80px 0;
+    padding: 48px 0;
     background: var(--bg-light);
 }
 
@@ -113,7 +113,7 @@
 }
 
 .process-section {
-    padding: 80px 0;
+    padding: 48px 0;
 }
 
 .process-steps {

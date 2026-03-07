@@ -1,7 +1,7 @@
 /* Tracking Page Styles */
 
 .tracking-section {
-    padding: 80px 0;
+    padding: 48px 0;
     background: linear-gradient(rgba(26, 29, 35, 0.95), rgba(26, 29, 35, 0.95)), 
                 url('/assets/choosing-an-abrasive-media-Yg27WVBDpBF5yO5E.jpg') center/cover fixed;
     min-height: 60vh;
@@ -389,7 +389,7 @@
 
 /* How It Works Section */
 .how-it-works {
-    padding: 80px 0;
+    padding: 48px 0;
     background: var(--bg-light);
 }
 
@@ -439,7 +439,7 @@
 /* Responsive */
 @media (max-width: 768px) {
     .tracking-section {
-        padding: 60px 0;
+        padding: 36px 0;
     }
     
     .search-card {

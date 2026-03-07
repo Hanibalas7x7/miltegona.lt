@@ -1,7 +1,7 @@
 /* Contact Page Specific Styles */
 
 .contact-section {
-    padding: 80px 0;
+    padding: 48px 0;
 }
 
 .contact-grid {
@@ -169,7 +169,7 @@
 
 /* Map Section */
 .map-section {
-    padding: 80px 0;
+    padding: 48px 0;
     background: var(--bg-light);
 }
 
