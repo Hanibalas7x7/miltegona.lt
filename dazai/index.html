@@ -395,13 +395,7 @@
                 <div class="filters-grid">
                     <div class="filter-group">
                         <label for="searchInput">Paieška</label>
-                        <input type="text" id="searchInput" placeholder="Ieškoti pagal gamintoją, spalvą, kodą...">
-                    </div>
-                    <div class="filter-group">
-                        <label for="manufacturerFilter">Gamintojas</label>
-                        <select id="manufacturerFilter">
-                            <option value="">Visi gamintojai</option>
-                        </select>
+                        <input type="text" id="searchInput" placeholder="Ieškoti pagal spalvą, kodą...">
                     </div>
                     <div class="filter-group">
                         <label for="surfaceFilter">Paviršius</label>
@@ -413,6 +407,12 @@
                         <label for="blizgumasFilter">Blizgumas</label>
                         <select id="blizgumasFilter">
                             <option value="">Visi blizgumai</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="manufacturerFilter">Gamintojas</label>
+                        <select id="manufacturerFilter">
+                            <option value="">Visi gamintojai</option>
                         </select>
                     </div>
                 </div>
@@ -442,15 +442,13 @@
                 <table class="paints-table" id="paintsTable" style="display: none;">
                     <thead>
                         <tr>
-                            <th onclick="sortTable('gamintojas')">Gamintojas</th>
-                            <th onclick="sortTable('kodas')">Kodas</th>
                             <th onclick="sortTable('spalva')">Spalva</th>
                             <th onclick="sortTable('pavirsus')">Paviršius</th>
                             <th onclick="sortTable('blizgumas')">Blizgumas</th>
+                            <th onclick="sortTable('kiekis')">Kiekis (kg)</th>
                             <th onclick="sortTable('effect')">Efektas</th>
-                            <th onclick="sortTable('sudetis')">Sudėtis</th>
-                            <th onclick="sortTable('kiekis')">Kiekis</th>
-                            <th onclick="sortTable('ml_kodas')">ML Kodas</th>
+                            <th onclick="sortTable('kodas')">Kodas</th>
+                            <th onclick="sortTable('gamintojas')">Gamintojas</th>
                         </tr>
                     </thead>
                     <tbody id="paintsTableBody">
@@ -629,7 +627,7 @@
         
         let allPaints = [];
         let filteredPaints = [];
-        let sortColumn = 'gamintojas';
+        let sortColumn = 'spalva';
         let sortDirection = 'asc';
         
         // Load paints from Edge Function (read-only, secure)
@@ -904,15 +902,13 @@
                 
                 return `
                 <tr>
-                    <td>${paint.gamintojas || '-'}</td>
-                    <td>${paint.kodas || '-'}</td>
                     <td><span class="color-badge">${colorPreview}${paint.spalva || '-'}</span></td>
                     <td>${pavirsus}</td>
                     <td>${blizgumas}</td>
-                    <td>${effect}</td>
-                    <td>${paint.sudetis || '-'}</td>
                     <td class="quantity">${paint.kiekis || '0'}</td>
-                    <td>${paint.ml_kodas || '-'}</td>
+                    <td>${effect}</td>
+                    <td>${paint.kodas || '-'}</td>
+                    <td>${paint.gamintojas || '-'}</td>
                 </tr>
                 `;
             }).join('');
