@@ -29,9 +29,13 @@
 }
 
 .calculator-note {
-    color: #9ca3af;
+    color: #e5a000;
     margin-bottom: 2rem;
     font-size: 0.95rem;
+    background: rgba(252, 157, 23, 0.1);
+    border-left: 3px solid #FC9D17;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0 6px 6px 0;
 }
 
 .form-section {
@@ -49,6 +53,53 @@
     font-size: 1.3rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.info-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--primary-color);
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.info-btn:hover {
+    background: var(--primary-color);
+    color: #000;
+}
+
+.info-popup {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: #2a2d35;
+    color: #e5e7eb;
+    font-size: 0.82rem;
+    font-weight: 400;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #FC9D17;
+    width: 260px;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    line-height: 1.5;
+}
+
+.info-popup.visible {
+    display: block;
 }
 
 .form-row {
@@ -69,7 +120,17 @@
     font-size: 0.95rem;
 }
 
-.form-group input,
+.form-group input[type="number"]::-webkit-inner-spin-button,
+.form-group input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.form-group input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.form-group input[type="number"],
+.form-group input[type="text"],
 .form-group select {
     padding: 0.875rem;
     border: 2px solid var(--border-color);
@@ -81,7 +142,8 @@
     transition: all 0.3s;
 }
 
-.form-group input:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="text"]:focus,
 .form-group select:focus {
     outline: none;
     border-color: var(--primary-color);
@@ -111,9 +173,12 @@
 .checkbox-label input[type="checkbox"] {
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
     margin-right: 0.75rem;
     cursor: pointer;
     accent-color: var(--primary-color);
+    flex-shrink: 0;
 }
 
 /* Complexity Options Styling */
@@ -351,33 +416,49 @@
 
 @media (max-width: 768px) {
     .calculator-section {
-        padding: 30px 0;
+        padding: 20px 0;
     }
     
     .calculator-container {
-        gap: 1.5rem;
+        gap: 1rem;
         padding: 0 10px;
     }
     
     .calculator-form,
     .result-card,
     .info-card {
-        padding: 1.25rem;
+        padding: 1rem;
     }
 
     .calculator-form h2 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         line-height: 1.3;
+        margin-bottom: 0.25rem;
     }
     
     .calculator-note {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         line-height: 1.4;
+        margin-bottom: 1rem;
+    }
+
+    .form-section {
+        margin-bottom: 1.25rem;
+        padding-bottom: 1.25rem;
+    }
+
+    .form-section h3 {
+        font-size: 1.05rem;
+        margin-bottom: 0.75rem;
     }
 
     .form-row {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .form-row .form-group label {
+        font-size: 0.78rem;
     }
     
     .form-group {
@@ -385,16 +466,26 @@
     }
     
     .form-group label {
-        font-size: 0.9rem;
-        margin-bottom: 0.4rem;
+        font-size: 0.88rem;
+        margin-bottom: 0.35rem;
     }
 
-    .form-group input,
+    .form-group input[type="number"],
+    .form-group input[type="text"],
     .form-group select {
-        font-size: 16px; /* Prevent zoom on iOS */
-        padding: 0.75rem;
+        font-size: 16px;
+        padding: 0.6rem 0.75rem;
         width: 100%;
         box-sizing: border-box;
+    }
+
+    .checkbox-group {
+        gap: 0.4rem;
+    }
+
+    .checkbox-label {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.88rem;
     }
 
     .complexity-group {
@@ -403,7 +494,7 @@
     }
 
     .complexity-card {
-        padding: 0.75rem 0.5rem;
+        padding: 0.6rem 0.4rem;
     }
     
     .complexity-text {
@@ -411,8 +502,14 @@
     }
 
     .complexity-icon {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
+        margin-bottom: 0.4rem;
+    }
+
+    .price-display {
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
 
     .price-amount {
@@ -427,11 +524,26 @@
     }
     
     .price-breakdown {
-        padding: 1rem;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
     }
     
     .price-item {
         font-size: 0.85rem;
         flex-wrap: wrap;
+    }
+
+    .result-card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-card h3 {
+        font-size: 1rem;
+    }
+
+    .info-card ul li {
+        font-size: 0.88rem;
+        padding: 0.3rem 0 0.3rem 1.5rem;
     }
 }

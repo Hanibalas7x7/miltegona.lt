@@ -97,26 +97,26 @@
             <div class="calculator-container">
                 <div class="calculator-form">
                     <h2>Įveskite parametrus</h2>
-                    <p class="calculator-note">Pateikiama kaina yra orientacinė. Tiksli kaina pateikiama po konsultacijos.</p>
+                    <p class="calculator-note">⚠️ Pateikiama kaina yra <strong>orientacinė</strong>. Tiksli kaina pateikiama po konsultacijos.</p>
 
                     <form id="price-calculator">
                         <div class="form-section">
-                            <h3>1. Detalės matmenys</h3>
-                            <p class="dimension-note" style="font-size: 0.9rem; color: #6b7280; margin-bottom: 1rem; font-style: italic;">
-                                <strong>Pastaba:</strong> Matuokite taip, kad gylis būtų mažiausias matmuo.
-                            </p>
+                            <h3>1. Detalės matmenys <button type="button" class="info-btn" onclick="toggleInfoPopup(this)" aria-label="Papildoma informacija">?</button>
+                                <span class="info-popup">Vamzdeliai, profiliai, smulkios dalys skaičiuojamos individualiai pagal kiekį.</span>
+                            </h3>
+                            <p class="calculator-note" style="margin-bottom:1rem;">⚠️ Matuokite taip, kad gylis būtų mažiausias matmuo.</p>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="length">Ilgis (mm)</label>
-                                    <input type="number" id="length" min="0" max="8800" placeholder="pvz. 7000">
+                                    <input type="number" id="length" min="0" max="8800" placeholder="8800">
                                 </div>
                                 <div class="form-group">
                                     <label for="height">Aukštis (mm)</label>
-                                    <input type="number" id="height" min="0" max="2500" placeholder="pvz. 1200">
+                                    <input type="number" id="height" min="0" max="2500" placeholder="2500">
                                 </div>
                                 <div class="form-group">
                                     <label for="width">Gylis (mm)</label>
-                                    <input type="number" id="width" min="0" max="2400" placeholder="pvz. 50">
+                                    <input type="number" id="width" min="0" max="2400" placeholder="50">
                                 </div>
                             </div>
                         </div>
@@ -125,12 +125,12 @@
                             <h3>2. Kiekis ir svoris</h3>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="quantity">Detalių kiekis (vnt.)</label>
+                                    <label for="quantity">Kiekis (vnt.)</label>
                                     <input type="number" id="quantity" min="1" value="1" placeholder="1">
                                 </div>
                                 <div class="form-group">
-                                    <label for="weight">Apytikris vnt. svoris (kg)</label>
-                                    <input type="number" id="weight" min="0" max="1000" step="0.1" placeholder="pvz. 10">
+                                    <label for="weight">Svoris (kg)</label>
+                                    <input type="number" id="weight" min="0" max="1000" step="0.1" placeholder="10">
                                 </div>
                             </div>
                         </div>
@@ -314,5 +314,17 @@
     <script src="/js/main.js"></script>
     <script src="/js/calculator.js?v=2"></script>
     <script src="/js/cookie-consent.js" defer></script>
+    <script>
+        function toggleInfoPopup(btn) {
+            const popup = btn.nextElementSibling;
+            popup.classList.toggle('visible');
+            document.addEventListener('click', function closePopup(e) {
+                if (!btn.contains(e.target)) {
+                    popup.classList.remove('visible');
+                    document.removeEventListener('click', closePopup);
+                }
+            });
+        }
+    </script>
 </body>
 </html>
