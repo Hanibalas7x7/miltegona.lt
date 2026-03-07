@@ -368,7 +368,7 @@ document.body.appendChild(whatsappBtn);
     badge.id = 'workHoursBadge';
     badge.innerHTML = '<span class="wh-badge">'
         + '<span class="wh-dot ' + (open ? 'open' : 'closed') + '"></span>'
-        + (open ? 'Dirbame' : 'Nedirbame')
+        + (open ? 'Dirbame' : 'Ne darbo laikas')
         + '</span>';
 
     var nav = document.querySelector('.main-nav ul');
