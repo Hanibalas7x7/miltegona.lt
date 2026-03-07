@@ -316,90 +316,95 @@ function openLightbox(imgSrc) {
 
 // Keyframe animations are defined in css/style.css
 
-// Back to Top Button
-const backToTopBtn = document.createElement('button');
-backToTopBtn.id = 'backToTop';
-backToTopBtn.innerHTML = '↑';
-backToTopBtn.setAttribute('aria-label', 'Back to top');
-document.body.appendChild(backToTopBtn);
+// Defer non-critical UI widgets past first paint to avoid forced reflow
+requestAnimationFrame(function() {
 
-var _scrollTicking = false;
-window.addEventListener('scroll', function() {
-    if (!_scrollTicking) {
-        requestAnimationFrame(function() {
-            backToTopBtn.classList.toggle('visible', window.scrollY > 300);
-            _scrollTicking = false;
-        });
-        _scrollTicking = true;
-    }
-}, { passive: true });
+    // Back to Top Button
+    var backToTopBtn = document.createElement('button');
+    backToTopBtn.id = 'backToTop';
+    backToTopBtn.innerHTML = '↑';
+    backToTopBtn.setAttribute('aria-label', 'Back to top');
+    document.body.appendChild(backToTopBtn);
 
-backToTopBtn.addEventListener('click', function() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+    var _scrollTicking = false;
+    window.addEventListener('scroll', function() {
+        if (!_scrollTicking) {
+            requestAnimationFrame(function() {
+                backToTopBtn.classList.toggle('visible', window.scrollY > 300);
+                _scrollTicking = false;
+            });
+            _scrollTicking = true;
+        }
+    }, { passive: true });
 
-// WhatsApp Floating Button
-const whatsappBtn = document.createElement('a');
-whatsappBtn.href = 'https://wa.me/37062502563?text=Sveiki,%20norėčiau%20sužinoti%20daugiau%20apie%20miltelinio%20dažymo%20paslaugas';
-whatsappBtn.target = '_blank';
-whatsappBtn.rel = 'noopener noreferrer';
-whatsappBtn.id = 'whatsappBtn';
-whatsappBtn.innerHTML = `<svg viewBox="0 0 32 32" width="32" height="32"><path fill="currentColor" d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.737 5.607 2.137 8.048l-2.137 7.952 7.933-2.127c2.42 1.37 5.173 2.127 8.067 2.127 8.837 0 16-7.163 16-16s-7.163-16-16-16zM16 29.333c-2.547 0-5.053-0.72-7.24-2.080l-0.52-0.307-5.387 1.44 1.44-5.373-0.32-0.533c-1.44-2.4-2.24-5.147-2.24-7.973 0-7.36 5.973-13.333 13.333-13.333s13.333 5.973 13.333 13.333-5.973 13.333-13.333 13.333zM22.293 18.653c-0.4-0.2-2.347-1.16-2.72-1.293-0.36-0.133-0.627-0.2-0.893 0.2s-1.027 1.293-1.253 1.56c-0.24 0.267-0.467 0.307-0.867 0.107-0.4-0.2-1.68-0.627-3.2-1.987-1.187-1.067-1.987-2.373-2.213-2.773-0.24-0.4-0.027-0.613 0.173-0.813 0.187-0.173 0.4-0.467 0.6-0.693 0.2-0.24 0.267-0.4 0.4-0.667 0.133-0.267 0.067-0.493-0.027-0.693-0.107-0.2-0.893-2.147-1.227-2.933-0.32-0.773-0.653-0.667-0.893-0.68-0.227-0.013-0.493-0.013-0.76-0.013s-0.693 0.093-1.053 0.493c-0.36 0.4-1.387 1.36-1.387 3.307s1.413 3.84 1.613 4.107c0.2 0.267 2.827 4.32 6.853 6.053 0.96 0.413 1.707 0.667 2.293 0.853 0.96 0.307 1.84 0.267 2.533 0.16 0.773-0.12 2.347-0.96 2.68-1.893 0.333-0.933 0.333-1.72 0.24-1.893-0.107-0.187-0.373-0.293-0.773-0.493z"/></svg>`;
-whatsappBtn.setAttribute('aria-label', 'Contact via WhatsApp');
-document.body.appendChild(whatsappBtn);
+    backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
-// #backToTop and #whatsappBtn styles are defined in css/style.css
+    // WhatsApp Floating Button
+    var whatsappBtn = document.createElement('a');
+    whatsappBtn.href = 'https://wa.me/37062502563?text=Sveiki,%20norėčiau%20sužinoti%20daugiau%20apie%20miltelinio%20dažymo%20paslaugas';
+    whatsappBtn.target = '_blank';
+    whatsappBtn.rel = 'noopener noreferrer';
+    whatsappBtn.id = 'whatsappBtn';
+    whatsappBtn.innerHTML = `<svg viewBox="0 0 32 32" width="32" height="32"><path fill="currentColor" d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.737 5.607 2.137 8.048l-2.137 7.952 7.933-2.127c2.42 1.37 5.173 2.127 8.067 2.127 8.837 0 16-7.163 16-16s-7.163-16-16-16zM16 29.333c-2.547 0-5.053-0.72-7.24-2.080l-0.52-0.307-5.387 1.44 1.44-5.373-0.32-0.533c-1.44-2.4-2.24-5.147-2.24-7.973 0-7.36 5.973-13.333 13.333-13.333s13.333 5.973 13.333 13.333-5.973 13.333-13.333 13.333zM22.293 18.653c-0.4-0.2-2.347-1.16-2.72-1.293-0.36-0.133-0.627-0.2-0.893 0.2s-1.027 1.293-1.253 1.56c-0.24 0.267-0.467 0.307-0.867 0.107-0.4-0.2-1.68-0.627-3.2-1.987-1.187-1.067-1.987-2.373-2.213-2.773-0.24-0.4-0.027-0.613 0.173-0.813 0.187-0.173 0.4-0.467 0.6-0.693 0.2-0.24 0.267-0.4 0.4-0.667 0.133-0.267 0.067-0.493-0.027-0.693-0.107-0.2-0.893-2.147-1.227-2.933-0.32-0.773-0.653-0.667-0.893-0.68-0.227-0.013-0.493-0.013-0.76-0.013s-0.693 0.093-1.053 0.493c-0.36 0.4-1.387 1.36-1.387 3.307s1.413 3.84 1.613 4.107c0.2 0.267 2.827 4.32 6.853 6.053 0.96 0.413 1.707 0.667 2.293 0.853 0.96 0.307 1.84 0.267 2.533 0.16 0.773-0.12 2.347-0.96 2.68-1.893 0.333-0.933 0.333-1.72 0.24-1.893-0.107-0.187-0.373-0.293-0.773-0.493z"/></svg>`;
+    whatsappBtn.setAttribute('aria-label', 'Contact via WhatsApp');
+    document.body.appendChild(whatsappBtn);
 
-// Working Hours Indicator
-(function() {
-    // ============================================================
-    // DARBO LAIKO KONFIGŪRACIJA — redaguokite šiuos masyvus
-    // ============================================================
+    // #backToTop and #whatsappBtn styles are defined in css/style.css
 
-    // Dienos KAI NEDIRBATE (šventės, atostogos ir pan.)
-    // Formatas: 'MMMM-MM-DD'  pvz. '2026-03-11'
-    var closedDates = [
-        // '2026-12-25',
-        // '2026-12-26',
-    ];
+    // Working Hours Indicator
+    (function() {
+        // ============================================================
+        // DARBO LAIKO KONFIGŪRACIJA — redaguokite šiuos masyvus
+        // ============================================================
 
-    // Dienos KAI DIRBATE nepaisant savaitgalio ar datos
-    // Formatas: 'MMMM-MM-DD'  pvz. '2026-03-14'
-    var openDates = [
-        // '2026-03-14',
-    ];
+        // Dienos KAI NEDIRBATE (šventės, atostogos ir pan.)
+        // Formatas: 'MMMM-MM-DD'  pvz. '2026-03-11'
+        var closedDates = [
+            // '2026-12-25',
+            // '2026-12-26',
+        ];
 
-    // ============================================================
+        // Dienos KAI DIRBATE nepaisant savaitgalio ar datos
+        // Formatas: 'MMMM-MM-DD'  pvz. '2026-03-14'
+        var openDates = [
+            // '2026-03-14',
+        ];
 
-    function isWorkingHours() {
-        var now = new Date();
-        var lt = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Vilnius' }));
-        var dateStr = lt.getFullYear() + '-'
-            + String(lt.getMonth() + 1).padStart(2, '0') + '-'
-            + String(lt.getDate()).padStart(2, '0');
-        var hour = lt.getHours();
-        var min = lt.getMinutes();
-        var timeNum = hour * 100 + min;
-        var withinHours = timeNum >= 900 && timeNum < 1800;
+        // ============================================================
 
-        if (openDates.indexOf(dateStr) !== -1) return withinHours;
-        if (closedDates.indexOf(dateStr) !== -1) return false;
+        function isWorkingHours() {
+            var now = new Date();
+            var lt = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Vilnius' }));
+            var dateStr = lt.getFullYear() + '-'
+                + String(lt.getMonth() + 1).padStart(2, '0') + '-'
+                + String(lt.getDate()).padStart(2, '0');
+            var hour = lt.getHours();
+            var min = lt.getMinutes();
+            var timeNum = hour * 100 + min;
+            var withinHours = timeNum >= 900 && timeNum < 1800;
 
-        var day = lt.getDay(); // 0=Sun, 6=Sat
-        return day >= 1 && day <= 5 && withinHours;
-    }
+            if (openDates.indexOf(dateStr) !== -1) return withinHours;
+            if (closedDates.indexOf(dateStr) !== -1) return false;
 
-    var open = isWorkingHours();
-    var badge = document.createElement('li');
-    badge.id = 'workHoursBadge';
-    badge.innerHTML = '<span class="wh-badge">'
-        + '<span class="wh-dot ' + (open ? 'open' : 'closed') + '"></span>'
-        + (open ? 'Dirbame' : 'Ne darbo laikas')
-        + '</span>';
+            var day = lt.getDay(); // 0=Sun, 6=Sat
+            return day >= 1 && day <= 5 && withinHours;
+        }
 
-    var nav = document.querySelector('.main-nav ul');
-    if (nav) nav.appendChild(badge);
-})();
+        var open = isWorkingHours();
+        var badge = document.createElement('li');
+        badge.id = 'workHoursBadge';
+        badge.innerHTML = '<span class="wh-badge">'
+            + '<span class="wh-dot ' + (open ? 'open' : 'closed') + '"></span>'
+            + (open ? 'Dirbame' : 'Ne darbo laikas')
+            + '</span>';
+
+        var nav = document.querySelector('.main-nav ul');
+        if (nav) nav.appendChild(badge);
+    })();
+
+}); // end requestAnimationFrame
 
 // Service Worker registration
 if ('serviceWorker' in navigator) {
