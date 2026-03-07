@@ -313,7 +313,7 @@
 
     <!-- Sticky calculate button (mobile) -->
     <div id="stickyCalcBar" class="sticky-calc-bar">
-        <button type="button" onclick="document.getElementById('calculate-btn').click();" class="btn-primary" style="margin:0;">Skaičiuoti kainą</button>
+        <button type="button" onclick="document.getElementById('calculate-btn').click(); setTimeout(() => document.getElementById('total-price').closest('.result-card').scrollIntoView({behavior:'smooth', block:'nearest'}), 100);" class="btn-primary" style="margin:0;">Skaičiuoti kainą</button>
     </div>
 
     <script src="/js/main.js"></script>
