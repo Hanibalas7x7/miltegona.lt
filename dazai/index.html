@@ -445,10 +445,11 @@
                             <th onclick="sortTable('spalva')">Spalva</th>
                             <th onclick="sortTable('pavirsus')">Paviršius</th>
                             <th onclick="sortTable('blizgumas')">Blizgumas</th>
-                            <th onclick="sortTable('kiekis')">Kiekis (kg)</th>
                             <th onclick="sortTable('effect')">Efektas</th>
                             <th onclick="sortTable('kodas')">Kodas</th>
                             <th onclick="sortTable('gamintojas')">Gamintojas</th>
+                            <th onclick="sortTable('kiekis')">Kiekis (kg)</th>
+                            <th onclick="sortTable('ml_kodas')">ML Kodas</th>
                         </tr>
                     </thead>
                     <tbody id="paintsTableBody">
@@ -905,10 +906,11 @@
                     <td><span class="color-badge">${colorPreview}${paint.spalva || '-'}</span></td>
                     <td>${pavirsus}</td>
                     <td>${blizgumas}</td>
-                    <td class="quantity">${paint.kiekis || '0'}</td>
                     <td>${effect}</td>
                     <td>${paint.kodas || '-'}</td>
                     <td>${paint.gamintojas || '-'}</td>
+                    <td class="quantity">${paint.kiekis || '0'}</td>
+                    <td>${paint.ml_kodas || '-'}</td>
                 </tr>
                 `;
             }).join('');
