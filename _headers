@@ -37,6 +37,11 @@
 /js/atidaryti.js
   Cache-Control: no-cache, must-revalidate
 
+# Service Worker - visada naujas (browsers reikalauja)
+/sw.js
+  Cache-Control: no-cache, must-revalidate
+  Service-Worker-Allowed: /
+
 # HTML - visada revalidate (niekada sena cache)
 /*.html
   Cache-Control: no-cache, must-revalidate
