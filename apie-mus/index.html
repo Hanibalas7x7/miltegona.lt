@@ -55,8 +55,15 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ff6b35">
     
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/about.css">
+    <!-- Inline critical CSS -->
+    <style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary-color:#FC9D17;--secondary-color:#d97706;--text-dark:#e5e7eb;--text-light:#9ca3af;--bg-light:#1a1d23;--bg-white:#0f1115;--bg-dark:#000;--border-color:#2d3238;--shadow-md:0 4px 6px -1px rgba(0,0,0,.4);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.5)}body{font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;color:#e5e7eb;background:#000}.container{max-width:1200px;margin:0 auto;padding:0 20px}img{max-width:100%;height:auto;display:block}a{text-decoration:none;color:inherit}.header{background:rgba(15,17,21,.95);box-shadow:0 2px 10px rgba(0,0,0,.5);position:sticky;top:0;z-index:1000;backdrop-filter:blur(10px)}.header-content{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}.logo{display:flex;align-items:center;gap:1rem}.logo-img{height:44px;width:auto;object-fit:contain}.main-nav ul{display:flex;list-style:none;gap:2rem}.main-nav a{font-weight:500;color:#e5e7eb;transition:color .3s;padding:.5rem 0;position:relative}.main-nav a:hover,.main-nav a.active{color:#FC9D17}.mobile-menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:.5rem}.mobile-menu-toggle span{display:block;width:25px;height:3px;background:#e5e7eb;margin:5px 0;transition:.3s}.page-header{background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);color:#fff;padding:30px 0;text-align:center}.page-header h1{font-size:clamp(1.3rem,5vw,2.25rem);font-weight:700;color:#fff;margin:0}.page-header p{font-size:clamp(.88rem,3vw,1.125rem);color:rgba(255,255,255,.9);margin:8px 0 0}.about-content{padding:48px 0;color:#e5e7eb}.about-intro{text-align:center;max-width:800px;margin:0 auto 4rem}.about-intro h2{font-size:2.5rem;color:var(--text-dark);margin-bottom:1.5rem}.about-intro .lead{font-size:1.2rem;line-height:1.8;color:var(--text-light)}.about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:4rem}.about-card{text-align:center;padding:2.5rem;background:var(--bg-light);border-radius:12px}.about-icon{width:70px;height:70px;margin:0 auto 1.5rem;color:var(--primary-color)}@media(max-width:768px){.mobile-menu-toggle{display:block}.main-nav{position:absolute;top:100%;left:0;right:0;background:#0f1115;box-shadow:var(--shadow-md);max-height:0;overflow:hidden;transition:max-height .3s}.main-nav.active{max-height:400px}.main-nav ul{flex-direction:column;padding:1rem 0;gap:0}.main-nav li{padding:0 20px}.main-nav a{display:block;padding:.75rem 0;border-bottom:1px solid #2d3238}}</style>
+    <!-- Non-blocking stylesheets -->
+    <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+    <link rel="stylesheet" href="/css/about.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="/css/about.css"></noscript>
+    <!-- Preload LCP background image -->
+    <link rel="preload" as="image" href="/assets/choosing-an-abrasive-media-Yg27WVBDpBF5yO5E.webp" type="image/webp" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
@@ -105,7 +112,7 @@
     </section>
 
     <!-- About Content -->
-    <section class="about-content" style="background: linear-gradient(rgba(26, 29, 35, 0.92), rgba(26, 29, 35, 0.92)), url('/assets/choosing-an-abrasive-media-Yg27WVBDpBF5yO5E.jpg') center/cover fixed;">
+    <section class="about-content" style="background: linear-gradient(rgba(26, 29, 35, 0.92), rgba(26, 29, 35, 0.92)), url('/assets/choosing-an-abrasive-media-Yg27WVBDpBF5yO5E.webp') center/cover fixed;">
         <div class="container">
             <div class="about-intro">
                 <h2>UAB Miltegona</h2>
