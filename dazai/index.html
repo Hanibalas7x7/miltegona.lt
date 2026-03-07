@@ -144,14 +144,14 @@
             table-layout: fixed;
         }
 
-        .paints-table th:nth-child(1) { width: 150px; }
-        .paints-table th:nth-child(2) { width: 11%; }
+        .paints-table th:nth-child(1) { width: 15%; }
+        .paints-table th:nth-child(2) { width: 12%; }
         .paints-table th:nth-child(3) { width: 13%; }
         .paints-table th:nth-child(4) { width: 9%; }
         .paints-table th:nth-child(5) { width: 13%; }
         .paints-table th:nth-child(6) { width: 13%; }
-        .paints-table th:nth-child(7) { width: 9%; }
-        .paints-table th:nth-child(8) { width: 10%; }
+        .paints-table th:nth-child(7) { width: 10%; }
+        .paints-table th:nth-child(8) { width: 12%; }
         
         .paints-table thead {
             background: linear-gradient(135deg, #1a1d23 0%, #0f1115 100%);
@@ -173,6 +173,22 @@
         .paints-table th:hover {
             background: rgba(252, 157, 23, 0.1);
         }
+
+        .paints-table th[data-col]::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 11px;
+        }
+        .paints-table th.sort-asc::after {
+            content: ' ▲';
+            opacity: 1;
+            color: #FC9D17;
+        }
+        .paints-table th.sort-desc::after {
+            content: ' ▼';
+            opacity: 1;
+            color: #FC9D17;
+        }
         
         .paints-table td {
             padding: 12px 16px;
@@ -188,6 +204,7 @@
         .paints-table td:first-child {
             white-space: normal;
             word-break: break-word;
+            overflow: visible;
         }
         
         .paints-table tbody tr {
@@ -236,9 +253,9 @@
         }
         
         .color-badge {
-            display: inline-flex;
+            display: grid;
+            grid-template-columns: auto 1fr;
             align-items: center;
-            flex-wrap: wrap;
             gap: 6px;
             padding: 4px 8px;
             background: linear-gradient(135deg, #FC9D17 0%, #d97706 100%);
@@ -247,9 +264,16 @@
             font-size: 13px;
             font-weight: 600;
             letter-spacing: 0.3px;
+            width: fit-content;
             max-width: 100%;
-            overflow-wrap: anywhere;
+            box-sizing: border-box;
+        }
+
+        .color-badge-text {
             word-break: break-word;
+            overflow-wrap: break-word;
+            min-width: 0;
+            white-space: normal;
         }
         
         .color-preview {
@@ -331,24 +355,143 @@
             box-shadow: 0 4px 8px rgba(252, 157, 23, 0.4);
         }
         
+        .paints-cards {
+            display: none;
+        }
+
+        .paint-card {
+            background: #1a1d23;
+            border: 1px solid #2d3238;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px 14px;
+            align-items: start;
+        }
+
+        .paint-card-swatch {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: 2px solid #ffffff;
+            flex-shrink: 0;
+            cursor: pointer;
+            grid-row: 1 / 3;
+        }
+
+        .paint-card-swatch-empty {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: 2px dashed #3d4048;
+            background: #0f1115;
+            grid-row: 1 / 3;
+        }
+
+        .paint-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #FC9D17;
+            word-break: break-word;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .paint-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            grid-column: 2;
+        }
+
+        .paint-card-tag {
+            background: #0f1115;
+            border: 1px solid #2d3238;
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .paint-card-tag strong {
+            color: #e5e7eb;
+        }
+
+        .paint-card-qty {
+            font-weight: 700;
+            color: #3ba560;
+        }
+
         .quantity {
             font-weight: 700;
             font-size: 16px;
             color: #3ba560;
         }
         
+        .mobile-sort-group {
+            display: none;
+        }
+
         @media (max-width: 768px) {
-            .paints-table {
+            .paints-table-container {
+                display: none;
+            }
+
+            .paints-cards {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .filters-grid .filter-group:first-child {
+                grid-column: 1 / -1;
+            }
+
+            .paints-stats {
+                padding: 10px 12px;
+                margin-bottom: 12px;
+            }
+
+            .paints-count {
                 font-size: 13px;
             }
-            
-            .paints-table th,
-            .paints-table td {
-                padding: 10px 8px;
+
+            #lastUpdate {
+                font-size: 11px !important;
+                margin-top: 2px !important;
             }
-            
-            .filters-grid {
-                grid-template-columns: 1fr;
+
+            .refresh-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .filters {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .filter-group label {
+                font-size: 12px;
+                margin-bottom: 4px;
+            }
+
+            .filter-group input,
+            .filter-group select {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .mobile-sort-group {
+                display: block;
             }
             
             .color-badge {
@@ -437,6 +580,17 @@
                             <option value="">Visi gamintojai</option>
                         </select>
                     </div>
+                    <div class="filter-group mobile-sort-group">
+                        <label for="mobileSortSelect">Rūšiuoti pagal</label>
+                        <div style="display:flex;gap:6px;">
+                            <select id="mobileSortSelect" onchange="mobileSortChange(this.value)" style="flex:1;">
+                                <option value="spalva">Spalvą</option>
+                                <option value="pavirsus">Paviršių</option>
+                                <option value="blizgumas">Blizgumą</option>
+                            </select>
+                            <button id="mobileSortDirBtn" onclick="toggleMobileSortDir()" style="background:#1e2028;border:1px solid #3d4048;color:#FC9D17;border-radius:8px;padding:0 14px;font-size:18px;cursor:pointer;flex-shrink:0;">&#9650;</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -464,14 +618,14 @@
                 <table class="paints-table" id="paintsTable" style="display: none;">
                     <thead>
                         <tr>
-                            <th onclick="sortTable('spalva')">Spalva</th>
-                            <th onclick="sortTable('pavirsus')">Paviršius</th>
-                            <th onclick="sortTable('blizgumas')">Blizgumas</th>
-                            <th onclick="sortTable('effect')">Efektas</th>
-                            <th onclick="sortTable('kodas')">Kodas</th>
-                            <th onclick="sortTable('gamintojas')">Gamintojas</th>
-                            <th onclick="sortTable('kiekis')">Kiekis (kg)</th>
-                            <th onclick="sortTable('ml_kodas')">ML Kodas</th>
+                            <th onclick="sortTable('spalva')" data-col="spalva">Spalva</th>
+                            <th onclick="sortTable('pavirsus')" data-col="pavirsus">Paviršius</th>
+                            <th onclick="sortTable('blizgumas')" data-col="blizgumas">Blizgumas</th>
+                            <th onclick="sortTable('effect')" data-col="effect">Efektas</th>
+                            <th onclick="sortTable('kodas')" data-col="kodas">Kodas</th>
+                            <th onclick="sortTable('gamintojas')" data-col="gamintojas">Gamintojas</th>
+                            <th onclick="sortTable('kiekis')" data-col="kiekis">Kiekis (kg)</th>
+                            <th onclick="sortTable('ml_kodas')" data-col="ml_kodas">ML Kodas</th>
                         </tr>
                     </thead>
                     <tbody id="paintsTableBody">
@@ -481,6 +635,7 @@
                     Pagal pasirinktus filtrus dažų nerasta
                 </div>
             </div>
+            <div id="paintsCards" class="paints-cards"></div>
         </div>
     </section>
 
@@ -685,6 +840,8 @@
                 
                 populateFilters();
                 applyFilters();
+                updateSortHeaders();
+                updateMobileSortDir();
                 
                 loadingIndicator.style.display = 'none';
                 paintsTable.style.display = 'table';
@@ -826,6 +983,7 @@
             
             sortPaints();
             renderTable();
+            renderCards(true);
             updateStats();
         }
         
@@ -855,6 +1013,32 @@
             });
         }
         
+        function mobileSortChange(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            sortPaints();
+            renderTable();
+            renderCards(true);
+            updateMobileSortDir();
+        }
+
+        function toggleMobileSortDir() {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            sortPaints();
+            renderTable();
+            renderCards(true);
+            updateMobileSortDir();
+        }
+
+        function updateMobileSortDir() {
+            const btn = document.getElementById('mobileSortDirBtn');
+            if (btn) btn.innerHTML = sortDirection === 'asc' ? '&#9650;' : '&#9660;';
+        }
+
         // Sort table
         function sortTable(column) {
             if (sortColumn === column) {
@@ -865,6 +1049,18 @@
             }
             sortPaints();
             renderTable();
+            renderCards(true);
+            updateSortHeaders();
+            updateMobileSortDir();
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('#paintsTable thead th[data-col]').forEach(th => {
+                const col = th.dataset.col;
+                th.classList.toggle('sort-active', col === sortColumn);
+                th.classList.toggle('sort-asc', col === sortColumn && sortDirection === 'asc');
+                th.classList.toggle('sort-desc', col === sortColumn && sortDirection === 'desc');
+            });
         }
         
         // Render table
@@ -925,7 +1121,7 @@
                 
                 return `
                 <tr>
-                    <td><span class="color-badge">${colorPreview}${paint.spalva || '-'}</span></td>
+                    <td><span class="color-badge">${colorPreview}<span class="color-badge-text">${(paint.spalva || '-').replace(/\+/g, '<wbr>+')}</span></span></td>
                     <td>${pavirsus}</td>
                     <td>${blizgumas}</td>
                     <td>${effect}</td>
@@ -937,7 +1133,61 @@
                 `;
             }).join('');
         }
-        
+
+        let cardsShown = 20;
+        const CARDS_PER_PAGE = 20;
+
+        // Render mobile cards
+        function renderCards(reset) {
+            const container = document.getElementById('paintsCards');
+            if (!container) return;
+            if (reset) cardsShown = CARDS_PER_PAGE;
+
+            if (filteredPaints.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const slice = filteredPaints.slice(0, cardsShown);
+            const hasMore = cardsShown < filteredPaints.length;
+
+            const renderCard = paint => {
+                const ralCode = extractRALCode(paint.kodas) || extractRALCode(paint.spalva);
+                const ralColor = ralCode ? getRALColor(ralCode) : null;
+                const swatchHtml = ralColor
+                    ? `<div class="paint-card-swatch" style="background:${ralColor}" onclick="showColorPopup('${ralCode}','${ralColor}')"></div>`
+                    : `<div class="paint-card-swatch-empty"></div>`;
+                let pavirsus = (paint.pavirsus || '-').replace('Smooth','Lygus').replace('Rough','Šiurkštus').replace('Textured','Teksųruotas');
+                let blizgumas = paint.blizgumas || '-';
+                if (blizgumas !== '-') {
+                    const b = blizgumas.toLowerCase();
+                    if (b.startsWith('semigloss') || b.startsWith('semimatt')) blizgumas = 'Pusiau blizgūs';
+                    else if (b.includes('high gloss')) blizgumas = 'Labai blizgūs';
+                    else if (b.startsWith('ultramatt')) blizgumas = 'Ultra matiniai';
+                    else if (b.startsWith('matt')) blizgumas = 'Matiniai';
+                    else if (b.startsWith('glossy')) blizgumas = 'Blizgūs';
+                }
+                const subParts = [paint.gamintojas, paint.kodas].filter(Boolean).join(' · ');
+                return `<div class="paint-card">
+                    ${swatchHtml}
+                    <div class="paint-card-name"><span style="word-break:break-word;">${paint.spalva || '-'}${subParts ? `<span style="font-size:11px;font-weight:500;color:#9ca3af;margin-left:6px;">${subParts}</span>` : ''}</span>${paint.ml_kodas ? `<span style="font-size:11px;font-weight:700;color:#ffffff;white-space:nowrap;flex-shrink:0;">${paint.ml_kodas}</span>` : ''}</div>
+                    <div class="paint-card-meta">
+                        <span class="paint-card-tag"><strong>${pavirsus}</strong></span>
+                        <span class="paint-card-tag"><strong>${blizgumas}</strong></span>
+                        <span class="paint-card-tag"><strong class="paint-card-qty">${paint.kiekis || '0'} kg</strong></span>
+                    </div>
+                </div>`;
+            };
+
+            container.innerHTML = slice.map(renderCard).join('') +
+                (hasMore ? `<button onclick="loadMoreCards()" style="width:100%;padding:12px;margin-top:4px;background:#FC9D17;color:#000;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">Rodyti daugiau (${filteredPaints.length - cardsShown} liko)</button>` : '');
+        }
+
+        function loadMoreCards() {
+            cardsShown += CARDS_PER_PAGE;
+            renderCards(false);
+        }
+
         // Update stats
         function updateStats() {
             document.getElementById('displayedCount').textContent = filteredPaints.length;
