@@ -400,3 +400,10 @@ document.body.appendChild(whatsappBtn);
     var nav = document.querySelector('.main-nav ul');
     if (nav) nav.appendChild(badge);
 })();
+
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+}

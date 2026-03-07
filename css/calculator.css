@@ -547,3 +547,34 @@
         padding: 0.3rem 0 0.3rem 1.5rem;
     }
 }
+
+/* Sticky calculate bar (mobile only) */
+.sticky-calc-bar {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sticky-calc-bar {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 16px;
+        background: rgba(26, 29, 35, 0.97);
+        border-top: 1px solid #3d4048;
+        z-index: 999;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sticky-calc-bar.visible {
+        transform: translateY(0);
+    }
+
+    .sticky-calc-bar .btn-primary {
+        margin: 0;
+        padding: 0.85rem;
+        font-size: 1rem;
+    }
+}
