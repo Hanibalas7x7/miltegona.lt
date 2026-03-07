@@ -38,6 +38,8 @@
     <meta property="twitter:image" content="https://miltegona.lt/assets/candy-purple-bike-parts-close-up_orig-d95WOabxNns7N0Ja.jpg">
     
     <link rel="canonical" href="https://miltegona.lt/dazai/">
+    <!-- Start API fetch immediately, before CSS blocks the parser -->
+    <script>window._paintsPromise = fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/get-paints');</script>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="preload" as="image" href="../assets/logo_blur-footer.webp" type="image/webp" fetchpriority="high">
     <link rel="preconnect" href="https://xyzttzqvbescdpihvyfu.supabase.co">
@@ -836,7 +838,8 @@
             paintsTable.style.display = 'none';
             
             try {
-                const response = await fetch(EDGE_FUNCTION_URL);
+                const response = await (window._paintsPromise || fetch(EDGE_FUNCTION_URL));
+                window._paintsPromise = null;
                 
                 if (!response.ok) {
                     throw new Error('Nepavyko užkrauti dažų duomenų');
