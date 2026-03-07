@@ -1,13 +1,20 @@
 ﻿<!DOCTYPE html>
 <html lang="lt">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1VLD2QNVLR"></script>
+    <!-- Google tag - deferred after page load -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-1VLD2QNVLR');
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1VLD2QNVLR';
+          document.head.appendChild(s);
+          gtag('js', new Date());
+          gtag('config', 'G-1VLD2QNVLR');
+        }, 3000);
+      });
     </script>
     
     <meta charset="UTF-8">
@@ -89,6 +96,7 @@
         </div>
     </header>
 
+    <main>
     <!-- Page Header -->
     <section class="page-header">
         <div class="container">
@@ -135,6 +143,8 @@
         </div>
     </section>
 
+    </main>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -148,7 +158,7 @@
                     <p class="company-code">Įmonės kodas: 305813612</p>
                 </div>
                 <div class="footer-col">
-                    <h3>Nuorodos</h3>
+                    <h2>Nuorodos</h2>
                     <ul>
                         <li><a href="/">Pradžia</a></li>
                         <li><a href="/apie-mus/">Apie mus</a></li>
@@ -160,7 +170,7 @@
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h3>Kontaktai</h3>
+                    <h2>Kontaktai</h2>
                     <ul>
                         <li><strong>Pavadinimas:</strong> UAB "Miltegona"</li>
                         <li><strong>Tel:</strong> <a href="tel:+37062502563">+370 625 02563 (Tomas)</a></li>
