@@ -140,8 +140,18 @@
         .paints-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
+            min-width: 900px;
+            table-layout: fixed;
         }
+
+        .paints-table th:nth-child(1) { width: 22%; }
+        .paints-table th:nth-child(2) { width: 11%; }
+        .paints-table th:nth-child(3) { width: 13%; }
+        .paints-table th:nth-child(4) { width: 9%; }
+        .paints-table th:nth-child(5) { width: 13%; }
+        .paints-table th:nth-child(6) { width: 13%; }
+        .paints-table th:nth-child(7) { width: 9%; }
+        .paints-table th:nth-child(8) { width: 10%; }
         
         .paints-table thead {
             background: linear-gradient(135deg, #1a1d23 0%, #0f1115 100%);
@@ -170,6 +180,9 @@
             font-size: 15px;
             font-weight: 500;
             color: #e5e7eb;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .paints-table tbody tr {
@@ -221,13 +234,15 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 12px;
+            padding: 4px 8px;
             background: linear-gradient(135deg, #FC9D17 0%, #d97706 100%);
             color: #000;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             letter-spacing: 0.3px;
+            max-width: 100%;
+            overflow: hidden;
         }
         
         .color-preview {
