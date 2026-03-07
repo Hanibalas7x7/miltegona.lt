@@ -5,7 +5,6 @@ Allow: /
 Disallow: /kontrole/
 Disallow: /darbuotojai/
 Disallow: /atidaryti/
-Disallow: /sekimas/
 
 # Disallow API endpoints
 Disallow: /logImpressions
