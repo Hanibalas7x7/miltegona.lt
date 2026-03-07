@@ -162,11 +162,46 @@
     line-height: 1.6;
 }
 
+/* === Scroll Entrance Animations === */
+.spec-card,
+.process-step {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.spec-card.card-visible,
+.process-step.card-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.spec-card:nth-child(1), .process-step:nth-child(1) { transition-delay: 0.00s; }
+.spec-card:nth-child(2), .process-step:nth-child(2) { transition-delay: 0.10s; }
+.spec-card:nth-child(3), .process-step:nth-child(3) { transition-delay: 0.20s; }
+.spec-card:nth-child(4), .process-step:nth-child(4) { transition-delay: 0.30s; }
+.spec-card:nth-child(5), .process-step:nth-child(5) { transition-delay: 0.40s; }
+
+.service-section {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.service-section.card-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 @media (max-width: 768px) {
+    .services-detailed {
+        padding: 36px 0;
+    }
+
     .service-section {
         grid-template-columns: 1fr;
-        gap: 2rem;
-        margin-bottom: 4rem;
+        gap: 1.25rem;
+        margin-bottom: 2rem;
     }
 
     .service-section.reverse {
@@ -174,19 +209,78 @@
     }
 
     .service-image-placeholder {
-        height: 300px;
+        height: 180px;
     }
 
     .service-image-placeholder svg {
-        width: 100px;
-        height: 100px;
+        width: 70px;
+        height: 70px;
     }
 
     .service-text h2 {
-        font-size: 1.75rem;
+        font-size: 1.35rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .service-text p {
+        font-size: 0.92rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .service-benefits li {
+        padding: 0.5rem 0 0.5rem 1.5rem;
+        font-size: 0.92rem;
+    }
+
+    .technical-specs {
+        padding: 36px 0;
+    }
+
+    .specs-grid {
+        gap: 0.75rem;
+    }
+
+    .spec-card {
+        padding: 1.25rem 1rem;
+    }
+
+    .spec-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .process-section {
+        padding: 36px 0;
     }
 
     .process-steps {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .process-step {
+        padding: 1rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-align: left;
+    }
+
+    .step-number {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        font-size: 1.2rem;
+        margin: 0;
+    }
+
+    .process-step h3 {
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .process-step p {
+        font-size: 0.88rem;
     }
 }

@@ -138,11 +138,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             </div>
         `).join('');
 
-        // Add click handlers for lightbox
+        // Add click handlers for lightbox + staggered entrance animation
         document.querySelectorAll('.gallery-item').forEach((item, index) => {
             item.addEventListener('click', function() {
                 openLightbox(index, filteredImages);
             });
+            // Stagger card-visible class for entrance animation
+            setTimeout(() => item.classList.add('card-visible'), index * 60);
         });
     }
 

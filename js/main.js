@@ -73,7 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }, observerOptions);
 
     // Observe feature cards and service cards (initial hidden state handled by CSS)
-    document.querySelectorAll('.feature-card, .service-card').forEach(card => {
+    document.querySelectorAll(
+        '.feature-card, .service-card, .about-card, .advantage-item, .spec-card, .process-step, .gallery-item, .service-section'
+    ).forEach(card => {
         observer.observe(card);
     });
 

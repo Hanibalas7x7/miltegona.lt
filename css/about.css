@@ -134,31 +134,111 @@
     line-height: 1.7;
 }
 
+/* === Scroll Entrance Animations === */
+.about-card,
+.advantage-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.about-card.card-visible,
+.advantage-item.card-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.about-card:nth-child(1) { transition-delay: 0.00s; }
+.about-card:nth-child(2) { transition-delay: 0.10s; }
+.about-card:nth-child(3) { transition-delay: 0.20s; }
+.about-card:nth-child(4) { transition-delay: 0.30s; }
+
 @media (max-width: 768px) {
+    .page-header {
+        padding: 28px 0 22px;
+    }
+
     .page-header h1 {
-        font-size: 2rem;
+        font-size: 1.7rem;
     }
 
     .page-header p {
-        font-size: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .about-content {
+        padding: 36px 0;
+    }
+
+    .about-intro {
+        margin: 0 auto 2rem;
     }
 
     .about-intro h2 {
-        font-size: 2rem;
+        font-size: 1.6rem;
+        margin-bottom: 0.75rem;
     }
 
     .about-intro .lead {
+        font-size: 0.95rem;
+    }
+
+    .about-grid {
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .about-card {
+        padding: 1.25rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-align: left;
+    }
+
+    .about-icon {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        margin: 0;
+    }
+
+    .about-card h3 {
         font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .about-card p {
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    .why-choose {
+        padding: 36px 0;
     }
 
     .advantage-item {
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
     }
 
     .advantage-number {
-        width: 50px;
-        height: 50px;
-        font-size: 1.25rem;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+    }
+
+    .advantage-content h3 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .advantage-content p {
+        font-size: 0.88rem;
+        line-height: 1.5;
     }
 }

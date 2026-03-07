@@ -264,9 +264,17 @@
 }
 
 @media (max-width: 968px) {
+    .contact-section {
+        padding: 36px 0;
+    }
+
     .contact-grid {
         grid-template-columns: 1fr;
-        gap: 3rem;
+        gap: 2rem;
+    }
+
+    .map-section {
+        padding: 36px 0;
     }
 
     .map-grid {
@@ -275,16 +283,20 @@
     }
 
     .directions-image {
-        height: 350px;
+        height: 280px;
     }
 
     .contact-info h2,
     .contact-form-wrapper h2 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
     }
 
     .map-placeholder iframe {
-        height: 350px;
+        height: 280px;
+    }
+
+    .contact-details {
+        gap: 1.25rem;
     }
 }
 
