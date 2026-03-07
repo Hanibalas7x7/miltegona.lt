@@ -273,7 +273,8 @@ a {
 
 .btn-secondary {
     background: var(--primary-color);
-    color: white;
+    color: #1a1d23;
+    font-weight: 700;
     border-color: var(--primary-color);
 }
 
