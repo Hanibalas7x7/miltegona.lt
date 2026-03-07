@@ -352,15 +352,41 @@ document.body.appendChild(whatsappBtn);
 
 // Working Hours Indicator
 (function() {
+    // ============================================================
+    // DARBO LAIKO KONFIGŪRACIJA — redaguokite šiuos masyvus
+    // ============================================================
+
+    // Dienos KAI NEDIRBATE (šventės, atostogos ir pan.)
+    // Formatas: 'MMMM-MM-DD'  pvz. '2026-03-11'
+    var closedDates = [
+        // '2026-12-25',
+        // '2026-12-26',
+    ];
+
+    // Dienos KAI DIRBATE nepaisant savaitgalio ar datos
+    // Formatas: 'MMMM-MM-DD'  pvz. '2026-03-14'
+    var openDates = [
+        // '2026-03-14',
+    ];
+
+    // ============================================================
+
     function isWorkingHours() {
-        // Lithuania: UTC+2 (winter) / UTC+3 (summer)
         var now = new Date();
         var lt = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Vilnius' }));
-        var day = lt.getDay(); // 0=Sun, 6=Sat
+        var dateStr = lt.getFullYear() + '-'
+            + String(lt.getMonth() + 1).padStart(2, '0') + '-'
+            + String(lt.getDate()).padStart(2, '0');
         var hour = lt.getHours();
         var min = lt.getMinutes();
         var timeNum = hour * 100 + min;
-        return day >= 1 && day <= 5 && timeNum >= 900 && timeNum < 1800;
+        var withinHours = timeNum >= 900 && timeNum < 1800;
+
+        if (openDates.indexOf(dateStr) !== -1) return withinHours;
+        if (closedDates.indexOf(dateStr) !== -1) return false;
+
+        var day = lt.getDay(); // 0=Sun, 6=Sat
+        return day >= 1 && day <= 5 && withinHours;
     }
 
     var open = isWorkingHours();
