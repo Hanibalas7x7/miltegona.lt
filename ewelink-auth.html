@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eWeLink Token Refresh</title>
+  <style>
+    body { font-family: monospace; max-width: 660px; margin: 40px auto; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+    h1   { color: #4fc3f7; margin-bottom: 4px; }
+    p    { color: #90a4ae; font-size: 0.9rem; }
+    .card { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 22px; margin: 16px 0; }
+    h2   { color: #81d4fa; margin: 0 0 14px; font-size: 1rem; }
+    label { display: block; margin-bottom: 5px; color: #b0bec5; font-size: 0.82rem; }
+    input { width: 100%; box-sizing: border-box; padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #e6edf3; font-size: 0.9rem; margin-bottom: 12px; }
+    input:focus { outline: 1px solid #4fc3f7; }
+    button { background: #1565c0; color: white; border: none; border-radius: 6px; padding: 10px 20px; cursor: pointer; font-size: 0.9rem; }
+    button:hover { background: #1976d2; }
+    button.green { background: #2e7d32; width: 100%; padding: 12px; }
+    button.green:hover { background: #388e3c; }
+    .step { background: #0d2137; border-left: 4px solid #4fc3f7; padding: 12px 16px; margin: 10px 0; border-radius: 0 6px 6px 0; font-size: 0.85rem; line-height: 1.6; }
+    .warn { background: #1a1500; border-left: 4px solid #ffb300; padding: 12px 16px; margin: 10px 0; border-radius: 0 6px 6px 0; font-size: 0.85rem; line-height: 1.6; }
+    code { background: #0d1117; padding: 2px 5px; border-radius: 4px; color: #79c0ff; }
+    #result { border-radius: 6px; padding: 14px; margin-top: 14px; display: none; font-size: 0.83rem; line-height: 1.7; }
+    #result.ok  { background: #0a1f0a; border: 1px solid #2e7d32; }
+    #result.err { background: #1f0a0a; border: 1px solid #c62828; }
+    .mono { font-size: 0.76rem; word-break: break-all; color: #aed6f1; }
+    a { color: #4fc3f7; }
+    .dim { color: #546e7a; font-size: 0.8rem; margin-top: 8px; }
+    hr { border-color: #0f3460; margin: 6px 0; }
+  </style>
+</head>
+<body>
+
+<h1>&#x1F511; eWeLink Token Refresh</h1>
+<p>Tokenai automatiškai išsaugomi į <code>app_tokens</code> lentelę.</p>
+
+<!-- Step 1: OAuth popup -->
+<div class="card">
+  <h2>1 žingsnis &ndash; Prisijungti per eWeLink</h2>
+
+  <div class="warn">
+    &#x26A0;&#xFE0F; <strong>Svarbu:</strong> eWeLink prisijungimo lange naudok <strong>el. paštą</strong> (ne telefono numerį).<br>
+    Telefono numeris visada naudoja Kinijos serverį &rarr; CORS klaida &rarr; redirect neįvyksta.<br>
+    El. paštas &rarr; EU serveris &rarr; veikia.
+  </div>
+
+  <button onclick="openOAuth()" id="oauthBtn">&#x1F680; Atidaryti eWeLink prisijungimą</button>
+  <div id="oauthStatus" style="margin-top:8px; font-size:0.83rem; color:#90a4ae;"></div>
+
+  <div class="step" style="margin-top:12px">
+    <strong>Po sėkmingo prisijungimo:</strong><br>
+    Naršyklė peradresuos į URL panašų į:<br>
+    <code>https://xyzttzqvbescdpihvyfu.supabase.co?code=XXXXXXXX</code><br>
+    Puslapis gal rodys klaidą &ndash; <strong>tai normalu</strong>. Nukopijuok <code>code=</code> reikšmę.
+  </div>
+</div>
+
+<!-- Step 2: Exchange code -->
+<div class="card">
+  <h2>2 žingsnis &ndash; Įklijuok kodą</h2>
+  <label>code (iš URL: <code>?code=XXXX</code>)</label>
+  <input type="text" id="authCode" placeholder="Įklijuok code reikšmę...">
+  <button class="green" onclick="exchangeCode()">&#x1F504; Gauti ir išsaugoti tokenus</button>
+  <div id="result"></div>
+</div>
+
+<script>
+  const EXCHANGE_FN = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/ewelink-oauth'
+
+  async function openOAuth() {
+    const btn    = document.getElementById('oauthBtn')
+    const status = document.getElementById('oauthStatus')
+    btn.disabled = true
+    status.textContent = 'Generuojamas prisijungimo URL...'
+
+    try {
+      const resp = await fetch(EXCHANGE_FN, { method: 'GET' })
+      const data = await resp.json()
+
+      if (!data.success || !data.url) {
+        status.style.color = '#ef5350'
+        status.textContent = 'Klaida: ' + (data.error || JSON.stringify(data))
+        btn.disabled = false
+        return
+      }
+
+      status.style.color = '#4caf50'
+      status.textContent = 'URL gautas. Atsidaro prisijungimo langas...'
+      window.open(data.url, '_blank', 'width=500,height=700')
+    } catch (err) {
+      status.style.color = '#ef5350'
+      status.textContent = 'Klaida: ' + err.message
+    }
+
+    btn.disabled = false
+  }
+
+  async function exchangeCode() {
+    const code     = document.getElementById('authCode').value.trim()
+    const resultEl = document.getElementById('result')
+    if (!code) { alert('Įklijuok code iš URL'); return }
+
+    resultEl.style.display = 'block'
+    resultEl.className = ''
+    resultEl.textContent = 'Siunčiama...'
+
+    try {
+      const resp = await fetch(EXCHANGE_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      })
+      const data = await resp.json()
+      console.log('Exchange response:', data)
+
+      if (!data.success) {
+        resultEl.className = 'err'
+        resultEl.innerHTML = 'Klaida: ' + (data.error || JSON.stringify(data.raw || data))
+        return
+      }
+
+      resultEl.className = 'ok'
+      resultEl.innerHTML =
+        'Tokenai gauti ir išsaugoti!<br><br>' +
+        data.message + '<br><br>' +
+        '<strong>access_token:</strong><br><span class="mono">' + data.access_token + '</span><br><br>' +
+        '<strong>refresh_token:</strong><br><span class="mono">' + data.refresh_token + '</span><br><br>' +
+        '<strong>Galioja iki:</strong> <span class="mono">' + data.expires_at + '</span><br><br>' +
+        'Dabar galima testuoti vartų/šviesos valdymą.'
+    } catch (err) {
+      resultEl.className = 'err'
+      resultEl.textContent = 'Klaida: ' + err.message
+    }
+  }
+</script>
+</body>
+</html>

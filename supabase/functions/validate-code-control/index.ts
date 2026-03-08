@@ -214,12 +214,27 @@ Deno.serve(async (req) => {
     
     const result = await callUnifiedControl(action, finalDeviceId);
 
+    // Sanitize infrastructure-level errors before returning to the client
+    let clientError: string | undefined = undefined;
+    if (!result.success) {
+      const rawError: string = result.error || result.message || '';
+      const isInfraError =
+        rawError.toLowerCase().includes('token') ||
+        rawError.toLowerCase().includes('refresh') ||
+        rawError.toLowerCase().includes('auth') ||
+        rawError.toLowerCase().includes('appid');
+
+      clientError = isInfraError
+        ? 'Ryšio su valdymo sistema klaida. Bandykite dar kartą.'
+        : rawError || 'Nepavyko atlikti veiksmo';
+    }
+
     // Return result
     return new Response(
       JSON.stringify({
         success: result.success || false,
         message: result.message || (result.success ? 'Veiksmas atliktas' : 'Nepavyko atlikti veiksmo'),
-        error: result.error,
+        error: clientError,
         data: result,
       }),
       {
