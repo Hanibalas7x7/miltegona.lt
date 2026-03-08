@@ -8,9 +8,11 @@
 /gruntavimas /miltelinis-dazymas/ 301
 /nuriebalinimo-ir-amorfinio-fosfatavimo-procesas /miltelinis-dazymas/ 301
 /kainos /kaina/ 301
-/en/priming /miltelinis-dazymas/ 301
-/en/contacts /kontaktai/ 301
-/en/* / 301
+# EN trailing-slash redirects
+/en /en/ 301
+/en/about /en/about/ 301
+/en/powder-coating /en/powder-coating/ 301
+/en/contacts /en/contacts/ 301
 
 # Trailing slash redirects (no-slash -> with slash)
 /apie-mus /apie-mus/ 301
