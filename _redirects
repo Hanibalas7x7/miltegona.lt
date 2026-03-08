@@ -1,6 +1,12 @@
 # Cloudflare Pages - Redirects
-# Note: www -> non-www must be done via Cloudflare Dashboard > Bulk Redirects
+# Note: www -> non-www must be done via Cloudflare Dashboard > Page Rules
 # Note: http -> https must be enabled via Cloudflare Dashboard > SSL/TLS > Always Use HTTPS
+
+# Old/renamed URLs -> current pages
+/paslaugos /miltelinis-dazymas/ 301
+/en/priming /miltelinis-dazymas/ 301
+/en/contacts /kontaktai/ 301
+/en/* / 301
 
 # Trailing slash redirects (no-slash -> with slash)
 /apie-mus /apie-mus/ 301
