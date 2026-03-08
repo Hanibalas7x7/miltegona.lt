@@ -479,7 +479,17 @@
         }
 
         function translateSurface(pavirsus) {
-            return pavirsus.replace('Smooth', 'Smooth').replace('Rough', 'Rough').replace('Textured', 'Textured');
+            const map = {
+                'Smooth': 'Smooth',
+                'Rough': 'Rough',
+                'Textured': 'Textured',
+                'Lygus': 'Smooth',
+                'Šiurkštus': 'Rough',
+                'Tekstūruotas': 'Textured',
+                'Smėlis': 'Fine texture',
+                'Apelsinas': 'Coarse texture',
+            };
+            return map[pavirsus] || pavirsus;
         }
 
         function populateFilters() {
