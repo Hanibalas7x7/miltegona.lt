@@ -112,6 +112,11 @@ serve(async (req) => {
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://miltegona.lt/en/tracking/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>`;
 
     return new Response(sitemap, {
