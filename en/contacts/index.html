@@ -234,7 +234,7 @@
                         <div class="form-group">
                             <label class="checkbox-label">
                                 <input type="checkbox" name="privacy" required>
-                                <span>I agree to the <a href="/privacy.html" target="_blank">privacy policy</a> *</span>
+                                <span>I agree to the <a href="/en/privacy.html" target="_blank">privacy policy</a> *</span>
                             </label>
                         </div>
 
@@ -251,29 +251,12 @@
             <h2 class="section-title">How to find us</h2>
             <div class="map-grid">
                 <div class="map-item">
-                    <div id="maps-facade" style="position:relative;width:100%;height:320px;background:#1a1d23;border-radius:12px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="loadMap()" title="Click to open map">
-                        <picture>
-                            <source srcset="/assets/map-mxB5ZRVaG8F759L3.webp" type="image/webp">
-                            <img src="/assets/map-mxB5ZRVaG8F759L3.png" alt="UAB Miltegona map – Ateities pl. 30A Kaunas" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.7);" loading="lazy" width="700" height="437">
-                        </picture>
-                        <div style="position:relative;z-index:1;text-align:center;padding:1rem;">
-                            <div style="font-size:2.5rem;margin-bottom:0.5rem;">🗺️</div>
-                            <div style="background:rgba(252,157,23,0.95);color:#1a1d23;font-weight:700;padding:0.6rem 1.4rem;border-radius:8px;font-size:1rem;box-shadow:0 4px 12px rgba(0,0,0,.4);">Open map</div>
-                        </div>
-                    </div>
-                    <script>
-                    function loadMap() {
-                        var f=document.getElementById('maps-facade');
-                        var iframe=document.createElement('iframe');
-                        iframe.src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2303.3!2d24.0328034!3d54.9051629!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46e7196862545dc9%3A0x46bfec2a8c9a7a94!2sUAB%20%22Miltegona%22!5e0!3m2!1sen!2slt!4v1737821000000!5m2!1sen!2slt';
-                        iframe.width='100%';iframe.height='320';
-                        iframe.style.cssText='border:0;display:block;';
-                        iframe.allowFullscreen=true;
-                        iframe.title='UAB Miltegona location on map';
-                        iframe.setAttribute('referrerpolicy','no-referrer-when-downgrade');
-                        f.replaceWith(iframe);
-                    }
-                    </script>
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2303.3!2d24.0328034!3d54.9051629!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46e7196862545dc9%3A0x46bfec2a8c9a7a94!2sUAB%20%22Miltegona%22!5e0!3m2!1sen!2slt!4v1737821000000!5m2!1sen!2slt"
+                        width="100%" height="320" style="border:0;display:block;" allowfullscreen
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                        title="UAB Miltegona location on map">
+                    </iframe>
                     <div style="margin-top:16px;text-align:center;">
                         <a href="https://www.google.com/maps/dir/?api=1&destination=Ateities+pl.+30A,+Kaunas+52163"
                            target="_blank"
