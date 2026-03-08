@@ -115,39 +115,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     message: this.querySelector('#message').value
                 };
                 
-                // Handle file uploads
+                // Handle file uploads via Edge Function (no anon key needed)
                 const fileInput = this.querySelector('#files');
                 const files = fileInput?.files;
                 let fileLinks = [];
                 
-                if (files && files.length > 0 && typeof supabase !== 'undefined' && supabase?.storage) {
+                if (files && files.length > 0) {
                     submitBtn.textContent = 'Įkeliami failai...';
+                    const UPLOAD_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/upload-contact-file';
                     
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
-                        const timestamp = Date.now();
-                        const fileName = `${timestamp}_${file.name}`;
+                        const fd = new FormData();
+                        fd.append('file', file);
                         
-                        // Upload file to Supabase Storage
-                        const { data, error } = await supabase.storage
-                            .from('contact-attachments')
-                            .upload(fileName, file, {
-                                cacheControl: '3600',
-                                upsert: false
-                            });
-                        
-                        if (error) {
-                            console.error('Upload error:', error);
-                            continue;
-                        }
-                        
-                        // Get public URL
-                        const { data: urlData } = supabase.storage
-                            .from('contact-attachments')
-                            .getPublicUrl(fileName);
-                        
-                        if (urlData?.publicUrl) {
-                            fileLinks.push(`${file.name}: ${urlData.publicUrl}`);
+                        try {
+                            const res = await fetch(UPLOAD_URL, { method: 'POST', body: fd });
+                            const json = await res.json();
+                            if (json.url) {
+                                fileLinks.push(`${file.name}: ${json.url}`);
+                            } else {
+                                console.error('Upload error:', json.error);
+                            }
+                        } catch (uploadErr) {
+                            console.error('Upload failed for', file.name, uploadErr);
                         }
                     }
                 }
