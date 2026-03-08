@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const files = fileInput?.files;
                 let fileLinks = [];
                 
-                if (files && files.length > 0 && supabase) {
+                if (files && files.length > 0 && supabase?.storage) {
                     submitBtn.textContent = 'Įkeliami failai...';
                     
                     for (let i = 0; i < files.length; i++) {

@@ -80,28 +80,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet"></noscript>
-    <!-- EmailJS loaded on DOMContentLoaded; Supabase lazy on first form focus -->
+    <!-- EmailJS loaded on DOMContentLoaded; ready before user submits -->
     <script>
     (function(){
-        // EmailJS loaded immediately so it's ready before user submits
         window._emailjsReady = false;
         var e=document.createElement('script');
         e.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
         e.onload=function(){emailjs.init('FvwI2Up9qbx_-G616'); window._emailjsReady=true;};
         document.addEventListener('DOMContentLoaded', function(){ document.head.appendChild(e); });
-
-        // Supabase lazy — only needed if user attaches files
-        var sbLoaded=false;
-        function loadSupabase(){
-            if(sbLoaded)return; sbLoaded=true;
-            var s=document.createElement('script');
-            s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            document.head.appendChild(s);
-        }
-        document.addEventListener('DOMContentLoaded',function(){
-            var f=document.getElementById('contact-form');
-            if(f)f.addEventListener('focusin',loadSupabase,{once:true});
-        });
     })();
     </script>
 </head>
