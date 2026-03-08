@@ -16,6 +16,7 @@ Disallow: /services.html
 Disallow: /calculator.html
 Disallow: /contact.html
 Disallow: /gallery.html
+Disallow: /privacy.html
 Disallow: /temp_page.html
 
 # Allow CSS, JS, and images
