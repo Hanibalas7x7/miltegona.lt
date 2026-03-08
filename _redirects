@@ -4,6 +4,10 @@
 
 # Old/renamed URLs -> current pages
 /paslaugos /miltelinis-dazymas/ 301
+/smeliavimas /miltelinis-dazymas/ 301
+/gruntavimas /miltelinis-dazymas/ 301
+/nuriebalinimo-ir-amorfinio-fosfatavimo-procesas /miltelinis-dazymas/ 301
+/kainos /kaina/ 301
 /en/priming /miltelinis-dazymas/ 301
 /en/contacts /kontaktai/ 301
 /en/* / 301
