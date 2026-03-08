@@ -394,11 +394,12 @@ requestAnimationFrame(function() {
         }
 
         var open = isWorkingHours();
+        var isEN = document.documentElement.lang === 'en';
         var badge = document.createElement('li');
         badge.id = 'workHoursBadge';
         badge.innerHTML = '<span class="wh-badge">'
             + '<span class="wh-dot ' + (open ? 'open' : 'closed') + '"></span>'
-            + (open ? 'Dirbame' : 'Ne darbo laikas')
+            + (open ? (isEN ? 'Open' : 'Dirbame') : (isEN ? 'Outside working hours' : 'Ne darbo laikas'))
             + '</span>';
 
         var nav = document.querySelector('.main-nav ul');
