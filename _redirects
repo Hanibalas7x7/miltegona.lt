@@ -1,3 +1,15 @@
 # Cloudflare Pages - Redirects
-# www -> non-www
-https://www.miltegona.lt/* https://miltegona.lt/:splat 301
+# Note: www -> non-www must be done via Cloudflare Dashboard > Bulk Redirects
+# Note: http -> https must be enabled via Cloudflare Dashboard > SSL/TLS > Always Use HTTPS
+
+# Trailing slash redirects (no-slash -> with slash)
+/apie-mus /apie-mus/ 301
+/miltelinis-dazymas /miltelinis-dazymas/ 301
+/dazai /dazai/ 301
+/galerija /galerija/ 301
+/kaina /kaina/ 301
+/kontaktai /kontaktai/ 301
+/sekimas /sekimas/ 301
+/darbuotojai /darbuotojai/ 301
+/atidaryti /atidaryti/ 301
+/kontrole /kontrole/ 301
