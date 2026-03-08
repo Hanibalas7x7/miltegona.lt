@@ -66,16 +66,17 @@
         ].join('');
         document.head.appendChild(style);
 
+        var isEN = document.documentElement.lang === 'en';
         var b = document.createElement('div');
         b.id = 'cookie-banner';
         b.innerHTML =
             '<div class="cookie-banner-content">' +
-                '<p>Naudojame <strong>Google Analytics</strong> slapukus lankytojų statistikai rinkti. ' +
-                'Sutikdami padėsite mums gerinti svetainę. ' +
-                '<a href="/privacy.html">Privatumo politika</a>.</p>' +
+                '<p>' + (isEN
+                    ? 'We use <strong>Google Analytics</strong> cookies to collect visitor statistics. By accepting, you help us improve the website. <a href="/privacy.html">Privacy policy</a>.'
+                    : 'Naudojame <strong>Google Analytics</strong> slapukus lankytojų statistikai rinkti. Sutikdami padėsite mums gerinti svetainę. <a href="/privacy.html">Privatumo politika</a>.') + '</p>' +
                 '<div class="cookie-banner-buttons">' +
-                    '<button class="cookie-btn cookie-btn-accept" onclick="cookieConsent.accept()">Sutinku</button>' +
-                    '<button class="cookie-btn cookie-btn-decline" onclick="cookieConsent.decline()">Nesutinku</button>' +
+                    '<button class="cookie-btn cookie-btn-accept" onclick="cookieConsent.accept()">' + (isEN ? 'Accept' : 'Sutinku') + '</button>' +
+                    '<button class="cookie-btn cookie-btn-decline" onclick="cookieConsent.decline()">' + (isEN ? 'Decline' : 'Nesutinku') + '</button>' +
                 '</div>' +
             '</div>';
         document.body.appendChild(b);
