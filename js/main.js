@@ -169,6 +169,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.innerHTML = '<span class="spinner"></span> Siunčiama...';
                 submitBtn.disabled = true;
                 
+                // Wait for EmailJS to finish loading if still in progress
+                if (typeof emailjs === 'undefined' || !window._emailjsReady) {
+                    await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => reject(new Error('EmailJS timeout')), 8000);
+                        const check = setInterval(() => {
+                            if (window._emailjsReady) { clearInterval(check); clearTimeout(timeout); resolve(); }
+                        }, 100);
+                    });
+                }
+                
                 // Send email using EmailJS
                 await emailjs.send('service_54ci6he', 'template_m5zwm5m', templateParams);
                 
