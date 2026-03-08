@@ -1,4 +1,5 @@
 // Mobile Menu Toggle
+const isEN = document.documentElement.lang === 'en';
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mainNav = document.querySelector('.main-nav');
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Disable button and show loading
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Siunčiama...';
+            submitBtn.textContent = isEN ? 'Sending...' : 'Siunčiama...';
             
             try {
                 // Get form data
@@ -121,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 let fileLinks = [];
                 
                 if (files && files.length > 0) {
-                    submitBtn.textContent = 'Įkeliami failai...';
+                    submitBtn.textContent = isEN ? 'Uploading files...' : 'Įkeliami failai...';
                     const UPLOAD_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/upload-contact-file';
                     
                     for (let i = 0; i < files.length; i++) {
@@ -173,11 +174,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Send email using EmailJS
                 await emailjs.send('service_54ci6he', 'template_m5zwm5m', templateParams);
                 
-                showMessage('Jūsų žinutė sėkmingai išsiųsta!', 'success');
+                showMessage(isEN ? 'Your message has been sent successfully!' : 'Jūsų žinutė sėkmingai išsiųsta!', 'success');
                 contactForm.reset();
                 
             } catch (error) {
-                showMessage('Klaida siunčiant žinutę. Bandykite dar kartą.', 'error');
+                showMessage(isEN ? 'Error sending message. Please try again.' : 'Klaida siunčiant žinutę. Bandykite dar kartą.', 'error');
                 console.error('Form submission error:', error);
             } finally {
                 submitBtn.disabled = false;
@@ -251,7 +252,7 @@ function showMessage(message, type) {
             margin: 0 0 1rem;
             color: #1a1d23;
             font-size: 1.25rem;
-        ">${type === 'success' ? 'Sėkmingai!' : 'Klaida'}</h3>
+        ">${type === 'success' ? (isEN ? 'Success!' : 'Sėkmingai!') : (isEN ? 'Error' : 'Klaida')}</h3>
         <p style="
             margin: 0 0 1.5rem;
             color: #6b7280;
@@ -267,7 +268,7 @@ function showMessage(message, type) {
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.2s;
-        ">Gerai</button>
+        ">${isEN ? 'OK' : 'Gerai'}</button>
     `;
     
     overlay.appendChild(modal);
@@ -394,7 +395,6 @@ requestAnimationFrame(function() {
         }
 
         var open = isWorkingHours();
-        var isEN = document.documentElement.lang === 'en';
         var badge = document.createElement('li');
         badge.id = 'workHoursBadge';
         badge.innerHTML = '<span class="wh-badge">'
