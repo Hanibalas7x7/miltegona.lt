@@ -796,7 +796,7 @@ a {
 @media (max-width: 480px) {
     .hero {
         padding: 12px 0 28px;
-        background-image: url('../assets/main_pic-mobile.jpg') !important;
+        background-image: url('../assets/main_pic-mobile.webp') !important;
     }
 
     .hero h1 {

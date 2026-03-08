@@ -27,15 +27,15 @@
     <link rel="canonical" href="https://miltegona.lt/">
     
     <!-- Preload critical hero images for both mobile and desktop -->
-    <link rel="preload" as="image" href="assets/main_pic-mobile.jpg" media="(max-width: 768px)" fetchpriority="high">
-    <link rel="preload" as="image" href="assets/main_pic-desktop.jpg" media="(min-width: 769px)" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/main_pic-mobile.webp" media="(max-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/main_pic-desktop.webp" media="(min-width: 769px)" fetchpriority="high">
     <link rel="preload" as="style" href="css/style.css">
     
     <!-- Inline CSS for critical hero background to avoid render blocking -->
     <style>
-        .hero { background-image: url('assets/main_pic-desktop.jpg') !important; }
+        .hero { background-image: url('assets/main_pic-desktop.webp') !important; }
         @media (max-width: 768px) {
-            .hero { background-image: url('assets/main_pic-mobile.jpg') !important; }
+            .hero { background-image: url('assets/main_pic-mobile.webp') !important; }
         }
     </style>
     
