@@ -1,5 +1,6 @@
 // Price Calculator
 document.addEventListener('DOMContentLoaded', function() {
+    const isEN = document.documentElement.lang === 'en';
     const calculateBtn = document.getElementById('calculate-btn');
     const totalPriceEl = document.getElementById('total-price');
     const totalPriceVatEl = document.getElementById('total-price-vat');
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const EDGE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/get-calculator-prices';
 
     calculateBtn.disabled = true;
-    calculateBtn.textContent = 'Kraunama...';
+    calculateBtn.textContent = isEN ? 'Loading...' : 'Kraunama...';
 
     fetch(EDGE_URL)
         .then(r => r.ok ? r.json() : Promise.reject())
@@ -31,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(() => { /* silent – defaults remain */ })
         .finally(() => {
             calculateBtn.disabled = false;
-            calculateBtn.textContent = 'Skaičiuoti kainą';
+            calculateBtn.textContent = isEN ? 'Calculate price' : 'Skaičiuoti kainą';
         });
 
     // Store calculation data for quote request
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (calculationData) {
             sendQuoteRequest();
         } else {
-            showMessage('Prašome pirma apskaičiuoti kainą', 'error');
+            showMessage(isEN ? 'Please calculate the price first' : 'Prašome pirma apskaičiuoti kainą', 'error');
         }
     });
 
@@ -80,12 +81,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate inputs
         if (length === 0 || height === 0) {
-            showMessage('Prašome užpildyti ilgį ir aukštį', 'error');
+            showMessage(isEN ? 'Please enter length and height' : 'Prašome užpildyti ilgį ir aukštį', 'error');
             return;
         }
 
         if (weight > 1000) {
-            showMessage('1 vnt. neturėtų sverti daugiau nei 1000 kg', 'error');
+            showMessage(isEN ? 'A single item should not weigh more than 1000 kg' : '1 vnt. neturėtų sverti daugiau nei 1000 kg', 'error');
             return;
         }
 
@@ -112,13 +113,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Color price per m² based on type (prices from Supabase admin_settings)
         let colorPrice = PRICES.painting_base; // Dark RAL base
-        let colorName = 'Tamsios RAL';
+        let colorName = isEN ? 'Dark RAL' : 'Tamsios RAL';
         if (colorTypeValue === 1.2) {
             colorPrice = PRICES.painting_base + PRICES.color_light_ral;
-            colorName = 'Šviesios RAL';
+            colorName = isEN ? 'Light RAL' : 'Šviesios RAL';
         } else if (colorTypeValue === 1.3) {
             colorPrice = PRICES.painting_base + PRICES.color_metallic;
-            colorName = 'Metalik/perlamutras';
+            colorName = isEN ? 'Metallic/pearlescent' : 'Metalik/perlamutras';
         } else if (colorTypeValue === 1.5) {
             colorPrice = PRICES.painting_base + PRICES.color_ncs;
             colorName = 'NCS';
@@ -171,52 +172,54 @@ document.addEventListener('DOMContentLoaded', function() {
         totalPriceVatEl.textContent = totalPriceWithVat.toFixed(2) + ' €';
 
         // Create breakdown
-        let breakdownHTML = '<h4>Kainos sudėtis (1 vnt.) be PVM:</h4>';
-        breakdownHTML += `<div class="price-item"><span>Matmenys:</span><span>${length}×${height}×${width} mm</span></div>`;
+        let breakdownHTML = isEN
+            ? '<h4>Price breakdown (per item) excl. VAT:</h4>'
+            : '<h4>Kainos sudėtis (1 vnt.) be PVM:</h4>';
+        breakdownHTML += `<div class="price-item"><span>${isEN ? 'Dimensions' : 'Matmenys'}:</span><span>${length}×${height}×${width} mm</span></div>`;
         
         if (depthMultiplier > 1) {
-            breakdownHTML += `<div class="price-item"><span>Gylio daugiklis:</span><span>×${depthMultiplier}</span></div>`;
+            breakdownHTML += `<div class="price-item"><span>${isEN ? 'Depth multiplier' : 'Gylio daugiklis'}:</span><span>×${depthMultiplier}</span></div>`;
         }
         
         if (weightMultiplier > 1) {
-            breakdownHTML += `<div class="price-item"><span>Svoris:</span><span>${weight} kg</span></div>`;
+            breakdownHTML += `<div class="price-item"><span>${isEN ? 'Weight' : 'Svoris'}:</span><span>${weight} kg</span></div>`;
         }
         
-        breakdownHTML += '<h4 style="margin-top: 1rem;">Dažymas:</h4>';
+        breakdownHTML += `<h4 style="margin-top: 1rem;">${isEN ? 'Painting' : 'Dažymas'}:</h4>`;
         breakdownHTML += `<div class="price-item"><span>${colorName}:</span><span>${singleCoatPrice.toFixed(2)} €</span></div>`;
         if (secondCoat) {
-            breakdownHTML += `<div class="price-item"><span>Antras sluoksnis:</span><span>${singleCoatPrice.toFixed(2)} €</span></div>`;
+            breakdownHTML += `<div class="price-item"><span>${isEN ? 'Second coat' : 'Antras sluoksnis'}:</span><span>${singleCoatPrice.toFixed(2)} €</span></div>`;
         }
         
         if (isSandblasting) {
-            breakdownHTML += '<h4 style="margin-top: 1rem;">Smėliavimas:</h4>';
-            breakdownHTML += `<div class="price-item"><span>Smėliavimas:</span><span>${sandblastingPrice.toFixed(2)} €</span></div>`;
+            breakdownHTML += `<h4 style="margin-top: 1rem;">${isEN ? 'Sandblasting' : 'Smėliavimas'}:</h4>`;
+            breakdownHTML += `<div class="price-item"><span>${isEN ? 'Sandblasting' : 'Smėliavimas'}:</span><span>${sandblastingPrice.toFixed(2)} €</span></div>`;
         }
         
         if (primer) {
-            breakdownHTML += '<h4 style="margin-top: 1rem;">Gruntavimas:</h4>';
-            breakdownHTML += `<div class="price-item"><span>Gruntavimas:</span><span>${primerPrice.toFixed(2)} €</span></div>`;
+            breakdownHTML += `<h4 style="margin-top: 1rem;">${isEN ? 'Priming' : 'Gruntavimas'}:</h4>`;
+            breakdownHTML += `<div class="price-item"><span>${isEN ? 'Priming' : 'Gruntavimas'}:</span><span>${primerPrice.toFixed(2)} €</span></div>`;
         }
 
-        breakdownHTML += `<div class="price-item" style="margin-top: 1rem;"><strong>Kaina už 1 vnt.:</strong><strong>${pricePerPiece.toFixed(2)} €</strong></div>`;
-        breakdownHTML += `<div class="price-item"><span>Kiekis:</span><span>${quantity} vnt.</span></div>`;
-        breakdownHTML += `<div class="price-item"><strong>Viso už detales:</strong><strong>${(pricePerPiece * quantity).toFixed(2)} €</strong></div>`;
+        breakdownHTML += `<div class="price-item" style="margin-top: 1rem;"><strong>${isEN ? 'Price per item' : 'Kaina už 1 vnt.'}:</strong><strong>${pricePerPiece.toFixed(2)} €</strong></div>`;
+        breakdownHTML += `<div class="price-item"><span>${isEN ? 'Quantity' : 'Kiekis'}:</span><span>${quantity} ${isEN ? 'pcs' : 'vnt.'}</span></div>`;
+        breakdownHTML += `<div class="price-item"><strong>${isEN ? 'Total for items' : 'Viso už detales'}:</strong><strong>${(pricePerPiece * quantity).toFixed(2)} €</strong></div>`;
 
         if (maskingPrice > 0 || assemblyPrice > 0 || urgentPrice > 0) {
-            breakdownHTML += '<h4 style="margin-top: 1rem;">Papildomos paslaugos:</h4>';
+            breakdownHTML += `<h4 style="margin-top: 1rem;">${isEN ? 'Additional services' : 'Papildomos paslaugos'}:</h4>`;
             if (maskingPrice > 0) {
-                breakdownHTML += `<div class="price-item"><span>Užmaskavimas (${maskingCount} × 5 €):</span><span>+${maskingPrice.toFixed(2)} €</span></div>`;
+                breakdownHTML += `<div class="price-item"><span>${isEN ? 'Masking' : 'Užmaskavimas'} (${maskingCount} × 5 €):</span><span>+${maskingPrice.toFixed(2)} €</span></div>`;
             }
             if (assemblyPrice > 0) {
-                breakdownHTML += `<div class="price-item"><span>Surinkimas (${quantity} × 20 €):</span><span>+${assemblyPrice.toFixed(2)} €</span></div>`;
+                breakdownHTML += `<div class="price-item"><span>${isEN ? 'Assembly' : 'Surinkimas'} (${quantity} × 20 €):</span><span>+${assemblyPrice.toFixed(2)} €</span></div>`;
             }
             if (urgentPrice > 0) {
-                breakdownHTML += `<div class="price-item"><span>Skubus užsakymas:</span><span>+${urgentPrice.toFixed(2)} €</span></div>`;
+                breakdownHTML += `<div class="price-item"><span>${isEN ? 'Express order' : 'Skubus užsakymas'}:</span><span>+${urgentPrice.toFixed(2)} €</span></div>`;
             }
         }
 
         if (totalPrice === PRICES.min_order) {
-            breakdownHTML += `<div class="price-item" style="color: var(--primary-color); margin-top: 1rem;"><strong>Minimali užsakymo suma:</strong><strong>${PRICES.min_order} €</strong></div>`;
+            breakdownHTML += `<div class="price-item" style="color: var(--primary-color); margin-top: 1rem;"><strong>${isEN ? 'Minimum order' : 'Minimali užsakymo suma'}:</strong><strong>${PRICES.min_order} €</strong></div>`;
         }
 
         priceBreakdownEl.innerHTML = breakdownHTML;
@@ -224,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get complexity text safely
         let complexityText = '';
         if (oneSideOnly) {
-            complexityText = 'Tik iš vienos pusės';
+            complexityText = isEN ? 'One side only' : 'Tik iš vienos pusės';
         } else if (complexityRadio) {
             const complexityCard = complexityRadio.parentElement.querySelector('.complexity-text');
             complexityText = complexityCard ? complexityCard.textContent : '';
@@ -233,7 +236,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Store calculation data for quote request
         calculationData = {
             length, width, height, quantity, weight,
-            surfacePrep: isSandblasting ? 'Smėliavimas' : 'Valymas ir nuriebalinimas',
+            surfacePrep: isSandblasting
+                ? (isEN ? 'Sandblasting' : 'Smėliavimas')
+                : (isEN ? 'Cleaning and degreasing' : 'Valymas ir nuriebalinimas'),
             colorType: colorName,
             primer, secondCoat, oneSideOnly,
             complexity: complexityText,
@@ -246,44 +251,77 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function sendQuoteRequest() {
         // Create detailed message from calculation data
-        let message = `UŽKLAUSA IŠ KAINOS SKAIČIUOKLĖS\n\n`;
-        message += `MATMENYS:\n`;
-        message += `Ilgis: ${calculationData.length} mm\n`;
-        message += `Aukštis: ${calculationData.height} mm\n`;
-        message += `Gylis: ${calculationData.width} mm\n`;
-        message += `Kiekis: ${calculationData.quantity} vnt.\n`;
-        if (calculationData.weight > 0) {
-            message += `Svoris: ${calculationData.weight} kg\n`;
-        }
-        message += `\n`;
-        
-        message += `DAŽYMO PARAMETRAI:\n`;
-        message += `Paviršiaus paruošimas: ${calculationData.surfacePrep}\n`;
-        message += `Spalvos tipas: ${calculationData.colorType}\n`;
-        if (calculationData.primer) message += `✓ Gruntavimas\n`;
-        if (calculationData.secondCoat) message += `✓ Antras dažų sluoksnis\n`;
-        message += `Sudėtingumas: ${calculationData.complexity}\n`;
-        message += `\n`;
-        
-        if (calculationData.maskingCount > 0 || calculationData.assemblyChecked || calculationData.urgentChecked) {
-            message += `PAPILDOMOS PASLAUGOS:\n`;
-            if (calculationData.maskingCount > 0) {
-                message += `✓ Dalinis užmaskavimas: ${calculationData.maskingCount} vnt.\n`;
-            }
-            if (calculationData.assemblyChecked) {
-                message += `✓ Surinkimas po dažymo\n`;
-            }
-            if (calculationData.urgentChecked) {
-                message += `✓ Skubus užsakymas (0-1 d.d.)\n`;
+        let message;
+        if (isEN) {
+            message = `QUOTE REQUEST FROM PRICE CALCULATOR\n\n`;
+            message += `DIMENSIONS:\n`;
+            message += `Length: ${calculationData.length} mm\n`;
+            message += `Height: ${calculationData.height} mm\n`;
+            message += `Depth: ${calculationData.width} mm\n`;
+            message += `Quantity: ${calculationData.quantity} pcs\n`;
+            if (calculationData.weight > 0) {
+                message += `Weight: ${calculationData.weight} kg\n`;
             }
             message += `\n`;
+            message += `COATING PARAMETERS:\n`;
+            message += `Surface preparation: ${calculationData.surfacePrep}\n`;
+            message += `Colour type: ${calculationData.colorType}\n`;
+            if (calculationData.primer) message += `✓ Priming\n`;
+            if (calculationData.secondCoat) message += `✓ Second coat\n`;
+            message += `Complexity: ${calculationData.complexity}\n`;
+            message += `\n`;
+            if (calculationData.maskingCount > 0 || calculationData.assemblyChecked || calculationData.urgentChecked) {
+                message += `ADDITIONAL SERVICES:\n`;
+                if (calculationData.maskingCount > 0) {
+                    message += `✓ Masking: ${calculationData.maskingCount} pcs\n`;
+                }
+                if (calculationData.assemblyChecked) {
+                    message += `✓ Assembly after coating\n`;
+                }
+                if (calculationData.urgentChecked) {
+                    message += `✓ Express order (0–1 working days)\n`;
+                }
+                message += `\n`;
+            }
+            message += `ESTIMATED PRICE EXCL. VAT: ${calculationData.totalPrice} €\n`;
+            message += `PRICE INCL. VAT: ${calculationData.totalPriceWithVat} €\n`;
+        } else {
+            message = `UŽKLAUSA IŠ KAINOS SKAIČIUOKLĖS\n\n`;
+            message += `MATMENYS:\n`;
+            message += `Ilgis: ${calculationData.length} mm\n`;
+            message += `Aukštis: ${calculationData.height} mm\n`;
+            message += `Gylis: ${calculationData.width} mm\n`;
+            message += `Kiekis: ${calculationData.quantity} vnt.\n`;
+            if (calculationData.weight > 0) {
+                message += `Svoris: ${calculationData.weight} kg\n`;
+            }
+            message += `\n`;
+            message += `DAŽYMO PARAMETRAI:\n`;
+            message += `Paviršiaus paruošimas: ${calculationData.surfacePrep}\n`;
+            message += `Spalvos tipas: ${calculationData.colorType}\n`;
+            if (calculationData.primer) message += `✓ Gruntavimas\n`;
+            if (calculationData.secondCoat) message += `✓ Antras dažų sluoksnis\n`;
+            message += `Sudėtingumas: ${calculationData.complexity}\n`;
+            message += `\n`;
+            if (calculationData.maskingCount > 0 || calculationData.assemblyChecked || calculationData.urgentChecked) {
+                message += `PAPILDOMOS PASLAUGOS:\n`;
+                if (calculationData.maskingCount > 0) {
+                    message += `✓ Dalinis užmaskavimas: ${calculationData.maskingCount} vnt.\n`;
+                }
+                if (calculationData.assemblyChecked) {
+                    message += `✓ Surinkimas po dažymo\n`;
+                }
+                if (calculationData.urgentChecked) {
+                    message += `✓ Skubus užsakymas (0-1 d.d.)\n`;
+                }
+                message += `\n`;
+            }
+            message += `ORIENTACINĖ KAINA BE PVM: ${calculationData.totalPrice} €\n`;
+            message += `KAINA SU PVM: ${calculationData.totalPriceWithVat} €\n`;
         }
-        
-        message += `ORIENTACINĖ KAINA BE PVM: ${calculationData.totalPrice} €\n`;
-        message += `KAINA SU PVM: ${calculationData.totalPriceWithVat} €\n`;
         
         // Redirect to contact page with pre-filled message
         const encodedMessage = encodeURIComponent(message);
-        window.location.href = `/kontaktai/?message=${encodedMessage}`;
+        window.location.href = isEN ? `/en/contacts/?message=${encodedMessage}` : `/kontaktai/?message=${encodedMessage}`;
     }
 });
