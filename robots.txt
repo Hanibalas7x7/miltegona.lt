@@ -16,8 +16,13 @@ Disallow: /services.html
 Disallow: /calculator.html
 Disallow: /contact.html
 Disallow: /gallery.html
-Disallow: /privacy.html
 Disallow: /temp_page.html
+
+# Disallow test/utility pages (not for public indexing)
+Disallow: /quick-login-test.html
+Disallow: /test-darbuotojai-suvestine.html
+Disallow: /test-paint-functions.html
+Disallow: /ewelink-auth.html
 
 # Allow CSS, JS, and images
 Allow: /css/
