@@ -2,9 +2,6 @@
 # Note: www -> non-www must be done via Cloudflare Dashboard > Page Rules
 # Note: http -> https must be enabled via Cloudflare Dashboard > SSL/TLS > Always Use HTTPS
 
-# Sitemap -> Supabase Edge Function (dynamic generation)
-/sitemap.xml https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/sitemap 200
-
 # Old/renamed URLs -> current pages
 /paslaugos /miltelinis-dazymas/ 301
 /smeliavimas /miltelinis-dazymas/ 301
