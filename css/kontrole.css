@@ -100,6 +100,7 @@
 
 .control-header .header-logo {
     height: 36px;
+    width: auto;
 }
 
 .control-header h1 {
