@@ -5,6 +5,8 @@
 //   - eWeLink access tokens expire every ~30 days.
 //   - Tokens are persisted in the `app_tokens` table (service = 'ewelink').
 //   - Before every eWeLink call this function checks expiry and refreshes when needed.
+//   - If refresh fails (both tokens expired), auto re-login by calling the
+//     ewelink-login edge function with EWELINK_EMAIL + EWELINK_PASSWORD secrets.
 //   - EWELINK_TOKEN / EWELINK_REFRESH_TOKEN secrets are used only to bootstrap the
 //     first row in app_tokens (i.e. after a fresh re-authentication).
 
@@ -22,9 +24,11 @@ const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 // ── eWeLink constants ────────────────────────────────────────────────────────
-const EWELINK_APPID  = Deno.env.get('EWELINK_APPID')  || 'P8OjRMaJNI9SMhkd6icQ4Z3331UsowRG'
-const EWELINK_REGION = Deno.env.get('EWELINK_REGION')  || 'eu'
-const EWELINK_API_URL = `https://${EWELINK_REGION}-apia.coolkit.cc`
+const EWELINK_APPID      = Deno.env.get('EWELINK_APPID')       || 'P8OjRMaJNI9SMhkd6icQ4Z3331UsowRG'
+const EWELINK_EMAIL      = Deno.env.get('EWELINK_EMAIL')       || ''
+const EWELINK_PASSWORD   = Deno.env.get('EWELINK_PASSWORD')    || ''
+const EWELINK_REGION     = Deno.env.get('EWELINK_REGION')      || 'eu'
+const EWELINK_API_URL    = `https://${EWELINK_REGION}-apia.coolkit.cc`
 
 // Device IDs
 const LIGHT_DEVICE_ID        = Deno.env.get('LIGHT_DEVICE_ID')        || '1001e7d80b'
@@ -132,8 +136,21 @@ async function refreshEweLinkToken(row: TokenRow): Promise<string> {
 }
 
 /**
+ * Full re-login by calling the ewelink-login edge function internally.
+ * Used as fallback when the refresh token is also expired.
+ * NOTE: Standard Role appid does not support direct login — this will fail.
+ * The user must manually re-authenticate via /ewelink-auth.html (OAuth flow).
+ */
+async function reloginEweLink(): Promise<string> {
+  throw new Error(
+    'Visi eWeLink tokenai pasibaigę. Prašome prisijungti iš naujo: https://miltegona.lt/ewelink-auth.html'
+  )
+}
+
+/**
  * Returns a valid (non-expired) eWeLink access token, refreshing if necessary.
  * Tokens within 5 minutes of expiry are pre-emptively refreshed.
+ * Falls back to full re-login if refresh fails.
  */
 async function getValidToken(): Promise<string> {
   const row = await loadToken()
@@ -145,7 +162,12 @@ async function getValidToken(): Promise<string> {
     return row.access_token
   }
 
-  return refreshEweLinkToken(row)
+  try {
+    return await refreshEweLinkToken(row)
+  } catch (refreshErr) {
+    console.warn('⚠️ Token refresh failed, attempting full re-login:', refreshErr)
+    return reloginEweLink()
+  }
 }
 
 // ── eWeLink API helpers ───────────────────────────────────────────────────────

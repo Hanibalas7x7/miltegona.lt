@@ -20,7 +20,7 @@ const APPID      = Deno.env.get("EWELINK_APPID")   || "P8OjRMaJNI9SMhkd6icQ4Z333
 const APP_SECRET = Deno.env.get("EWELINK_APP_SECRET")!;
 const REGION     = Deno.env.get("EWELINK_REGION")  || "eu";
 const API_BASE   = `https://${REGION}-apia.coolkit.cc`;
-const REDIRECT_URL = "https://xyzttzqvbescdpihvyfu.supabase.co";
+const REDIRECT_URL = "https://miltegona.lt/ewelink-auth.html";
 
 const SUPABASE_URL         = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

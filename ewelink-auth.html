@@ -67,6 +67,23 @@
 <script>
   const EXCHANGE_FN = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/ewelink-oauth'
 
+  // Auto-exchange if redirected back with ?code= in URL
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search)
+    const code   = params.get('code')
+    if (code) {
+      document.getElementById('authCode').value = code
+      // Clean URL without reload
+      window.history.replaceState({}, '', window.location.pathname)
+      // Show auto-exchange status
+      const resultEl = document.getElementById('result')
+      resultEl.style.display = 'block'
+      resultEl.className = ''
+      resultEl.textContent = '✅ Kodas gautas! Automatiškai keičiama į tokenus...'
+      exchangeCode()
+    }
+  })
+
   async function openOAuth() {
     const btn    = document.getElementById('oauthBtn')
     const status = document.getElementById('oauthStatus')
