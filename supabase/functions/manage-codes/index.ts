@@ -258,6 +258,16 @@ serve(async (req) => {
       return jsonResponse({ success: true, message: "Kodas atnaujintas" });
     }
 
+    // TOKEN INFO - eWeLink token expiry
+    if (method === "POST" && body.action === "token_info") {
+      const { data: tokenData } = await supabase
+        .from("app_tokens")
+        .select("expires_at")
+        .eq("service", "ewelink")
+        .single();
+      return jsonResponse({ success: true, expires_at: tokenData?.expires_at || null });
+    }
+
     return jsonResponse({ success: false, error: "Nežinomas veiksmas" }, 400);
 
   } catch (error) {

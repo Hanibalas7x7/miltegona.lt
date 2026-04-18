@@ -14,7 +14,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-password',
 }
 
 // ── Supabase ────────────────────────────────────────────────────────────────
@@ -391,6 +391,16 @@ Deno.serve(async (req) => {
           buildingGate: buildingGateResult,
           light: buildingLightResult,
         }
+        break
+      }
+
+      case 'token_info': {
+        const { data: tokenData } = await supabase
+          .from('app_tokens')
+          .select('expires_at')
+          .eq('service', 'ewelink')
+          .single()
+        result = { success: true, expires_at: tokenData?.expires_at || null }
         break
       }
 

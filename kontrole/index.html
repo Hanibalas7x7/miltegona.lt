@@ -44,8 +44,13 @@
                         <img src="/assets/miltegona-logo-white-optimized.png" alt="Miltegona" class="header-logo" width="152" height="77">
                     </picture>
                     <h1>Kontrolės Panelė</h1>
-                    <a href="/ewelink-auth.html" class="btn btn-secondary" style="text-decoration:none;font-size:0.8rem;">🔑 eWeLink token</a>
-                    <button id="logout-btn" class="btn btn-secondary">Atsijungti</button>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
+                        <div style="display:flex;gap:0.5rem;">
+                            <a href="/ewelink-auth.html" class="btn btn-primary" style="text-decoration:none;margin-right:0.5rem;">🔑 Token</a>
+                            <button id="logout-btn" class="btn btn-secondary">Atsijungti</button>
+                        </div>
+                        <span id="token-expiry" style="font-size:0.7rem;opacity:0.7;"></span>
+                    </div>
                 </div>
             </div>
         </header>

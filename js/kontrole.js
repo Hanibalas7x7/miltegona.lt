@@ -123,6 +123,7 @@ loginForm.addEventListener('submit', async (e) => {
             loginScreen.style.display = 'none';
             controlPanel.style.display = 'block';
             loadCodes();
+            loadEweLinkTokenInfo();
         } else {
             loginError.textContent = result.error || 'Neteisingas slaptažodis';
         }
@@ -157,6 +158,7 @@ if (savedPassword && authExpiration) {
         loginScreen.style.display = 'none';
         controlPanel.style.display = 'block';
         loadCodes();
+        loadEweLinkTokenInfo();
     } else {
         // Session expired, clear it
         localStorage.removeItem('kontrole_password');
@@ -256,6 +258,42 @@ codeForm.addEventListener('submit', async (e) => {
         showMessage(error.message || 'Klaida generuojant kodą', 'error');
     }
 });
+
+// eWeLink token expiry display
+async function loadEweLinkTokenInfo() {
+    const el = document.getElementById('token-expiry');
+    if (!el) return;
+    try {
+        const password = localStorage.getItem('kontrole_password');
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/manage-codes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-password': password },
+            body: JSON.stringify({ action: 'token_info' })
+        });
+        const data = await response.json();
+        if (!data.success || !data.expires_at) { el.textContent = ''; return; }
+        const expiry = new Date(data.expires_at);
+        const now = new Date();
+        const diffMs = expiry - now;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const dateStr = expiry.toLocaleDateString('lt-LT', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        if (diffDays < 0) {
+            el.textContent = '⛔ Tokenas pasibaigęs!';
+            el.style.color = '#ef4444';
+            el.style.opacity = '1';
+        } else if (diffDays < 3) {
+            el.textContent = `⚠️ Baigiasi per ${diffDays} d. (${dateStr})`;
+            el.style.color = '#f97316';
+            el.style.opacity = '1';
+        } else {
+            el.textContent = `🔑 galioja iki ${dateStr} (${diffDays} d.)`;
+            el.style.color = '';
+            el.style.opacity = '0.7';
+        }
+    } catch (e) {
+        el.textContent = '';
+    }
+}
 
 // Load codes from database
 async function loadCodes() {

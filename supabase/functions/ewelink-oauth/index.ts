@@ -20,7 +20,7 @@ const APPID      = Deno.env.get("EWELINK_APPID")   || "P8OjRMaJNI9SMhkd6icQ4Z333
 const APP_SECRET = Deno.env.get("EWELINK_APP_SECRET")!;
 const REGION     = Deno.env.get("EWELINK_REGION")  || "eu";
 const API_BASE   = `https://${REGION}-apia.coolkit.cc`;
-const REDIRECT_URL = "https://miltegona.lt/ewelink-auth.html";
+const REDIRECT_URL = "https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/ewelink-oauth";
 
 const SUPABASE_URL         = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -73,11 +73,49 @@ Deno.serve(async (req) => {
   }
 
   // GET /ewelink-oauth?action=get-url → returns a fully-signed OAuth popup URL
+  // GET /ewelink-oauth?code=XXX       → OAuth redirect callback: exchange code, redirect to ewelink-auth.html
   if (req.method === "GET") {
     try {
       if (!APP_SECRET) {
         throw new Error("EWELINK_APP_SECRET secret is not set in Supabase");
       }
+
+      const url  = new URL(req.url);
+      const code = url.searchParams.get("code");
+
+      // ── OAuth redirect callback ──────────────────────────────────────────
+      if (code) {
+        const seq   = Date.now().toString();
+        const nonce = randomNonce();
+        const bodyObj  = { code, redirectUrl: REDIRECT_URL, grantType: "authorization_code" };
+        const bodyJson = JSON.stringify(bodyObj);
+        const sign     = await hmacSha256Base64(APP_SECRET, bodyJson);
+
+        const response = await fetch(`${API_BASE}/v2/user/oauth/token`, {
+          method: "POST",
+          headers: {
+            "Content-Type":  "application/json; charset=utf-8",
+            "X-CK-Appid":    APPID,
+            "X-CK-Nonce":    nonce,
+            "X-CK-Seq":      seq,
+            "Authorization": `Sign ${sign}`,
+          },
+          body: bodyJson,
+        });
+        const data = await response.json();
+
+        if (data.error !== 0 || !data.data?.accessToken) {
+          const errMsg = encodeURIComponent(data.msg || `eWeLink error ${data.error}`);
+          return Response.redirect(`https://miltegona.lt/ewelink-auth.html?error=${errMsg}`, 302);
+        }
+
+        const at = data.data.accessToken as string;
+        const rt = data.data.refreshToken as string;
+        await saveToken(at, rt);
+
+        return Response.redirect("https://miltegona.lt/ewelink-auth.html?success=1", 302);
+      }
+
       const seq   = Date.now().toString();
       const nonce = randomNonce();
       const state = randomNonce(16);
