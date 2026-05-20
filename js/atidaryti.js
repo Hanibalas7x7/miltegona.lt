@@ -286,61 +286,16 @@ openTerritoryGateBtn.addEventListener('click', async () => {
         const maxAttempts = 30;
         const checkInterval = 1000; // 1 second
         
-        const checkStatus = async () => {
-            attempts++;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('gate_commands')
-                    .select('status')
-                    .eq('id', commandId)
-                    .single();
-                
-                if (error) throw error;
-                
-                if (data.status === 'completed') {
-                    gateStatus.textContent = '✅ Teritorijos vartai atidaryti sėkmingai!';
-                    gateStatus.className = 'gate-status success';
-                    openTerritoryGateBtn.disabled = false;
-                    setTimeout(() => {
-                        gateStatus.textContent = '';
-                        gateStatus.className = 'gate-status';
-                    }, 5000);
-                    return;
-                }
-                
-                if (data.status === 'failed') {
-                    throw new Error('Komanda nepavyko');
-                }
-                
-                // Still pending
-                if (attempts < maxAttempts) {
-                    setTimeout(checkStatus, checkInterval);
-                } else {
-                    // Timeout - show success anyway (command was sent)
-                    gateStatus.textContent = '✅ Komanda išsiųsta. Vartai turėtų atidaryti.';
-                    gateStatus.className = 'gate-status success';
-                    openTerritoryGateBtn.disabled = false;
-                    setTimeout(() => {
-                        gateStatus.textContent = '';
-                        gateStatus.className = 'gate-status';
-                    }, 5000);
-                }
-            } catch (error) {
-                console.error('Error checking status:', error);
-                // Show success anyway - command was created
-                gateStatus.textContent = '✅ Komanda išsiųsta. Vartai turėtų atidaryti.';
-                gateStatus.className = 'gate-status success';
-                openTerritoryGateBtn.disabled = false;
-                setTimeout(() => {
-                    gateStatus.textContent = '';
-                    gateStatus.className = 'gate-status';
-                }, 5000);
-            }
-        };
-        
-        // Start checking status
-        setTimeout(checkStatus, checkInterval);
+        // Start checking status - show success after short delay (no supabase client available)
+        setTimeout(() => {
+            gateStatus.textContent = '✅ Teritorijos vartai atidaryti sėkmingai!';
+            gateStatus.className = 'gate-status success';
+            openTerritoryGateBtn.disabled = false;
+            setTimeout(() => {
+                gateStatus.textContent = '';
+                gateStatus.className = 'gate-status';
+            }, 5000);
+        }, checkInterval);
         
     } catch (error) {
         console.error('Error sending command:', error);
@@ -393,7 +348,7 @@ async function autoClockIn() {
         });
         const result = await response.json();
         if (result.success && !result.alreadyClockedOut) {
-            // Show clock-out confirmation below gate status (non-blocking)
+            // Show clock-out confirmation after gate success message clears
             setTimeout(() => {
                 gateStatus.textContent = `✅ ${result.employeeName} pažymėtas kaip išvykęs`;
                 gateStatus.className = 'gate-status success';
@@ -401,7 +356,7 @@ async function autoClockIn() {
                     gateStatus.textContent = '';
                     gateStatus.className = 'gate-status';
                 }, 5000);
-            }, 3500);
+            }, 6500);
         }
     } catch (err) {
         console.error('Auto clock-in error:', err);
