@@ -448,6 +448,26 @@ body {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    align-items: center;
+}
+
+.clock-time-selects {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+}
+
+.clock-time-sep {
+    color: white;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.clock-select {
+    flex: 1;
+    min-width: 0;
 }
 
 .clock-modal-input {

@@ -482,7 +482,11 @@
             <p class="clock-modal-desc">Pasirinkite tikslų išėjimo datą ir laiką:</p>
             <div class="clock-modal-fields">
                 <input type="date" id="clock-manual-date" class="clock-modal-input" />
-                <input type="time" id="clock-manual-time" class="clock-modal-input" />
+                <div class="clock-time-selects">
+                    <select id="clock-manual-hour" class="clock-modal-input clock-select"></select>
+                    <span class="clock-time-sep">:</span>
+                    <select id="clock-manual-minute" class="clock-modal-input clock-select"></select>
+                </div>
             </div>
             <div class="clock-modal-actions">
                 <button id="clock-manual-cancel" class="btn-clock btn-clock-secondary">Atšaukti</button>

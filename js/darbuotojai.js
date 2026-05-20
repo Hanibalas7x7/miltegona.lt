@@ -131,14 +131,14 @@ function setupEventListeners() {
     if (manualConfirmBtn) {
         manualConfirmBtn.addEventListener('click', async () => {
             const dateInput = document.getElementById('clock-manual-date');
-            const timeInput = document.getElementById('clock-manual-time');
+            const hourSel = document.getElementById('clock-manual-hour');
+            const minSel = document.getElementById('clock-manual-minute');
             const dateVal = dateInput ? dateInput.value : '';
-            const timeVal = timeInput ? timeInput.value : '';
-            if (!dateVal || !timeVal) { showClockMessage('Įveskite datą ir laiką', 'error'); return; }
-            const [hh, mm] = timeVal.split(':');
-            if (parseInt(hh) > 23 || parseInt(mm) > 59) { showClockMessage('Neteisingas laikas', 'error'); return; }
+            const hh = hourSel ? hourSel.value : '';
+            const mm = minSel ? minSel.value : '';
+            if (!dateVal || !hh || !mm) { showClockMessage('Įveskite datą ir laiką', 'error'); return; }
             const localDate = dateVal;
-            const localDateTime = `${localDate}T${hh.padStart(2,'0')}:${mm.padStart(2,'0')}:00`;
+            const localDateTime = `${localDate}T${hh}:${mm}:00`;
             manualConfirmBtn.disabled = true;
             const sessionToken = localStorage.getItem('darbuotojai_session');
             try {
@@ -675,11 +675,25 @@ function showClockOutModal() {
     if (!overlay) return;
     const dateInput = document.getElementById('clock-manual-date');
     if (dateInput) dateInput.value = getLocalDate();
-    const timeInput = document.getElementById('clock-manual-time');
-    if (timeInput) {
-        const now = new Date();
-        timeInput.value = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    const hourSel = document.getElementById('clock-manual-hour');
+    const minSel = document.getElementById('clock-manual-minute');
+    if (hourSel && hourSel.options.length === 0) {
+        for (let h = 0; h < 24; h++) {
+            const o = document.createElement('option');
+            o.value = o.textContent = h.toString().padStart(2, '0');
+            hourSel.appendChild(o);
+        }
     }
+    if (minSel && minSel.options.length === 0) {
+        for (let m = 0; m < 60; m++) {
+            const o = document.createElement('option');
+            o.value = o.textContent = m.toString().padStart(2, '0');
+            minSel.appendChild(o);
+        }
+    }
+    const now = new Date();
+    if (hourSel) hourSel.value = now.getHours().toString().padStart(2, '0');
+    if (minSel) minSel.value = now.getMinutes().toString().padStart(2, '0');
     overlay.style.display = 'flex';
 }
 
