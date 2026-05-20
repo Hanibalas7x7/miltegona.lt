@@ -640,11 +640,7 @@ function renderClockStatus(record) {
         statusText.className = 'clock-status-value status-in-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = false;
-        // After 18:00 or before 08:00 (overnight) show manual entry option
-        const h = new Date().getHours();
-        if (h >= 18 || h < 8) {
-            showManualEntryOption();
-        }
+        showManualEntryOption();
     } else if (record.pradzios_laikas && record.pabaigos_laikas) {
         // Full day done
         statusText.innerHTML = `<span class="status-dot status-done"></span>Baigė ${formatTimeLocal(record.pabaigos_laikas)} (atvyko ${formatTimeLocal(record.pradzios_laikas)})`;
