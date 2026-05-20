@@ -109,6 +109,12 @@ function setupEventListeners() {
         });
     }
 
+    // Manual entry toggle link
+    const manualToggleBtn = document.getElementById('clock-manual-toggle');
+    if (manualToggleBtn) {
+        manualToggleBtn.addEventListener('click', () => showManualEntryOption());
+    }
+
     // Manual time input: auto-insert colon after 2 digits
     const manualTimeInput = document.getElementById('clock-manual-time');
     if (manualTimeInput) {
@@ -653,12 +659,11 @@ function renderClockStatus(record) {
         statusText.className = 'clock-status-value status-in-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = false;
-        // Show manual entry if more than 18 hours have passed since clock-in
+        // Show manual entry toggle link after 18 hours elapsed
         const clockInTime = new Date(record.pradzios_laikas.replace(/([+-]\d{2}:\d{2}|Z)$/, ''));
         const hoursElapsed = (Date.now() - clockInTime.getTime()) / (1000 * 60 * 60);
-        if (hoursElapsed >= 18) {
-            showManualEntryOption();
-        }
+        const toggleRow = document.getElementById('clock-manual-toggle-row');
+        if (toggleRow) toggleRow.style.display = hoursElapsed >= 18 ? 'block' : 'none';
     } else if (record.pradzios_laikas && record.pabaigos_laikas) {
         // Full day done
         statusText.innerHTML = `<span class="status-dot status-done"></span>Baigė ${formatTimeLocal(record.pabaigos_laikas)} (atvyko ${formatTimeLocal(record.pradzios_laikas)})`;
@@ -672,15 +677,18 @@ function renderClockStatus(record) {
 function showManualEntryOption() {
     const el = document.getElementById('clock-manual-entry');
     if (!el) return;
-    // Pre-fill date with today
     const dateInput = document.getElementById('clock-manual-date');
     if (dateInput && !dateInput.value) dateInput.value = getLocalDate();
     el.style.display = 'block';
+    const toggleRow = document.getElementById('clock-manual-toggle-row');
+    if (toggleRow) toggleRow.style.display = 'none';
 }
 
 function hideManualEntryOption() {
     const el = document.getElementById('clock-manual-entry');
     if (el) el.style.display = 'none';
+    const toggleRow = document.getElementById('clock-manual-toggle-row');
+    if (toggleRow) toggleRow.style.display = 'none';
 }
 
 function showClockMessage(text, type) {
