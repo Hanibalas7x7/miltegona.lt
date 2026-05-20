@@ -108,6 +108,46 @@ function setupEventListeners() {
             }
         });
     }
+
+    // Manual clock-out confirm
+    const manualConfirmBtn = document.getElementById('clock-manual-confirm');
+    if (manualConfirmBtn) {
+        manualConfirmBtn.addEventListener('click', async () => {
+            const timeInput = document.getElementById('clock-manual-time');
+            const timeVal = timeInput ? timeInput.value : '';
+            if (!timeVal) { showClockMessage('Įveskite laiką', 'error'); return; }
+            const [hh, mm] = timeVal.split(':');
+            const localDate = getLocalDate();
+            const localDateTime = `${localDate}T${hh.padStart(2,'0')}:${mm.padStart(2,'0')}:00`;
+            manualConfirmBtn.disabled = true;
+            const sessionToken = localStorage.getItem('darbuotojai_session');
+            try {
+                const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-clock`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+                    body: JSON.stringify({ action: 'clock_out', localDate, localDateTime })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    hideManualEntryOption();
+                    renderClockStatus(data.record);
+                    showClockMessage('🏁 Darbo diena baigta!', 'success');
+                } else {
+                    showClockMessage(data.error || 'Klaida', 'error');
+                    manualConfirmBtn.disabled = false;
+                }
+            } catch (e) {
+                showClockMessage('Serverio klaida', 'error');
+                manualConfirmBtn.disabled = false;
+            }
+        });
+    }
+
+    // Manual cancel
+    const manualCancelBtn = document.getElementById('clock-manual-cancel');
+    if (manualCancelBtn) {
+        manualCancelBtn.addEventListener('click', () => hideManualEntryOption());
+    }
 }
 
 // Check if user has valid session
@@ -600,13 +640,28 @@ function renderClockStatus(record) {
         statusText.className = 'clock-status-value status-in-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = false;
+        // After 18:00 show manual entry option
+        if (new Date().getHours() >= 18) {
+            showManualEntryOption();
+        }
     } else if (record.pradzios_laikas && record.pabaigos_laikas) {
         // Full day done
         statusText.innerHTML = `<span class="status-dot status-done"></span>Baigė ${formatTimeLocal(record.pabaigos_laikas)} (atvyko ${formatTimeLocal(record.pradzios_laikas)})`;
         statusText.className = 'clock-status-value status-done-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = true;
+        hideManualEntryOption();
     }
+}
+
+function showManualEntryOption() {
+    const el = document.getElementById('clock-manual-entry');
+    if (el) el.style.display = 'block';
+}
+
+function hideManualEntryOption() {
+    const el = document.getElementById('clock-manual-entry');
+    if (el) el.style.display = 'none';
 }
 
 function showClockMessage(text, type) {

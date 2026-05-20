@@ -407,6 +407,68 @@ body {
     color: #f87171;
 }
 
+.clock-manual-entry {
+    margin-top: 8px;
+    padding: 12px 14px;
+    background: rgba(230, 92, 0, 0.08);
+    border: 1px solid rgba(230, 92, 0, 0.3);
+    border-radius: 8px;
+}
+
+.clock-manual-label {
+    display: block;
+    font-size: 12px;
+    color: #fbbf7a;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.clock-manual-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.clock-manual-input {
+    background: #1a1f2a;
+    border: 1px solid #4b5563;
+    border-radius: 7px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 8px 12px;
+    width: 110px;
+    color-scheme: dark;
+}
+
+.clock-manual-input:focus {
+    outline: none;
+    border-color: #e65c00;
+    box-shadow: 0 0 0 2px rgba(230, 92, 0, 0.25);
+}
+
+.btn-clock-manual {
+    padding: 9px 20px !important;
+    min-width: unset !important;
+    font-size: 13px !important;
+}
+
+.btn-clock-manual-cancel {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.btn-clock-manual-cancel:hover {
+    color: white;
+}
+
 @media (max-width: 768px) {
     .clock-inner { flex-direction: column; align-items: flex-start; gap: 16px; padding: 18px 20px; }
     .clock-left { padding-right: 0; min-width: unset; }
