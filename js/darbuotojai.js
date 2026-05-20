@@ -503,17 +503,16 @@ function formatTime(timeString) {
     return timeString.substring(0, 5);
 }
 
-// For clock widget: converts proper UTC timestamps to local browser time
+// For clock widget: times stored as local time in DB, strip timezone suffix
 function formatTimeLocal(timeString) {
     if (!timeString) return '-';
-    // localDateTime strings (no Z/offset) are already local time - use formatTime
-    if (!timeString.includes('Z') && !timeString.includes('+')) {
-        return formatTime(timeString);
+    // Strip timezone offset (+00:00, +03:00, Z etc.) and extract HH:MM
+    const withoutTz = timeString.replace(/([+-]\d{2}:\d{2}|Z)$/, '');
+    if (withoutTz.includes('T')) {
+        return withoutTz.split('T')[1].substring(0, 5);
     }
-    const d = new Date(timeString);
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${hh}:${mm}`;
+    return withoutTz.substring(0, 5);
+}
 }
 
 // ───────────────────────────────────────────────
