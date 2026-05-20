@@ -497,10 +497,12 @@ function formatDate(dateString) {
 function formatTime(timeString) {
     if (!timeString) return '-';
     
-    // If it's a full timestamp (YYYY-MM-DDTHH:MM:SS), extract time part
-    if (timeString.includes('T')) {
-        const timePart = timeString.split('T')[1];
-        return timePart.substring(0, 5); // HH:MM
+    // Parse as Date and format in local timezone
+    if (timeString.includes('T') || timeString.includes('Z') || timeString.includes('+')) {
+        const d = new Date(timeString);
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        return `${hh}:${mm}`;
     }
     
     // If it's already just time (HH:MM:SS), take first 5 chars
