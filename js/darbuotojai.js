@@ -129,7 +129,7 @@ function setupEventListeners() {
     // Manual clock-out confirm
     const manualConfirmBtn = document.getElementById('clock-manual-confirm');
     if (manualConfirmBtn) {
-        manualConfirmBtn.addEventListener('click', async () => {
+        manualConfirmBtn.addEventListener('click', () => {
             const dateInput = document.getElementById('clock-manual-date');
             const hourSel = document.getElementById('clock-manual-hour');
             const minSel = document.getElementById('clock-manual-minute');
@@ -137,9 +137,50 @@ function setupEventListeners() {
             const hh = hourSel ? hourSel.value : '';
             const mm = minSel ? minSel.value : '';
             if (!dateVal || !hh || !mm) { showClockMessage('Įveskite datą ir laiką', 'error'); return; }
+
+            // Calculate hours elapsed
+            let hoursText = '';
+            if (clockRecord && clockRecord.pradzios_laikas) {
+                const startStr = formatTimeLocal(clockRecord.pradzios_laikas);
+                const startDateStr = clockRecord.data || dateVal;
+                const startMs = new Date(`${startDateStr}T${startStr}:00`).getTime();
+                const endMs = new Date(`${dateVal}T${hh}:${mm}:00`).getTime();
+                const diffH = (endMs - startMs) / 3600000;
+                if (diffH > 0) {
+                    const h = Math.floor(diffH);
+                    const m = Math.round((diffH - h) * 60);
+                    hoursText = `\nDirbtų valandų: ${h}h ${m}min`;
+                }
+            }
+
+            const summary = document.getElementById('clock-modal-summary');
+            if (summary) summary.textContent = `Išėjimo laikas: ${dateVal} ${hh}:${mm}${hoursText}`;
+
+            document.getElementById('clock-modal-step1').style.display = 'none';
+            document.getElementById('clock-modal-step2').style.display = 'block';
+        });
+    }
+
+    const modalBackBtn = document.getElementById('clock-modal-back');
+    if (modalBackBtn) {
+        modalBackBtn.addEventListener('click', () => {
+            document.getElementById('clock-modal-step2').style.display = 'none';
+            document.getElementById('clock-modal-step1').style.display = 'block';
+        });
+    }
+
+    const modalSubmitBtn = document.getElementById('clock-modal-submit');
+    if (modalSubmitBtn) {
+        modalSubmitBtn.addEventListener('click', async () => {
+            const dateInput = document.getElementById('clock-manual-date');
+            const hourSel = document.getElementById('clock-manual-hour');
+            const minSel = document.getElementById('clock-manual-minute');
+            const dateVal = dateInput ? dateInput.value : '';
+            const hh = hourSel ? hourSel.value : '';
+            const mm = minSel ? minSel.value : '';
             const localDate = dateVal;
             const localDateTime = `${localDate}T${hh}:${mm}:00`;
-            manualConfirmBtn.disabled = true;
+            modalSubmitBtn.disabled = true;
             const sessionToken = localStorage.getItem('darbuotojai_session');
             try {
                 const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-clock`, {
@@ -154,11 +195,11 @@ function setupEventListeners() {
                     showClockMessage('🏁 Darbo diena baigta!', 'success');
                 } else {
                     showClockMessage(data.error || 'Klaida', 'error');
-                    manualConfirmBtn.disabled = false;
+                    modalSubmitBtn.disabled = false;
                 }
             } catch (e) {
                 showClockMessage('Serverio klaida', 'error');
-                manualConfirmBtn.disabled = false;
+                modalSubmitBtn.disabled = false;
             }
         });
     }
@@ -700,6 +741,12 @@ function showClockOutModal() {
 function hideClockOutModal() {
     const overlay = document.getElementById('clock-modal-overlay');
     if (overlay) overlay.style.display = 'none';
+    const step1 = document.getElementById('clock-modal-step1');
+    const step2 = document.getElementById('clock-modal-step2');
+    if (step1) step1.style.display = 'block';
+    if (step2) step2.style.display = 'none';
+    const submitBtn = document.getElementById('clock-modal-submit');
+    if (submitBtn) submitBtn.disabled = false;
 }
 
 // Legacy stubs (no longer used)

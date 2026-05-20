@@ -444,6 +444,18 @@ body {
     margin-bottom: 20px;
 }
 
+.clock-modal-summary {
+    font-size: 15px;
+    color: white;
+    background: rgba(230,92,0,0.1);
+    border: 1px solid rgba(230,92,0,0.3);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    white-space: pre-line;
+    font-weight: 500;
+}
+
 .clock-modal-fields {
     display: flex;
     gap: 10px;
