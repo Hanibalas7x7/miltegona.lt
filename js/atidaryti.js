@@ -382,10 +382,10 @@ async function autoClockIn() {
             body: JSON.stringify({ code })
         });
         const result = await response.json();
-        if (result.success && !result.alreadyClockedIn) {
-            // Show clock-in confirmation below gate status (non-blocking)
+        if (result.success && !result.alreadyClockedOut) {
+            // Show clock-out confirmation below gate status (non-blocking)
             setTimeout(() => {
-                gateStatus.textContent = `✅ ${result.employeeName} pažymėtas kaip atvykęs`;
+                gateStatus.textContent = `✅ ${result.employeeName} pažymėtas kaip išvykęs`;
                 gateStatus.className = 'gate-status success';
                 setTimeout(() => {
                     gateStatus.textContent = '';

@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
 
     const { today, localDateTime } = getVilniusDateTime(new Date());
 
-    // Check if already clocked in today
+    // Check if clocked in today (no clock-out yet)
     const { data: existing } = await supabase
       .from("darbuotoju_darbo_valandos")
       .select("id, pradzios_laikas, pabaigos_laikas")
@@ -125,34 +125,39 @@ Deno.serve(async (req) => {
       .eq("data", today)
       .maybeSingle();
 
-    if (existing) {
+    if (!existing) {
+      // No clock-in today – nothing to do
       return new Response(
-        JSON.stringify({ success: true, alreadyClockedIn: true, employeeName: note }),
+        JSON.stringify({ success: false, notClockedIn: true, employeeName: note }),
         { status: 200, headers: corsHeaders }
       );
     }
 
-    // Clock in
-    const { error: insertError } = await supabase
-      .from("darbuotoju_darbo_valandos")
-      .insert({
-        darbuotojas_id: employee.id,
-        data: today,
-        pradzios_laikas: localDateTime,
-        pabaigos_laikas: null,
-      });
-
-    if (insertError) {
-      console.error("Auto clock-in insert error:", insertError);
+    if (existing.pabaigos_laikas) {
+      // Already clocked out
       return new Response(
-        JSON.stringify({ success: false, error: "Klaida žymint atvykimą" }),
+        JSON.stringify({ success: true, alreadyClockedOut: true, employeeName: note }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+
+    // Clock out
+    const { error: updateError } = await supabase
+      .from("darbuotoju_darbo_valandos")
+      .update({ pabaigos_laikas: localDateTime })
+      .eq("id", existing.id);
+
+    if (updateError) {
+      console.error("Auto clock-out update error:", updateError);
+      return new Response(
+        JSON.stringify({ success: false, error: "Klaida žymint išvykimą" }),
         { status: 500, headers: corsHeaders }
       );
     }
 
-    console.log(`Auto clock-in: ${note} clocked in at ${localDateTime}`);
+    console.log(`Auto clock-out: ${note} clocked out at ${localDateTime}`);
     return new Response(
-      JSON.stringify({ success: true, alreadyClockedIn: false, employeeName: note }),
+      JSON.stringify({ success: true, alreadyClockedOut: false, employeeName: note }),
       { status: 200, headers: corsHeaders }
     );
   } catch (err) {
