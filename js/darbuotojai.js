@@ -138,15 +138,16 @@ function setupEventListeners() {
             const mm = minSel ? minSel.value : '';
             if (!dateVal || !hh || !mm) { showClockMessage('Įveskite datą ir laiką', 'error'); return; }
 
-            // Calculate hours elapsed
+            // Calculate hours elapsed (strip timezone to compare as local times)
             let hoursText = '';
             if (clockRecord && clockRecord.pradzios_laikas) {
-                const startMs = new Date(clockRecord.pradzios_laikas).getTime();
-                const endMs = new Date(`${dateVal}T${hh}:${mm}:00`).getTime();
-                const diffH = (endMs - startMs) / 3600000;
-                if (diffH > 0) {
-                    const h = Math.floor(diffH);
-                    const m = Math.round((diffH - h) * 60);
+                const startLocal = clockRecord.pradzios_laikas.replace(/([+-]\d{2}:\d{2}|Z)$/, '').substring(0, 16);
+                const startMs = new Date(startLocal).getTime();
+                const endMs = new Date(`${dateVal}T${hh}:${mm}`).getTime();
+                const diffMin = Math.round((endMs - startMs) / 60000);
+                if (diffMin > 0) {
+                    const h = Math.floor(diffMin / 60);
+                    const m = diffMin % 60;
                     hoursText = `\nAtvyko: ${formatTimeLocal(clockRecord.pradzios_laikas)}\nDirbtų valandų: ${h}h ${m}min`;
                 }
             }
