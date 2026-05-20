@@ -442,7 +442,7 @@ body {
 }
 
 .clock-manual-input[type="date"] { width: 145px; }
-.clock-manual-input[type="time"] { width: 110px; }
+.clock-manual-input[type="text"] { width: 80px; text-align: center; letter-spacing: 2px; }
 
 .clock-manual-input:focus {
     outline: none;

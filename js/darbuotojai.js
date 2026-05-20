@@ -109,6 +109,16 @@ function setupEventListeners() {
         });
     }
 
+    // Manual time input: auto-insert colon after 2 digits
+    const manualTimeInput = document.getElementById('clock-manual-time');
+    if (manualTimeInput) {
+        manualTimeInput.addEventListener('input', () => {
+            let v = manualTimeInput.value.replace(/[^0-9]/g, '');
+            if (v.length > 2) v = v.slice(0, 2) + ':' + v.slice(2, 4);
+            manualTimeInput.value = v;
+        });
+    }
+
     // Manual clock-out confirm
     const manualConfirmBtn = document.getElementById('clock-manual-confirm');
     if (manualConfirmBtn) {
@@ -117,8 +127,9 @@ function setupEventListeners() {
             const timeInput = document.getElementById('clock-manual-time');
             const dateVal = dateInput ? dateInput.value : '';
             const timeVal = timeInput ? timeInput.value : '';
-            if (!dateVal || !timeVal) { showClockMessage('Įveskite datą ir laiką', 'error'); return; }
+            if (!dateVal || !/^\d{2}:\d{2}$/.test(timeVal)) { showClockMessage('Įveskite datą ir laiką (pvz. 18:30)', 'error'); return; }
             const [hh, mm] = timeVal.split(':');
+            if (parseInt(hh) > 23 || parseInt(mm) > 59) { showClockMessage('Neteisingas laikas', 'error'); return; }
             const localDate = dateVal;
             const localDateTime = `${localDate}T${hh.padStart(2,'0')}:${mm.padStart(2,'0')}:00`;
             manualConfirmBtn.disabled = true;
