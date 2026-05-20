@@ -640,8 +640,9 @@ function renderClockStatus(record) {
         statusText.className = 'clock-status-value status-in-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = false;
-        // After 18:00 show manual entry option
-        if (new Date().getHours() >= 18) {
+        // After 18:00 or before 08:00 (overnight) show manual entry option
+        const h = new Date().getHours();
+        if (h >= 18 || h < 8) {
             showManualEntryOption();
         }
     } else if (record.pradzios_laikas && record.pabaigos_laikas) {
