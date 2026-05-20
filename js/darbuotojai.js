@@ -86,6 +86,16 @@ function setupEventListeners() {
     const clockOutBtn = document.getElementById('clock-out-btn');
     if (clockOutBtn) {
         clockOutBtn.addEventListener('click', async () => {
+            // If 18+ hours since clock-in, show modal for manual time entry
+            if (clockRecord && clockRecord.pradzios_laikas) {
+                const clockInTime = new Date(clockRecord.pradzios_laikas.replace(/([+-]\d{2}:\d{2}|Z)$/, ''));
+                const hoursElapsed = (Date.now() - clockInTime.getTime()) / (1000 * 60 * 60);
+                if (hoursElapsed >= 18) {
+                    showClockOutModal();
+                    return;
+                }
+            }
+            // Normal clock out
             clockOutBtn.disabled = true;
             const sessionToken = localStorage.getItem('darbuotojai_session');
             try {
@@ -109,10 +119,10 @@ function setupEventListeners() {
         });
     }
 
-    // Manual entry toggle link
+    // Manual entry toggle link (legacy, no-op)
     const manualToggleBtn = document.getElementById('clock-manual-toggle');
     if (manualToggleBtn) {
-        manualToggleBtn.addEventListener('click', () => showManualEntryOption());
+        manualToggleBtn.addEventListener('click', () => showClockOutModal());
     }
 
 
@@ -139,7 +149,7 @@ function setupEventListeners() {
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    hideManualEntryOption();
+                    hideClockOutModal();
                     renderClockStatus(data.record);
                     showClockMessage('🏁 Darbo diena baigta!', 'success');
                 } else {
@@ -156,7 +166,7 @@ function setupEventListeners() {
     // Manual cancel
     const manualCancelBtn = document.getElementById('clock-manual-cancel');
     if (manualCancelBtn) {
-        manualCancelBtn.addEventListener('click', () => hideManualEntryOption());
+        manualCancelBtn.addEventListener('click', () => hideClockOutModal());
     }
 }
 
@@ -569,6 +579,7 @@ function formatTimeLocal(timeString) {
 // ───────────────────────────────────────────────
 
 let clockLiveTimer = null;
+let clockRecord = null;
 
 function getLocalDate() {
     const d = new Date();
@@ -635,7 +646,7 @@ function renderClockStatus(record) {
     const clockInBtn = document.getElementById('clock-in-btn');
     const clockOutBtn = document.getElementById('clock-out-btn');
     const msg = document.getElementById('clock-message');
-
+    clockRecord = record;
     msg.style.display = 'none';
 
     if (!record) {
@@ -650,37 +661,31 @@ function renderClockStatus(record) {
         statusText.className = 'clock-status-value status-in-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = false;
-        // Show manual entry toggle link after 18 hours elapsed
-        const clockInTime = new Date(record.pradzios_laikas.replace(/([+-]\d{2}:\d{2}|Z)$/, ''));
-        const hoursElapsed = (Date.now() - clockInTime.getTime()) / (1000 * 60 * 60);
-        const toggleRow = document.getElementById('clock-manual-toggle-row');
-        if (toggleRow) toggleRow.style.display = hoursElapsed >= 18 ? 'block' : 'none';
     } else if (record.pradzios_laikas && record.pabaigos_laikas) {
         // Full day done
         statusText.innerHTML = `<span class="status-dot status-done"></span>Baigė ${formatTimeLocal(record.pabaigos_laikas)} (atvyko ${formatTimeLocal(record.pradzios_laikas)})`;
         statusText.className = 'clock-status-value status-done-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = true;
-        hideManualEntryOption();
     }
 }
 
-function showManualEntryOption() {
-    const el = document.getElementById('clock-manual-entry');
-    if (!el) return;
+function showClockOutModal() {
+    const overlay = document.getElementById('clock-modal-overlay');
+    if (!overlay) return;
     const dateInput = document.getElementById('clock-manual-date');
-    if (dateInput && !dateInput.value) dateInput.value = getLocalDate();
-    el.style.display = 'block';
-    const toggleRow = document.getElementById('clock-manual-toggle-row');
-    if (toggleRow) toggleRow.style.display = 'none';
+    if (dateInput) dateInput.value = getLocalDate();
+    overlay.style.display = 'flex';
 }
 
-function hideManualEntryOption() {
-    const el = document.getElementById('clock-manual-entry');
-    if (el) el.style.display = 'none';
-    const toggleRow = document.getElementById('clock-manual-toggle-row');
-    if (toggleRow) toggleRow.style.display = 'none';
+function hideClockOutModal() {
+    const overlay = document.getElementById('clock-modal-overlay');
+    if (overlay) overlay.style.display = 'none';
 }
+
+// Legacy stubs (no longer used)
+function showManualEntryOption() { showClockOutModal(); }
+function hideManualEntryOption() { hideClockOutModal(); }
 
 function showClockMessage(text, type) {
     const msg = document.getElementById('clock-message');

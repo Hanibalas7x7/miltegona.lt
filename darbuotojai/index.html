@@ -105,7 +105,21 @@
                     </div>
                 </div>
 
-                <!-- Navigation Tabs -->
+                <!-- Manual clock-out modal -->
+                <div id="clock-modal-overlay" class="clock-modal-overlay" style="display:none;">
+                    <div class="clock-modal">
+                        <div class="clock-modal-title">Išėjimo laikas</div>
+                        <p class="clock-modal-desc">Pasirinkite tikslų išėjimo datą ir laiką:</p>
+                        <div class="clock-modal-fields">
+                            <input type="date" id="clock-manual-date" class="clock-modal-input" />
+                            <input type="time" id="clock-manual-time" class="clock-modal-input" />
+                        </div>
+                        <div class="clock-modal-actions">
+                            <button id="clock-manual-cancel" class="btn-clock btn-clock-secondary">Atšaukti</button>
+                            <button id="clock-manual-confirm" class="btn-clock btn-clock-out">Patvirtinti</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="suvestine">Mėnesio Suvestinė</button>
                     <button class="tab-btn" data-tab="atlyginimai">Mėnesio Atlyginimai</button>
@@ -487,7 +501,7 @@
     <div id="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-    <script src="/js/darbuotojai.js?v=20"></script>
+    <script src="/js/darbuotojai.js?v=21"></script>
     <script src="/js/paint-management-simple.js"></script>
 </body>
 </html>
