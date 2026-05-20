@@ -75,14 +75,14 @@ serve(async (req) => {
       .eq('email', user.email)
       .single();
 
-    if (appUserError || !appUser || appUser.role !== 'employee') {
+    if (appUserError || !appUser || (appUser.role !== 'employee' && appUser.role !== 'admin')) {
       return new Response(
-        JSON.stringify({ error: 'Vartotojas nerastas arba neturi prieigos' }),
+        JSON.stringify({ error: 'Vartotojas nerastas arba prieiga neleista' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!appUser.darbuotojai) {
+    if (appUser.role === 'employee' && !appUser.darbuotojai) {
       return new Response(
         JSON.stringify({ error: 'Darbuotojas nerastas' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -94,9 +94,10 @@ serve(async (req) => {
       JSON.stringify({
         user: {
           id: appUser.id,
+          role: appUser.role,
           darbuotojasId: appUser.darbuotojas_id,
-          vardas: appUser.darbuotojai.vardas,
-          pavarde: appUser.darbuotojai.pavarde,
+          vardas: appUser.darbuotojai ? appUser.darbuotojai.vardas : 'Admin',
+          pavarde: appUser.darbuotojai ? appUser.darbuotojai.pavarde : '',
           email: user.email,
         },
       }),

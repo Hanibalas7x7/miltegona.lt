@@ -165,6 +165,16 @@ function showDashboard() {
     // Set employee name
     document.getElementById('employee-name').textContent = 
         `${currentUser.vardas} ${currentUser.pavarde}`;
+
+    // Only show clock widget if user has darbuotojas_id
+    const clockWidget = document.getElementById('clock-widget');
+    if (currentUser.darbuotojasId) {
+        clockWidget.style.display = 'block';
+        startLiveClock();
+        loadClockStatus();
+    } else {
+        clockWidget.style.display = 'none';
+    }
 }
 
 // Switch tabs
@@ -442,3 +452,134 @@ function formatTime(timeString) {
     // If it's already just time (HH:MM:SS), take first 5 chars
     return timeString.substring(0, 5); // HH:MM
 }
+
+// ───────────────────────────────────────────────
+// CLOCK IN / OUT
+// ───────────────────────────────────────────────
+
+let clockLiveTimer = null;
+
+function getLocalDate() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function startLiveClock() {
+    const timeEl = document.getElementById('clock-live-time');
+    const dateEl = document.getElementById('clock-live-date');
+    const DAYS_LT = ['Sekmadienis','Pirmadienis','Antradienis','Trečiadienis','Ketvirtadienis','Penktadienis','Šeštadienis'];
+
+    function tick() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        timeEl.textContent = `${hh}:${mm}`;
+        dateEl.textContent = `${DAYS_LT[now.getDay()]}, ${now.getDate()} ${MONTHS_LT[now.getMonth()]} ${now.getFullYear()}`;
+    }
+    tick();
+    if (clockLiveTimer) clearInterval(clockLiveTimer);
+    clockLiveTimer = setInterval(tick, 10000);
+}
+
+async function loadClockStatus() {
+    const sessionToken = localStorage.getItem('darbuotojai_session');
+    try {
+        const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-clock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+            body: JSON.stringify({ action: 'status', localDate: getLocalDate() })
+        });
+        const data = await res.json();
+        if (res.ok) renderClockStatus(data.record);
+    } catch (e) {
+        console.error('Clock status error:', e);
+    }
+}
+
+function renderClockStatus(record) {
+    const statusText = document.getElementById('clock-status-text');
+    const clockInBtn = document.getElementById('clock-in-btn');
+    const clockOutBtn = document.getElementById('clock-out-btn');
+    const msg = document.getElementById('clock-message');
+
+    msg.style.display = 'none';
+
+    if (!record) {
+        // Not clocked in yet
+        statusText.textContent = 'Neprisijungta';
+        statusText.className = 'clock-status-value status-none';
+        clockInBtn.disabled = false;
+        clockOutBtn.disabled = true;
+    } else if (record.pradzios_laikas && !record.pabaigos_laikas) {
+        // Clocked in, not out
+        statusText.innerHTML = `<span class="status-dot status-in"></span>Atvyko ${formatTime(record.pradzios_laikas)}`;
+        statusText.className = 'clock-status-value status-in-text';
+        clockInBtn.disabled = true;
+        clockOutBtn.disabled = false;
+    } else if (record.pradzios_laikas && record.pabaigos_laikas) {
+        // Full day done
+        statusText.innerHTML = `<span class="status-dot status-done"></span>Baigė ${formatTime(record.pabaigos_laikas)} (atvyko ${formatTime(record.pradzios_laikas)})`;
+        statusText.className = 'clock-status-value status-done-text';
+        clockInBtn.disabled = true;
+        clockOutBtn.disabled = true;
+    }
+}
+
+function showClockMessage(text, type) {
+    const msg = document.getElementById('clock-message');
+    msg.textContent = text;
+    msg.className = `clock-message clock-msg-${type}`;
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+}
+
+document.getElementById('clock-in-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('clock-in-btn');
+    btn.disabled = true;
+    const sessionToken = localStorage.getItem('darbuotojai_session');
+    try {
+        const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-clock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+            body: JSON.stringify({ action: 'clock_in', localDate: getLocalDate() })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            renderClockStatus(data.record);
+            showClockMessage('✅ Atvykimas pažymėtas!', 'success');
+        } else {
+            showClockMessage(data.error || 'Klaida', 'error');
+            btn.disabled = false;
+        }
+    } catch (e) {
+        showClockMessage('Serverio klaida', 'error');
+        btn.disabled = false;
+    }
+});
+
+document.getElementById('clock-out-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('clock-out-btn');
+    btn.disabled = true;
+    const sessionToken = localStorage.getItem('darbuotojai_session');
+    try {
+        const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-clock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+            body: JSON.stringify({ action: 'clock_out', localDate: getLocalDate() })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            renderClockStatus(data.record);
+            showClockMessage('🏁 Darbo diena baigta!', 'success');
+        } else {
+            showClockMessage(data.error || 'Klaida', 'error');
+            btn.disabled = false;
+        }
+    } catch (e) {
+        showClockMessage('Serverio klaida', 'error');
+        btn.disabled = false;
+    }
+});

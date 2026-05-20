@@ -98,16 +98,16 @@ serve(async (req) => {
       );
     }
 
-    // Check if user is employee (not admin)
-    if (appUser.role !== 'employee') {
+    // Check if user is employee or admin
+    if (appUser.role !== 'employee' && appUser.role !== 'admin') {
       return new Response(
-        JSON.stringify({ error: 'Prieiga leidžiama tik darbuotojams' }),
+        JSON.stringify({ error: 'Prieiga neleista' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check if darbuotojas exists
-    if (!appUser.darbuotojai) {
+    // Check if darbuotojas exists (admin may not have one)
+    if (appUser.role === 'employee' && !appUser.darbuotojai) {
       return new Response(
         JSON.stringify({ error: 'Darbuotojas nerastas' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -123,9 +123,10 @@ serve(async (req) => {
         sessionToken,
         user: {
           id: appUser.id,
+          role: appUser.role,
           darbuotojasId: appUser.darbuotojas_id,
-          vardas: appUser.darbuotojai.vardas,
-          pavarde: appUser.darbuotojai.pavarde,
+          vardas: appUser.darbuotojai ? appUser.darbuotojai.vardas : 'Admin',
+          pavarde: appUser.darbuotojai ? appUser.darbuotojai.pavarde : '',
           email: authData.user.email,
         },
       }),

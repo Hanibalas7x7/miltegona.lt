@@ -84,10 +84,10 @@ serve(async (req) => {
       .eq('email', user.email)
       .single();
 
-    if (appUserError || !appUser || appUser.role !== 'employee') {
+    if (appUserError || !appUser || (appUser.role !== 'employee' && appUser.role !== 'admin')) {
       console.log('App user error:', appUserError?.message, 'User email:', user.email);
       return new Response(
-        JSON.stringify({ error: 'Vartotojas nerastas arba neturi prieigos' }),
+        JSON.stringify({ error: 'Prieiga neleista' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
