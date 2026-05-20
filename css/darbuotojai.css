@@ -528,6 +528,15 @@ body {
     .btn-clock { flex: 1; }
 }
 
+.portal-version {
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.35);
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.03em;
+}
+
 /* Tabs */
 .tabs {
     max-width: 1600px;
