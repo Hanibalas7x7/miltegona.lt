@@ -146,9 +146,13 @@ function setupEventListeners() {
                 const endMs = new Date(`${dateVal}T${hh}:${mm}`).getTime();
                 const diffMin = Math.round((endMs - startMs) / 60000);
                 if (diffMin > 0) {
-                    const h = Math.floor(diffMin / 60);
-                    const m = diffMin % 60;
-                    hoursText = `\nAtvyko: ${formatTimeLocal(clockRecord.pradzios_laikas)}\nDirbtų valandų: ${h}h ${m}min`;
+                    const rawH = diffMin / 60;
+                    const lunchMin = rawH >= 4 ? 60 : 0;
+                    const netMin = diffMin - lunchMin;
+                    const h = Math.floor(netMin / 60);
+                    const m = netMin % 60;
+                    const lunchNote = lunchMin > 0 ? ' (įsk. -1h pietų)' : '';
+                    hoursText = `\nAtvyko: ${formatTimeLocal(clockRecord.pradzios_laikas)}\nDirbtų valandų: ${h}h ${m}min${lunchNote}`;
                 }
             }
 
