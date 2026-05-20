@@ -88,38 +88,13 @@
                                     Išeinu
                                 </button>
                             </div>
-                            <div id="clock-manual-toggle-row" class="clock-manual-toggle-row" style="display:none;">
-                                <button id="clock-manual-toggle" class="clock-manual-toggle-btn">Pamiršote paspausti „Išeinu“? →</button>
-                            </div>
+                            <div id="clock-manual-toggle-row" style="display:none;"></div>
                             <div id="clock-message" class="clock-message" style="display:none;"></div>
-                            <div id="clock-manual-entry" class="clock-manual-entry" style="display:none;">
-                                <span class="clock-manual-label">Pamiršote paspausti „Išeinu"? Įveskite tikslų išėjimo laiką:</span>
-                                <div class="clock-manual-row">
-                                    <input type="date" id="clock-manual-date" class="clock-manual-input" />
-                                    <input type="time" id="clock-manual-time" class="clock-manual-input" />
-                                    <button id="clock-manual-confirm" class="btn-clock btn-clock-out btn-clock-manual">Patvirtinti</button>
-                                    <button id="clock-manual-cancel" class="btn-clock-manual-cancel">Atšaukti</button>
-                                </div>
-                            </div>
+                            <div id="clock-manual-entry" style="display:none;"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Manual clock-out modal -->
-                <div id="clock-modal-overlay" class="clock-modal-overlay" style="display:none;">
-                    <div class="clock-modal">
-                        <div class="clock-modal-title">Išėjimo laikas</div>
-                        <p class="clock-modal-desc">Pasirinkite tikslų išėjimo datą ir laiką:</p>
-                        <div class="clock-modal-fields">
-                            <input type="date" id="clock-manual-date" class="clock-modal-input" />
-                            <input type="time" id="clock-manual-time" class="clock-modal-input" />
-                        </div>
-                        <div class="clock-modal-actions">
-                            <button id="clock-manual-cancel" class="btn-clock btn-clock-secondary">Atšaukti</button>
-                            <button id="clock-manual-confirm" class="btn-clock btn-clock-out">Patvirtinti</button>
-                        </div>
-                    </div>
-                </div>
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="suvestine">Mėnesio Suvestinė</button>
                     <button class="tab-btn" data-tab="atlyginimai">Mėnesio Atlyginimai</button>
@@ -500,8 +475,24 @@
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
+    <!-- Manual clock-out modal -->
+    <div id="clock-modal-overlay" class="clock-modal-overlay" style="display:none;">
+        <div class="clock-modal">
+            <div class="clock-modal-title">Išėjimo laikas</div>
+            <p class="clock-modal-desc">Pasirinkite tikslų išėjimo datą ir laiką:</p>
+            <div class="clock-modal-fields">
+                <input type="date" id="clock-manual-date" class="clock-modal-input" />
+                <input type="time" id="clock-manual-time" class="clock-modal-input" />
+            </div>
+            <div class="clock-modal-actions">
+                <button id="clock-manual-cancel" class="btn-clock btn-clock-secondary">Atšaukti</button>
+                <button id="clock-manual-confirm" class="btn-clock btn-clock-out">Patvirtinti</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-    <script src="/js/darbuotojai.js?v=21"></script>
+    <script src="/js/darbuotojai.js?v=22"></script>
     <script src="/js/paint-management-simple.js"></script>
 </body>
 </html>
