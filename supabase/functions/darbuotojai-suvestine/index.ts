@@ -114,20 +114,18 @@ serve(async (req) => {
     // Calculate total hours and format records
     let totalHours = 0;
     const records = (workHours || []).map(record => {
-      // Calculate hours: (end - start)
+      // Calculate hours: (end - start) - lunch break
       let hours = 0;
+      const pietuPertrauka = record.pietu_pertrauka ?? 1.0;
       if (record.pradzios_laikas && record.pabaigos_laikas) {
-        // Extract time part (HH:MM:SS) from timestamp
-        const startTime = record.pradzios_laikas.includes('T') 
-          ? record.pradzios_laikas.split('T')[1].split('+')[0].split('Z')[0]
-          : record.pradzios_laikas;
-        const endTime = record.pabaigos_laikas.includes('T')
-          ? record.pabaigos_laikas.split('T')[1].split('+')[0].split('Z')[0]
-          : record.pabaigos_laikas;
-        
-        const start = new Date(`2000-01-01T${startTime}`);
-        const end = new Date(`2000-01-01T${endTime}`);
-        hours = (end - start) / (1000 * 60 * 60);
+        const start = new Date(record.pradzios_laikas);
+        let end = new Date(record.pabaigos_laikas);
+        // Handle night shifts: if end <= start, end is next day
+        if (end.getTime() <= start.getTime()) {
+          end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
+        }
+        const rawHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        hours = Math.max(0, rawHours - pietuPertrauka);
       }
       
       totalHours += hours;
@@ -136,7 +134,7 @@ serve(async (req) => {
         data: record.data,
         pradzios_laikas: record.pradzios_laikas,
         pabaigos_laikas: record.pabaigos_laikas,
-        pietu_pertrauka: record.pietu_pertrauka || 0,
+        pietu_pertrauka: pietuPertrauka,
         valandos: hours,
       };
     });
