@@ -141,15 +141,13 @@ function setupEventListeners() {
             // Calculate hours elapsed
             let hoursText = '';
             if (clockRecord && clockRecord.pradzios_laikas) {
-                const startStr = formatTimeLocal(clockRecord.pradzios_laikas);
-                const startDateStr = clockRecord.data || dateVal;
-                const startMs = new Date(`${startDateStr}T${startStr}:00`).getTime();
+                const startMs = new Date(clockRecord.pradzios_laikas).getTime();
                 const endMs = new Date(`${dateVal}T${hh}:${mm}:00`).getTime();
                 const diffH = (endMs - startMs) / 3600000;
                 if (diffH > 0) {
                     const h = Math.floor(diffH);
                     const m = Math.round((diffH - h) * 60);
-                    hoursText = `\nDirbtų valandų: ${h}h ${m}min`;
+                    hoursText = `\nAtvyko: ${formatTimeLocal(clockRecord.pradzios_laikas)}\nDirbtų valandų: ${h}h ${m}min`;
                 }
             }
 
