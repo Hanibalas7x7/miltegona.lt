@@ -10,30 +10,19 @@ const corsHeaders = {
 };
 
 function getVilniusDateTime(now: Date): { today: string; localDateTime: string } {
-  // Get Vilnius local date (en-CA gives YYYY-MM-DD)
-  const today = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Vilnius",
-  }).format(now);
+  // sv-SE locale reliably gives "YYYY-MM-DD HH:MM:SS" format
+  const vilniusStr = now.toLocaleString("sv-SE", { timeZone: "Europe/Vilnius" });
+  const parts = vilniusStr.split(" ");
+  const today = parts[0];    // "2026-05-21"
+  const timeStr = parts[1];  // "01:44:52"
 
-  // Get Vilnius local time parts
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Vilnius",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).formatToParts(now);
-
-  const h = parts.find((p) => p.type === "hour")?.value ?? "00";
-  const m = parts.find((p) => p.type === "minute")?.value ?? "00";
-  const s = parts.find((p) => p.type === "second")?.value ?? "00";
-
-  // Compute UTC offset by comparing local-as-UTC to actual UTC
-  const localAsUTC = new Date(`${today}T${h}:${m}:${s}Z`).getTime();
-  const offsetMin = Math.round((localAsUTC - now.getTime()) / 60000);
-  const offsetH = Math.round(offsetMin / 60);
-  const sign = offsetH >= 0 ? "+" : "-";
-  const localDateTime = `${today}T${h}:${m}:${s}${sign}${String(Math.abs(offsetH)).padStart(2, "0")}:00`;
+  // Compute timezone offset: treat local time as UTC, compare to actual UTC
+  const pseudoUTC = new Date(`${today}T${timeStr}Z`).getTime();
+  const offsetMs = pseudoUTC - now.getTime();
+  const offsetSign = offsetMs >= 0 ? "+" : "-";
+  const offsetH = Math.floor(Math.abs(offsetMs) / 3600000);
+  const offsetM = Math.floor((Math.abs(offsetMs) % 3600000) / 60000);
+  const localDateTime = `${today}T${timeStr}${offsetSign}${String(offsetH).padStart(2, "0")}:${String(offsetM).padStart(2, "0")}`;
 
   return { today, localDateTime };
 }
