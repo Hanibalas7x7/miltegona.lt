@@ -496,17 +496,20 @@ function formatDate(dateString) {
 // Format time
 function formatTime(timeString) {
     if (!timeString) return '-';
-    
-    // Parse as Date and format in local timezone
-    if (timeString.includes('T') || timeString.includes('Z') || timeString.includes('+')) {
-        const d = new Date(timeString);
-        const hh = String(d.getHours()).padStart(2, '0');
-        const mm = String(d.getMinutes()).padStart(2, '0');
-        return `${hh}:${mm}`;
+    // Extract time text directly (times stored as local time in DB via Tabelis app)
+    if (timeString.includes('T')) {
+        return timeString.split('T')[1].substring(0, 5);
     }
-    
-    // If it's already just time (HH:MM:SS), take first 5 chars
-    return timeString.substring(0, 5); // HH:MM
+    return timeString.substring(0, 5);
+}
+
+// For clock widget: converts proper UTC timestamps to local browser time
+function formatTimeLocal(timeString) {
+    if (!timeString) return '-';
+    const d = new Date(timeString);
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
 }
 
 // ───────────────────────────────────────────────
@@ -578,13 +581,13 @@ function renderClockStatus(record) {
         clockOutBtn.disabled = true;
     } else if (record.pradzios_laikas && !record.pabaigos_laikas) {
         // Clocked in, not out
-        statusText.innerHTML = `<span class="status-dot status-in"></span>Atvyko ${formatTime(record.pradzios_laikas)}`;
+        statusText.innerHTML = `<span class="status-dot status-in"></span>Atvyko ${formatTimeLocal(record.pradzios_laikas)}`;
         statusText.className = 'clock-status-value status-in-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = false;
     } else if (record.pradzios_laikas && record.pabaigos_laikas) {
         // Full day done
-        statusText.innerHTML = `<span class="status-dot status-done"></span>Baigė ${formatTime(record.pabaigos_laikas)} (atvyko ${formatTime(record.pradzios_laikas)})`;
+        statusText.innerHTML = `<span class="status-dot status-done"></span>Baigė ${formatTimeLocal(record.pabaigos_laikas)} (atvyko ${formatTimeLocal(record.pradzios_laikas)})`;
         statusText.className = 'clock-status-value status-done-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = true;
