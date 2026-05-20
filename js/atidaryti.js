@@ -16,6 +16,7 @@ const errorMessage = document.getElementById('error-message');
 
 // State
 let lightState = null; // 'on', 'off', or null
+let gateCodeNote = null; // employee name from gate code note field
 
 // Get code from URL
 const urlParams = new URLSearchParams(window.location.search);
@@ -83,6 +84,7 @@ async function validateCode(code) {
         }
         
         // Code is valid
+        gateCodeNote = result.note || null;
         showValidState();
         
     } catch (error) {
@@ -276,6 +278,9 @@ openTerritoryGateBtn.addEventListener('click', async () => {
         gateStatus.textContent = 'Komanda išsiųsta. Tikrinama būsena...';
         gateStatus.className = 'gate-status sending';
         
+        // Auto clock-in employee if gate code belongs to them
+        autoClockIn();
+        
         // Poll for status change (check every 1 second for up to 30 seconds)
         let attempts = 0;
         const maxAttempts = 30;
@@ -366,6 +371,33 @@ toggleLightBtn.addEventListener('click', () => {
     const message = lightState === 'on' ? '✅ Šviesa išjungta' : '✅ Šviesa įjungta';
     performAction(action, toggleLightBtn, message);
 });
+
+// Auto clock-in employee whose name matches gate code note
+async function autoClockIn() {
+    if (!gateCodeNote) return;
+    try {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-gate-clock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        });
+        const result = await response.json();
+        if (result.success && !result.alreadyClockedIn) {
+            // Show clock-in confirmation below gate status (non-blocking)
+            setTimeout(() => {
+                gateStatus.textContent = `✅ ${result.employeeName} pažymėtas kaip atvykęs`;
+                gateStatus.className = 'gate-status success';
+                setTimeout(() => {
+                    gateStatus.textContent = '';
+                    gateStatus.className = 'gate-status';
+                }, 5000);
+            }, 3500);
+        }
+    } catch (err) {
+        console.error('Auto clock-in error:', err);
+        // Silent fail – gate flow is unaffected
+    }
+}
 
 // Format date to Lithuanian local time
 function formatDate(date) {

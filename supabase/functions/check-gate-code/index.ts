@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     // Validate code in gate_codes table
     const { data: gateCode, error: codeError } = await supabase
       .from("gate_codes")
-      .select("unlimited, valid_from, valid_to")
+      .select("unlimited, valid_from, valid_to, note")
       .eq("code", code)
       .single();
 
@@ -119,7 +119,8 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           valid: true,
-          unlimited: true
+          unlimited: true,
+          note: gateCode.note || null
         }),
         {
           status: 200,
@@ -177,7 +178,8 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         valid: true,
-        unlimited: false
+        unlimited: false,
+        note: gateCode.note || null
       }),
       {
         status: 200,
