@@ -151,8 +151,7 @@ function setupEventListeners() {
                     const netMin = diffMin - lunchMin;
                     const h = Math.floor(netMin / 60);
                     const m = netMin % 60;
-                    const lunchNote = lunchMin > 0 ? ' (įsk. -1h pietų)' : '';
-                    hoursText = `\nAtvyko: ${formatTimeLocal(clockRecord.pradzios_laikas)}\nDirbtų valandų: ${h}h ${m}min${lunchNote}`;
+                    hoursText = `\nAtvyko: ${formatTimeLocal(clockRecord.pradzios_laikas)}\nDirbtų valandų: ${h}h ${m}min`;
                 }
             }
 
