@@ -154,7 +154,7 @@ function setupEventListeners() {
                     const netMin = diffMin - lunchMin;
                     const h = Math.floor(netMin / 60);
                     const m = netMin % 60;
-                    summaryHtml += `<div class="clock-summary-hours">${h}h ${m}min</div>`;
+                    summaryHtml += `<div class="clock-summary-hours">Dirbtų valandų: ${h}h ${m}min</div>`;
                 }
             }
 
