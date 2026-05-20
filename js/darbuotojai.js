@@ -513,7 +513,6 @@ function formatTimeLocal(timeString) {
     }
     return withoutTz.substring(0, 5);
 }
-}
 
 // ───────────────────────────────────────────────
 // CLOCK IN / OUT
