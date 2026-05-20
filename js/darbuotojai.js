@@ -640,7 +640,10 @@ function renderClockStatus(record) {
         statusText.className = 'clock-status-value status-in-text';
         clockInBtn.disabled = true;
         clockOutBtn.disabled = false;
-        if (new Date().getHours() >= 18) {
+        // Show manual entry if more than 18 hours have passed since clock-in
+        const clockInTime = new Date(record.pradzios_laikas.replace(/([+-]\d{2}:\d{2}|Z)$/, ''));
+        const hoursElapsed = (Date.now() - clockInTime.getTime()) / (1000 * 60 * 60);
+        if (hoursElapsed >= 18) {
             showManualEntryOption();
         }
     } else if (record.pradzios_laikas && record.pabaigos_laikas) {
