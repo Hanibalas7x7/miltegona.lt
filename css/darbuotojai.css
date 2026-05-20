@@ -438,9 +438,11 @@ body {
     font-size: 15px;
     font-weight: 600;
     padding: 8px 12px;
-    width: 110px;
     color-scheme: dark;
 }
+
+.clock-manual-input[type="date"] { width: 145px; }
+.clock-manual-input[type="time"] { width: 110px; }
 
 .clock-manual-input:focus {
     outline: none;

@@ -113,11 +113,13 @@ function setupEventListeners() {
     const manualConfirmBtn = document.getElementById('clock-manual-confirm');
     if (manualConfirmBtn) {
         manualConfirmBtn.addEventListener('click', async () => {
+            const dateInput = document.getElementById('clock-manual-date');
             const timeInput = document.getElementById('clock-manual-time');
+            const dateVal = dateInput ? dateInput.value : '';
             const timeVal = timeInput ? timeInput.value : '';
-            if (!timeVal) { showClockMessage('Įveskite laiką', 'error'); return; }
+            if (!dateVal || !timeVal) { showClockMessage('Įveskite datą ir laiką', 'error'); return; }
             const [hh, mm] = timeVal.split(':');
-            const localDate = getLocalDate();
+            const localDate = dateVal;
             const localDateTime = `${localDate}T${hh.padStart(2,'0')}:${mm.padStart(2,'0')}:00`;
             manualConfirmBtn.disabled = true;
             const sessionToken = localStorage.getItem('darbuotojai_session');
@@ -658,7 +660,11 @@ function renderClockStatus(record) {
 
 function showManualEntryOption() {
     const el = document.getElementById('clock-manual-entry');
-    if (el) el.style.display = 'block';
+    if (!el) return;
+    // Pre-fill date with today
+    const dateInput = document.getElementById('clock-manual-date');
+    if (dateInput && !dateInput.value) dateInput.value = getLocalDate();
+    el.style.display = 'block';
 }
 
 function hideManualEntryOption() {
