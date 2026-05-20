@@ -532,6 +532,9 @@ function getLocalDate() {
 
 function getLocalDateTime() {
     const d = new Date();
+    // Round minutes to nearest 5
+    const roundedMinutes = Math.round(d.getMinutes() / 5) * 5;
+    d.setMinutes(roundedMinutes, 0, 0);
     const y = d.getFullYear();
     const mo = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
