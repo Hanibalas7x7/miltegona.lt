@@ -445,15 +445,26 @@ body {
 }
 
 .clock-modal-summary {
-    font-size: 15px;
+    font-size: 14px;
     color: white;
     background: rgba(230,92,0,0.1);
     border: 1px solid rgba(230,92,0,0.3);
     border-radius: 8px;
     padding: 14px 16px;
     margin-bottom: 20px;
-    white-space: pre-line;
-    font-weight: 500;
+}
+
+.clock-summary-row {
+    color: #d1d5db;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.clock-summary-hours {
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    margin-top: 10px;
 }
 
 .clock-modal-fields {

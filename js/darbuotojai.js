@@ -139,24 +139,27 @@ function setupEventListeners() {
             if (!dateVal || !hh || !mm) { showClockMessage('Įveskite datą ir laiką', 'error'); return; }
 
             // Calculate hours elapsed (strip timezone to compare as local times)
-            let hoursText = '';
+            let summaryHtml = `<div class="clock-summary-row">Išėjimo laikas: ${dateVal} ${hh}:${mm}</div>`;
             if (clockRecord && clockRecord.pradzios_laikas) {
                 const startLocal = clockRecord.pradzios_laikas.replace(/([+-]\d{2}:\d{2}|Z)$/, '').substring(0, 16);
+                const startDate = startLocal.substring(0, 10);
+                const startTime = startLocal.substring(11, 16);
                 const startMs = new Date(startLocal).getTime();
                 const endMs = new Date(`${dateVal}T${hh}:${mm}`).getTime();
                 const diffMin = Math.round((endMs - startMs) / 60000);
+                summaryHtml = `<div class="clock-summary-row">Atvyko: ${startDate} ${startTime}</div><div class="clock-summary-row">Išėjimo laikas: ${dateVal} ${hh}:${mm}</div>`;
                 if (diffMin > 0) {
                     const rawH = diffMin / 60;
                     const lunchMin = rawH >= 4 ? 60 : 0;
                     const netMin = diffMin - lunchMin;
                     const h = Math.floor(netMin / 60);
                     const m = netMin % 60;
-                    hoursText = `\nAtvyko: ${formatTimeLocal(clockRecord.pradzios_laikas)}\nDirbtų valandų: ${h}h ${m}min`;
+                    summaryHtml += `<div class="clock-summary-hours">${h}h ${m}min</div>`;
                 }
             }
 
             const summary = document.getElementById('clock-modal-summary');
-            if (summary) summary.textContent = `Išėjimo laikas: ${dateVal} ${hh}:${mm}${hoursText}`;
+            if (summary) summary.innerHTML = summaryHtml;
 
             document.getElementById('clock-modal-step1').style.display = 'none';
             document.getElementById('clock-modal-step2').style.display = 'block';
