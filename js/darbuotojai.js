@@ -168,6 +168,16 @@ function setupEventListeners() {
     if (manualCancelBtn) {
         manualCancelBtn.addEventListener('click', () => hideClockOutModal());
     }
+
+    // Time input: auto-insert colon after 2 digits
+    const timeInput = document.getElementById('clock-manual-time');
+    if (timeInput) {
+        timeInput.addEventListener('input', function() {
+            let v = this.value.replace(/[^0-9]/g, '');
+            if (v.length >= 3) v = v.slice(0, 2) + ':' + v.slice(2, 4);
+            this.value = v;
+        });
+    }
 }
 
 // Check if user has valid session
@@ -675,6 +685,11 @@ function showClockOutModal() {
     if (!overlay) return;
     const dateInput = document.getElementById('clock-manual-date');
     if (dateInput) dateInput.value = getLocalDate();
+    const timeInput = document.getElementById('clock-manual-time');
+    if (timeInput) {
+        const now = new Date();
+        timeInput.value = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    }
     overlay.style.display = 'flex';
 }
 
