@@ -726,7 +726,7 @@ function showClockOutModal() {
         }
     }
     if (minSel && minSel.options.length === 0) {
-        for (let m = 0; m < 60; m++) {
+        for (let m = 0; m < 60; m += 5) {
             const o = document.createElement('option');
             o.value = o.textContent = m.toString().padStart(2, '0');
             minSel.appendChild(o);
@@ -734,7 +734,8 @@ function showClockOutModal() {
     }
     const now = new Date();
     if (hourSel) hourSel.value = now.getHours().toString().padStart(2, '0');
-    if (minSel) minSel.value = now.getMinutes().toString().padStart(2, '0');
+    const roundedMin = Math.round(now.getMinutes() / 5) * 5 % 60;
+    if (minSel) minSel.value = roundedMin.toString().padStart(2, '0');
     overlay.style.display = 'flex';
 }
 
