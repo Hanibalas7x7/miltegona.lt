@@ -65,7 +65,7 @@ function setupEventListeners() {
                 const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-clock`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
-                    body: JSON.stringify({ action: 'clock_in', localDate: getLocalDate() })
+                    body: JSON.stringify({ action: 'clock_in', localDate: getLocalDate(), localDateTime: getLocalDateTime() })
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -92,7 +92,7 @@ function setupEventListeners() {
                 const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-clock`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
-                    body: JSON.stringify({ action: 'clock_out', localDate: getLocalDate() })
+                    body: JSON.stringify({ action: 'clock_out', localDate: getLocalDate(), localDateTime: getLocalDateTime() })
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -506,6 +506,10 @@ function formatTime(timeString) {
 // For clock widget: converts proper UTC timestamps to local browser time
 function formatTimeLocal(timeString) {
     if (!timeString) return '-';
+    // localDateTime strings (no Z/offset) are already local time - use formatTime
+    if (!timeString.includes('Z') && !timeString.includes('+')) {
+        return formatTime(timeString);
+    }
     const d = new Date(timeString);
     const hh = String(d.getHours()).padStart(2, '0');
     const mm = String(d.getMinutes()).padStart(2, '0');
@@ -524,6 +528,16 @@ function getLocalDate() {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+}
+
+function getLocalDateTime() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${y}-${mo}-${day}T${hh}:${mm}:00`;
 }
 
 function startLiveClock() {

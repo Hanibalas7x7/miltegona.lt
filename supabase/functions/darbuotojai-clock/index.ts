@@ -85,7 +85,7 @@ serve(async (req) => {
       );
     }
 
-    const { action, localDate } = await req.json();
+    const { action, localDate, localDateTime } = await req.json();
 
     if (!action) {
       return new Response(
@@ -97,6 +97,10 @@ serve(async (req) => {
     // localDate: YYYY-MM-DD (client's local date in Lithuanian timezone)
     // Fall back to UTC date if not provided
     const today = localDate || new Date().toISOString().split('T')[0];
+
+    // localDateTime: YYYY-MM-DDTHH:MM (client local time, stored as-is for consistency with Tabelis app)
+    // Falls back to UTC ISO string if not provided
+    const nowLocalTs = localDateTime || new Date().toISOString();
 
     // Validate date format
     if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) {
@@ -140,14 +144,12 @@ serve(async (req) => {
         );
       }
 
-      const now = new Date().toISOString();
-
       const { data: inserted, error: insertError } = await supabaseAdmin
         .from('darbuotoju_darbo_valandos')
         .insert({
           darbuotojas_id: darbuotojasId,
           data: today,
-          pradzios_laikas: now,
+          pradzios_laikas: nowLocalTs,
           pabaigos_laikas: null,
           // pietu_pertrauka uses DB default (1.0 val.)
         })
@@ -191,11 +193,9 @@ serve(async (req) => {
         );
       }
 
-      const now = new Date().toISOString();
-
       const { data: updated, error: updateError } = await supabaseAdmin
         .from('darbuotoju_darbo_valandos')
-        .update({ pabaigos_laikas: now })
+        .update({ pabaigos_laikas: nowLocalTs })
         .eq('id', existing.id)
         .select('id, pradzios_laikas, pabaigos_laikas')
         .single();
