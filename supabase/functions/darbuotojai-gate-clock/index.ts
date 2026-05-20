@@ -9,24 +9,6 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
 };
 
-function getVilniusDateTime(now: Date): { today: string; localDateTime: string } {
-  // sv-SE locale reliably gives "YYYY-MM-DD HH:MM:SS" format
-  const vilniusStr = now.toLocaleString("sv-SE", { timeZone: "Europe/Vilnius" });
-  const parts = vilniusStr.split(" ");
-  const today = parts[0];    // "2026-05-21"
-  const timeStr = parts[1];  // "01:44:52"
-
-  // Compute timezone offset: treat local time as UTC, compare to actual UTC
-  const pseudoUTC = new Date(`${today}T${timeStr}Z`).getTime();
-  const offsetMs = pseudoUTC - now.getTime();
-  const offsetSign = offsetMs >= 0 ? "+" : "-";
-  const offsetH = Math.floor(Math.abs(offsetMs) / 3600000);
-  const offsetM = Math.floor((Math.abs(offsetMs) % 3600000) / 60000);
-  const localDateTime = `${today}T${timeStr}${offsetSign}${String(offsetH).padStart(2, "0")}:${String(offsetM).padStart(2, "0")}`;
-
-  return { today, localDateTime };
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -39,7 +21,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { code } = await req.json();
+    const { code, localDateTime, localDate } = await req.json();
 
     if (!code) {
       return new Response(
@@ -104,7 +86,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { today, localDateTime } = getVilniusDateTime(new Date());
+    // Use client-provided local time (same pattern as darbuotojai-clock)
+    const now = new Date();
+    const fallback = now.toISOString();
+    const clockDateTime = localDateTime || fallback;
+    const today = localDate || fallback.substring(0, 10);
 
     // Check if clocked in today (no clock-out yet)
     const { data: existing } = await supabase
@@ -133,7 +119,7 @@ Deno.serve(async (req) => {
     // Clock out
     const { error: updateError } = await supabase
       .from("darbuotoju_darbo_valandos")
-      .update({ pabaigos_laikas: localDateTime })
+      .update({ pabaigos_laikas: clockDateTime })
       .eq("id", existing.id);
 
     if (updateError) {
@@ -144,7 +130,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`Auto clock-out: ${note} clocked out at ${localDateTime}`);
+    console.log(`Auto clock-out: ${note} clocked out at ${clockDateTime}`);
     return new Response(
       JSON.stringify({ success: true, alreadyClockedOut: false, employeeName: note }),
       { status: 200, headers: corsHeaders }

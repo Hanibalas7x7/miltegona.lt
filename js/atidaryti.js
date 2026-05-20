@@ -376,10 +376,20 @@ toggleLightBtn.addEventListener('click', () => {
 async function autoClockIn() {
     if (!gateCodeNote) return;
     try {
+        // Build local datetime string with timezone offset (same as darbuotojai-clock)
+        const now = new Date();
+        const tzOffset = -now.getTimezoneOffset();
+        const sign = tzOffset >= 0 ? '+' : '-';
+        const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');
+        const localDateTime = now.getFullYear() + '-' +
+            pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + 'T' +
+            pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) +
+            sign + pad(tzOffset / 60) + ':' + pad(tzOffset % 60);
+        const localDate = localDateTime.substring(0, 10);
         const response = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-gate-clock`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code })
+            body: JSON.stringify({ code, localDateTime, localDate })
         });
         const result = await response.json();
         if (result.success && !result.alreadyClockedOut) {
