@@ -125,7 +125,9 @@ serve(async (req) => {
           end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
         }
         const rawHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-        hours = Math.max(0, rawHours - pietuPertrauka);
+        // If total work time < 4h, no lunch break deducted
+        const effectiveLunch = rawHours < 4 ? 0 : pietuPertrauka;
+        hours = Math.max(0, rawHours - effectiveLunch);
       }
       
       totalHours += hours;

@@ -1,4 +1,8 @@
-﻿# Cleanup files
+﻿node_modules/
+.wrangler/
+supabase/.temp/
+
+# Cleanup files
 secretes-to-remove.txt
 replace-keys.ps1
 bfg.jar

@@ -24,10 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners() {
     // Login form
     document.getElementById('login-form').addEventListener('submit', handleLogin);
-    
+
     // Logout
     document.getElementById('logout-btn').addEventListener('click', handleLogout);
-    
+
+    // Settings (credentials)
+    document.getElementById('settings-btn').addEventListener('click', openCredentialsModal);
+    document.getElementById('credentials-form').addEventListener('submit', handleUpdateCredentials);
+    document.getElementById('toggle-new-password').addEventListener('click', () => {
+        const input = document.getElementById('new-password');
+        const icon = document.getElementById('eye-icon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        } else {
+            input.type = 'password';
+            icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+    });
+
     // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -767,4 +782,116 @@ function showClockMessage(text, type) {
     setTimeout(() => { msg.style.display = 'none'; }, 4000);
 }
 
+// ---- Credentials modal ----
+
+function isValidPassword(pwd) {
+    return pwd.length >= 8 && /[a-z]/.test(pwd) && /[A-Z]/.test(pwd) && /[0-9]/.test(pwd);
+}
+
+function openCredentialsModal() {
+    const emailEl = document.getElementById('credentials-current-email');
+    if (currentUser?.email) {
+        emailEl.textContent = `Dabartinis el. paštas: ${currentUser.email}`;
+        emailEl.style.display = 'block';
+    } else {
+        emailEl.style.display = 'none';
+    }
+    document.getElementById('new-email').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+    document.getElementById('credentials-error').style.display = 'none';
+    document.getElementById('credentials-success').style.display = 'none';
+    document.getElementById('credentials-modal').style.display = 'flex';
+}
+
+function closeCredentialsModal() {
+    document.getElementById('credentials-modal').style.display = 'none';
+}
+
+async function handleUpdateCredentials(e) {
+    e.preventDefault();
+
+    const newEmail = document.getElementById('new-email').value.trim().toLowerCase();
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    const errorEl = document.getElementById('credentials-error');
+    const successEl = document.getElementById('credentials-success');
+    const saveBtn = document.getElementById('credentials-save-btn');
+
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    if (!newEmail && !newPassword) {
+        errorEl.textContent = 'Įveskite naują el. paštą ir/arba slaptažodį.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (newPassword && !isValidPassword(newPassword)) {
+        errorEl.textContent = 'Slaptažodis turi būti bent 8 simbolių ir turėti didžiąją raidę, mažąją raidę ir skaičių.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (newPassword && newPassword !== confirmPassword) {
+        errorEl.textContent = 'Slaptažodžiai nesutampa.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    const sessionToken = localStorage.getItem('darbuotojai_session');
+    if (!sessionToken) {
+        errorEl.textContent = 'Sesija baigėsi. Prisijunkite iš naujo.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saugoma...';
+
+    try {
+        const body = {};
+        if (newEmail) body.email = newEmail;
+        if (newPassword) body.password = newPassword;
+
+        const res = await fetch(`${EDGE_FUNCTIONS_URL}/darbuotojai-update-credentials`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionToken}`
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            errorEl.textContent = data.error || 'Klaida atnaujinant duomenis.';
+            errorEl.style.display = 'block';
+        } else {
+            successEl.textContent = 'Duomenys sėkmingai atnaujinti! Prisijunkite iš naujo.';
+            successEl.style.display = 'block';
+            if (newEmail && currentUser) currentUser.email = newEmail;
+            setTimeout(() => {
+                closeCredentialsModal();
+                if (newEmail) {
+                    // Force re-login since email changed
+                    handleLogout();
+                }
+            }, 2000);
+        }
+    } catch (err) {
+        errorEl.textContent = 'Serverio klaida. Bandykite vėliau.';
+        errorEl.style.display = 'block';
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Išsaugoti';
+    }
+}
+
+// Close modal on backdrop click
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('credentials-modal');
+    if (e.target === modal) closeCredentialsModal();
+});
 
