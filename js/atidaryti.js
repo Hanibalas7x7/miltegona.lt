@@ -1,5 +1,5 @@
 // Edge Functions Configuration
-const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
+const EDGE_FUNCTIONS_URL = 'https://main.miltegona.lt/functions/v1';
 
 // Elements
 const loadingState = document.getElementById('loading-state');

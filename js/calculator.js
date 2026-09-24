@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Load prices from Edge Function; fall back to defaults silently
-    const EDGE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/get-calculator-prices';
+    const EDGE_URL = 'https://main.miltegona.lt/functions/v1/get-calculator-prices';
 
     calculateBtn.disabled = true;
     calculateBtn.textContent = isEN ? 'Loading...' : 'Kraunama...';

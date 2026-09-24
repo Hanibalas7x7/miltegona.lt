@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     let allImages = [];
 
     // Supabase configuration
-    const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
+    const SUPABASE_URL = 'https://main.miltegona.lt';
     const GALLERY_EDGE_URL = `${SUPABASE_URL}/functions/v1/manage-gallery`;
     const STORAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/gallery-images`;
 

@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (files && files.length > 0) {
                     submitBtn.textContent = isEN ? 'Uploading files...' : 'Įkeliami failai...';
-                    const UPLOAD_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/upload-contact-file';
+                    const UPLOAD_URL = 'https://main.miltegona.lt/functions/v1/upload-contact-file';
                     
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];

@@ -1,6 +1,6 @@
 export async function onRequest() {
   const response = await fetch(
-    "https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/sitemap"
+    "https://main.miltegona.lt/functions/v1/sitemap"
   );
 
   const body = await response.text();

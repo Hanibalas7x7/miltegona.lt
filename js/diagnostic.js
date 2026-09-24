@@ -41,7 +41,7 @@ if (savedSession) {
 
 // 5. Test fetch to Edge Function
 console.log('🧪 Testing Edge Function accessibility...');
-fetch('https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/darbuotojai-login', {
+fetch('https://main.miltegona.lt/functions/v1/darbuotojai-login', {
     method: 'OPTIONS'
 })
 .then(response => {

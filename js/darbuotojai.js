@@ -1,7 +1,7 @@
 // Darbuotojų portalo logika
 // SVARBU: Nenaudojame anon_key kliento kode - visi duomenys per Edge Functions
 
-const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
+const EDGE_FUNCTIONS_URL = 'https://main.miltegona.lt/functions/v1';
 
 // Lithuanian months
 const MONTHS_LT = [

@@ -21,7 +21,7 @@ jobs:
       
       - name: Fetch sitemap from Supabase
         run: |
-          curl -o sitemap.xml https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/sitemap
+          curl -o sitemap.xml https://main.miltegona.lt/functions/v1/sitemap
           
       - name: Check if sitemap changed
         id: check_changes

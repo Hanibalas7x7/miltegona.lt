@@ -40,8 +40,8 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 // Edge Functions Configuration
-const EDGE_FUNCTIONS_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1';
-const SUPABASE_URL = 'https://xyzttzqvbescdpihvyfu.supabase.co';
+const EDGE_FUNCTIONS_URL = 'https://main.miltegona.lt/functions/v1';
+const SUPABASE_URL = 'https://main.miltegona.lt';
 const GALLERY_EDGE_URL = `${EDGE_FUNCTIONS_URL}/manage-gallery`;
 
 // Elements

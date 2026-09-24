@@ -172,46 +172,44 @@ async function getValidToken(): Promise<string> {
 
 // ── eWeLink API helpers ───────────────────────────────────────────────────────
 
+async function getEweLinkDeviceParams(deviceId: string, token: string): Promise<any> {
+  const response = await fetch(`${EWELINK_API_URL}/v2/device/thing?id=${deviceId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'X-CK-Appid': EWELINK_APPID,
+    },
+  })
+  const data = await response.json()
+
+  if (data.error !== 0 || !data.data?.thingList) {
+    throw new Error(data.msg || 'Nepavyko gauti irenginio busenos')
+  }
+
+  const device = data.data.thingList.find((item: any) =>
+    item.itemData?.deviceid === deviceId
+  )
+  if (!device) throw new Error('Irenginys nerastas eWeLink paskyroje')
+
+  return device.itemData?.params || {}
+}
+
 async function getEweLinkDeviceStatus(deviceId: string) {
   try {
     const token = await getValidToken()
 
-    const response = await fetch(`${EWELINK_API_URL}/v2/device/thing?id=${deviceId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${token}`,
-        'X-CK-Appid':    EWELINK_APPID,
-      },
-    })
+    const params = await getEweLinkDeviceParams(deviceId, token)
 
-    const data = await response.json()
-    console.log('📊 eWeLink status response for device:', deviceId, JSON.stringify(data))
-
-    if (data.error === 0 && data.data?.thingList) {
-      const device = data.data.thingList.find((item: any) =>
-        item.itemData?.deviceid === deviceId
-      )
-
-      if (device) {
-        const params = device.itemData?.params
-
-        if (params?.switches) {
-          const allOn = params.switches.every((sw: any) => sw.switch === 'on')
-          const switchState = allOn ? 'on' : 'off'
-          console.log('💡 Multi-channel state:', switchState)
-          return { success: true, state: switchState }
-        } else {
-          const switchState = params?.switch || 'unknown'
-          console.log('💡 Single-channel state:', switchState)
-          return { success: true, state: switchState }
-        }
-      } else {
-        console.log('⚠️ Device not found in thingList')
-        return { success: false, error: 'Device not found' }
-      }
+    if (params.switches) {
+      const allOn = params.switches.every((sw: any) => sw.switch === 'on')
+      const switchState = allOn ? 'on' : 'off'
+      console.log('💡 Multi-channel state:', switchState)
+      return { success: true, state: switchState }
     } else {
-      throw new Error(data.msg || 'Unknown error')
+      const switchState = params.switch || 'unknown'
+      console.log('💡 Single-channel state:', switchState)
+      return { success: true, state: switchState }
     }
   } catch (error) {
     console.error('❌ eWeLink status error:', error)
@@ -222,10 +220,14 @@ async function getEweLinkDeviceStatus(deviceId: string) {
 async function controlEweLinkDevice(deviceId: string, state: 'on' | 'off') {
   try {
     const token = await getValidToken()
-    const isMultiChannel = deviceId === LIGHT_DEVICE_ID
-
-    const params = isMultiChannel
-      ? { switches: [{ outlet: 0, switch: state }, { outlet: 1, switch: state }] }
+    const currentParams = await getEweLinkDeviceParams(deviceId, token)
+    const params = Array.isArray(currentParams.switches)
+      ? {
+          switches: currentParams.switches.map((item: any) => ({
+            outlet: item.outlet,
+            switch: state,
+          })),
+        }
       : { switch: state }
 
     console.log('🎛️ Control params:', JSON.stringify(params))

@@ -39,7 +39,7 @@ function checkRateLimit(ip: string): boolean {
  * Internal call to unified-control edge function
  * Uses service role key - no anon key needed from client
  */
-async function callUnifiedControl(action: string, deviceId?: string, state?: string) {
+async function callUnifiedControl(action: string, deviceId?: string, state?: string, outlet?: number) {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   
@@ -48,6 +48,7 @@ async function callUnifiedControl(action: string, deviceId?: string, state?: str
   const body: any = { action };
   if (deviceId) body.deviceId = deviceId;
   if (state) body.state = state;
+  if (outlet !== undefined) body.outlet = outlet;
   
   console.log('🔗 Calling unified-control:', action);
   
@@ -93,7 +94,7 @@ Deno.serve(async (req) => {
     }
 
     // Parse request
-    const { code, action, deviceId, state } = await req.json();
+    const { code, action, deviceId, state, outlet } = await req.json();
 
     if (!code) {
       return new Response(
@@ -125,6 +126,8 @@ Deno.serve(async (req) => {
     const allowedActions = [
       'light_on',
       'light_off',
+      'room_light_on',
+      'device_control',
       'open_building_gate',
       'close_building_gate',
       'get_status', // Light status only
@@ -141,6 +144,21 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
+    }
+
+    if (action === 'device_control') {
+      const validDeviceId = typeof deviceId === 'string' && /^[a-fA-F0-9]{8,64}$/.test(deviceId);
+      const validState = state === 'on' || state === 'off';
+      const validOutlet = outlet === undefined || (Number.isInteger(outlet) && outlet >= 0 && outlet <= 32);
+      if (!validDeviceId || !validState || !validOutlet) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Neteisingas irenginio ID arba busena" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
     }
 
     // Initialize Supabase client
@@ -210,9 +228,22 @@ Deno.serve(async (req) => {
     // Code is valid - call unified-control edge function
     // For get_status, use hardcoded light device ID
     const lightDeviceId = '1001e7d80b';
-    const finalDeviceId = action === 'get_status' ? lightDeviceId : undefined;
-    
-    const result = await callUnifiedControl(action, finalDeviceId);
+    const roomLightDeviceId = '100175756d';
+    const finalDeviceId = action === 'get_status'
+      ? lightDeviceId
+      : action === 'room_light_on'
+        ? roomLightDeviceId
+        : action === 'device_control'
+          ? deviceId
+          : undefined;
+    const unifiedAction = action === 'room_light_on' ? 'device_control' : action;
+
+    const result = await callUnifiedControl(
+      unifiedAction,
+      finalDeviceId,
+      action === 'room_light_on' ? 'on' : action === 'device_control' ? state : undefined,
+      action === 'device_control' ? outlet : undefined
+    );
 
     // Sanitize infrastructure-level errors before returning to the client
     let clientError: string | undefined = undefined;

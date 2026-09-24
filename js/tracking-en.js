@@ -28,7 +28,7 @@ function translateStage(stage) {
 }
 
 // Edge Function URL
-const TRACK_ORDER_ENDPOINT = 'https://xyzttzqvbescdpihvyfu.supabase.co/functions/v1/track-order';
+const TRACK_ORDER_ENDPOINT = 'https://main.miltegona.lt/functions/v1/track-order';
 
 // Form elements
 const trackingForm = document.getElementById('trackingForm');
