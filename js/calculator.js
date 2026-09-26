@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const VAT_RATE = 0.21; // 21% PVM
 
+    // Focused number inputs change value on mouse wheel; blur so the page scrolls instead
+    document.querySelectorAll('input[type="number"]').forEach(el => {
+        el.addEventListener('wheel', () => el.blur(), { passive: true });
+    });
+
     // --- Prices loaded from Supabase (with fallback defaults) ---
     let PRICES = {
         painting_base:   9,  // €/m² base painting (dark RAL)
