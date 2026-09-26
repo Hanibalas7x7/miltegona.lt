@@ -108,8 +108,12 @@ document.addEventListener('DOMContentLoaded', function() {
             weightMultiplier = 1.1;
         }
 
+        // Minimum hanging gap between items, always added to height
+        const HEIGHT_GAP = 100;
+        const calcHeight = height + HEIGHT_GAP;
+
         // Base multiplier for all calculations (ilgis x aukštis x plačio_daugiklis x sudėtingumas x svorio_daugiklis)
-        const baseMultiplier = (length / 1000) * (height / 1000) * depthMultiplier * complexity * weightMultiplier;
+        const baseMultiplier = (length / 1000) * (calcHeight / 1000) * depthMultiplier * complexity * weightMultiplier;
 
         // Color price per m² based on type (prices from Supabase admin_settings)
         let colorPrice = PRICES.painting_base; // Dark RAL base
@@ -146,8 +150,11 @@ document.addEventListener('DOMContentLoaded', function() {
             primerPrice = baseMultiplier * PRICES.primer;
         }
 
-        // Calculate price per piece
-        const pricePerPiece = paintingPrice + sandblastingPrice + primerPrice;
+        // Small items (< 5 €/pc) get a hanging fee per piece
+        const HANGING_FEE = 0.15;
+        const basePricePerPiece = paintingPrice + sandblastingPrice + primerPrice;
+        const hangingFee = basePricePerPiece < 5 ? HANGING_FEE : 0;
+        const pricePerPiece = basePricePerPiece + hangingFee;
 
         // Calculate total for all pieces
         let totalPrice = pricePerPiece * quantity;
@@ -176,6 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ? '<h4>Price breakdown (per item) excl. VAT:</h4>'
             : '<h4>Kainos sudėtis (1 vnt.) be PVM:</h4>';
         breakdownHTML += `<div class="price-item"><span>${isEN ? 'Dimensions' : 'Matmenys'}:</span><span>${length}×${height}×${width} mm</span></div>`;
+        breakdownHTML += `<div class="price-item"><span>${isEN ? 'Hanging gap (height)' : 'Tarpas tarp gaminių (aukštis)'}:</span><span>+${HEIGHT_GAP} mm</span></div>`;
         
         if (depthMultiplier > 1) {
             breakdownHTML += `<div class="price-item"><span>${isEN ? 'Depth multiplier' : 'Gylio daugiklis'}:</span><span>×${depthMultiplier}</span></div>`;
@@ -199,6 +207,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (primer) {
             breakdownHTML += `<h4 style="margin-top: 1rem;">${isEN ? 'Priming' : 'Gruntavimas'}:</h4>`;
             breakdownHTML += `<div class="price-item"><span>${isEN ? 'Priming' : 'Gruntavimas'}:</span><span>${primerPrice.toFixed(2)} €</span></div>`;
+        }
+
+        if (hangingFee > 0) {
+            breakdownHTML += `<div class="price-item"><span>${isEN ? 'Hanging fee' : 'Pakabinimo mokestis'}:</span><span>+${hangingFee.toFixed(2)} €</span></div>`;
         }
 
         breakdownHTML += `<div class="price-item" style="margin-top: 1rem;"><strong>${isEN ? 'Price per item' : 'Kaina už 1 vnt.'}:</strong><strong>${pricePerPiece.toFixed(2)} €</strong></div>`;
