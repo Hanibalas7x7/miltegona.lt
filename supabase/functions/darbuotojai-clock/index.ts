@@ -193,9 +193,15 @@ serve(async (req) => {
         );
       }
 
+      // Same rule as darbuotojai-suvestine / darbuotojai.js: shifts under 4h get no lunch break
+      const toMs = (s: string) => Date.parse(/(Z|[+-]\d\d:?\d\d)$/i.test(s) ? s : `${s}Z`);
+      const rawHours = (toMs(nowLocalTs) - toMs(existing.pradzios_laikas)) / 3600000;
+      const updateData: Record<string, unknown> = { pabaigos_laikas: nowLocalTs };
+      if (rawHours < 4) updateData.pietu_pertrauka = 0;
+
       const { data: updated, error: updateError } = await supabaseAdmin
         .from('darbuotoju_darbo_valandos')
-        .update({ pabaigos_laikas: nowLocalTs })
+        .update(updateData)
         .eq('id', existing.id)
         .select('id, pradzios_laikas, pabaigos_laikas')
         .single();
