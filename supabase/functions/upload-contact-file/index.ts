@@ -40,11 +40,11 @@ serve(async (req) => {
 
     if (error) throw error;
 
-    const { data: urlData } = supabase.storage
-      .from('contact-attachments')
-      .getPublicUrl(fileName);
+    // SUPABASE_URL is internal (http://api-gw:8000) in self-hosted setup, so rewrite to the public origin
+    const publicBase = (Deno.env.get("PUBLIC_SUPABASE_URL") || "https://main.miltegona.lt").replace(/\/+$/, '');
+    const publicUrl = `${publicBase}/storage/v1/object/public/contact-attachments/${encodeURIComponent(fileName)}`;
 
-    return new Response(JSON.stringify({ url: urlData.publicUrl, name: file.name }), {
+    return new Response(JSON.stringify({ url: publicUrl, name: file.name }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 

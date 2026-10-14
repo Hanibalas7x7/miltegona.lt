@@ -134,7 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             const res = await fetch(UPLOAD_URL, { method: 'POST', body: fd });
                             const json = await res.json();
                             if (json.url) {
-                                fileLinks.push(`${file.name}: ${json.url}`);
+                                // Backend may return the internal Docker URL; always expose the public origin
+                                const publicUrl = json.url.replace(/^https?:\/\/api-gw:8000/, 'https://main.miltegona.lt');
+                                fileLinks.push(`${file.name}: ${publicUrl}`);
                             } else {
                                 console.error('Upload error:', json.error);
                             }

@@ -17,7 +17,9 @@ serve(async (req) => {
       throw error;
     }
 
-    const storageUrl = `${supabaseUrl}/storage/v1/object/public/gallery-images`;
+    // SUPABASE_URL is internal (http://api-gw:8000) in self-hosted setup, so use the public origin
+    const publicBase = (Deno.env.get("PUBLIC_SUPABASE_URL") || "https://main.miltegona.lt").replace(/\/+$/, '');
+    const storageUrl = `${publicBase}/storage/v1/object/public/gallery-images`;
     
     // Build sitemap XML
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
