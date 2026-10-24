@@ -259,7 +259,7 @@ codeForm.addEventListener('submit', async (e) => {
     }
 });
 
-// eWeLink token expiry display
+// Backend status: which of CUBE / eWeLink serves control now, plus both token states
 async function loadEweLinkTokenInfo() {
     const el = document.getElementById('token-expiry');
     if (!el) return;
@@ -271,25 +271,67 @@ async function loadEweLinkTokenInfo() {
             body: JSON.stringify({ action: 'token_info' })
         });
         const data = await response.json();
-        if (!data.success || !data.expires_at) { el.textContent = ''; return; }
-        const expiry = new Date(data.expires_at);
-        const now = new Date();
-        const diffMs = expiry - now;
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        const dateStr = expiry.toLocaleDateString('lt-LT', { year: 'numeric', month: '2-digit', day: '2-digit' });
-        if (diffDays < 0) {
-            el.textContent = '⛔ Tokenas pasibaigęs!';
-            el.style.color = '#ef4444';
-            el.style.opacity = '1';
-        } else if (diffDays < 3) {
-            el.textContent = `⚠️ Baigiasi per ${diffDays} d. (${dateStr})`;
-            el.style.color = '#f97316';
-            el.style.opacity = '1';
+        if (!data.success) { el.textContent = ''; return; }
+
+        const time = (iso) => iso
+            ? new Date(iso).toLocaleTimeString('lt-LT', { hour: '2-digit', minute: '2-digit' })
+            : '–';
+        const line = (text, color) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            if (color) div.style.color = color;
+            return div;
+        };
+        const RED = '#ef4444', ORANGE = '#f97316', GREEN = '#22c55e';
+
+        const activeText = {
+            cube: ['🏠 Valdymas: CUBE (eWeLink debesis neveikia)', ORANGE],
+            ewelink: ['☁️ Valdymas: eWeLink (CUBE – atsarginis)', GREEN],
+            none: ['⛔ Valdymas: nėra veikiančio ryšio', RED]
+        }[data.active] || ['', null];
+
+        // eWeLink token expiry and cloud reachability
+        let ewelinkText;
+        let ewelinkColor = null;
+        const expiry = data.ewelink?.expires_at ? new Date(data.ewelink.expires_at) : null;
+        const days = expiry ? Math.floor((expiry - new Date()) / 86400000) : null;
+        if (!expiry) {
+            ewelinkText = 'eWeLink tokenas: nėra';
+            ewelinkColor = RED;
+        } else if (days < 0) {
+            ewelinkText = '⛔ eWeLink tokenas pasibaigęs!';
+            ewelinkColor = RED;
+        } else if (days < 3) {
+            ewelinkText = `⚠️ eWeLink tokenas baigiasi per ${days} d.`;
+            ewelinkColor = ORANGE;
         } else {
-            el.textContent = `🔑 galioja iki ${dateStr} (${diffDays} d.)`;
-            el.style.color = '';
-            el.style.opacity = '0.7';
+            ewelinkText = `🔑 eWeLink tokenas galioja ${days} d.`;
         }
+        const ewelinkHealth = data.ewelink?.health;
+        if (ewelinkHealth) {
+            ewelinkText += ewelinkHealth.ok
+                ? ` · API veikia (${time(ewelinkHealth.checked_at)})`
+                : ` · API neveikia (${time(ewelinkHealth.checked_at)})`;
+            if (!ewelinkHealth.ok && !ewelinkColor) ewelinkColor = ORANGE;
+        }
+
+        // CUBE token is renewed automatically; only reachability can fail
+        const cubeHealth = data.cube?.health;
+        let cubeText = data.cube?.token_updated_at
+            ? `🔑 CUBE tokenas galioja (gautas ${new Date(data.cube.token_updated_at).toLocaleDateString('lt-LT')})`
+            : 'CUBE tokenas: dar negautas';
+        let cubeColor = null;
+        if (cubeHealth) {
+            cubeText += cubeHealth.ok
+                ? ` · ryšys veikia (${time(cubeHealth.checked_at)})`
+                : ` · ryšio nėra (${time(cubeHealth.checked_at)})`;
+            if (!cubeHealth.ok) cubeColor = RED;
+        }
+
+        el.replaceChildren(line(...activeText), line(ewelinkText, ewelinkColor), line(cubeText, cubeColor));
+        el.style.opacity = '1';
+        el.style.display = 'block';
+        el.style.textAlign = 'right';
     } catch (e) {
         el.textContent = '';
     }

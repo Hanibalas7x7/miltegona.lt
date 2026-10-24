@@ -11,6 +11,8 @@
 //     first row in app_tokens (i.e. after a fresh re-authentication).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { cubeGetPower, cubeSetPower } from "../_shared/cube.ts";
+import { routed } from "../_shared/health.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -197,20 +199,20 @@ async function getEweLinkDeviceParams(deviceId: string, token: string): Promise<
 
 async function getEweLinkDeviceStatus(deviceId: string) {
   try {
-    const token = await getValidToken()
-
-    const params = await getEweLinkDeviceParams(deviceId, token)
-
-    if (params.switches) {
-      const allOn = params.switches.every((sw: any) => sw.switch === 'on')
-      const switchState = allOn ? 'on' : 'off'
-      console.log('💡 Multi-channel state:', switchState)
-      return { success: true, state: switchState }
-    } else {
-      const switchState = params.switch || 'unknown'
-      console.log('💡 Single-channel state:', switchState)
-      return { success: true, state: switchState }
-    }
+    const { value } = await routed(
+      supabase,
+      async () => {
+        const token = await getValidToken()
+        const params = await getEweLinkDeviceParams(deviceId, token)
+        if (params.switches) {
+          return params.switches.every((sw: any) => sw.switch === 'on') ? 'on' : 'off'
+        }
+        return params.switch || 'unknown'
+      },
+      () => cubeGetPower(supabase, deviceId),
+    )
+    console.log('💡 Device state:', value)
+    return { success: true, state: value }
   } catch (error) {
     console.error('❌ eWeLink status error:', error)
     return { success: false, error: error.message }
@@ -219,36 +221,40 @@ async function getEweLinkDeviceStatus(deviceId: string) {
 
 async function controlEweLinkDevice(deviceId: string, state: 'on' | 'off') {
   try {
-    const token = await getValidToken()
-    const currentParams = await getEweLinkDeviceParams(deviceId, token)
-    const params = Array.isArray(currentParams.switches)
-      ? {
-          switches: currentParams.switches.map((item: any) => ({
-            outlet: item.outlet,
-            switch: state,
-          })),
-        }
-      : { switch: state }
+    await routed(
+      supabase,
+      async () => {
+        const token = await getValidToken()
+        const currentParams = await getEweLinkDeviceParams(deviceId, token)
+        const params = Array.isArray(currentParams.switches)
+          ? {
+              switches: currentParams.switches.map((item: any) => ({
+                outlet: item.outlet,
+                switch: state,
+              })),
+            }
+          : { switch: state }
 
-    console.log('🎛️ Control params:', JSON.stringify(params))
+        console.log('🎛️ Control params:', JSON.stringify(params))
 
-    const response = await fetch(`${EWELINK_API_URL}/v2/device/thing/status`, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${token}`,
-        'X-CK-Appid':    EWELINK_APPID,
+        const response = await fetch(`${EWELINK_API_URL}/v2/device/thing/status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${token}`,
+            'X-CK-Appid':    EWELINK_APPID,
+          },
+          body: JSON.stringify({ type: 1, id: deviceId, params }),
+        })
+
+        const data = await response.json()
+        if (data.error !== 0) throw new Error(data.msg || 'Unknown error')
       },
-      body: JSON.stringify({ type: 1, id: deviceId, params }),
-    })
-
-    const data = await response.json()
-
-    if (data.error === 0) {
-      return { success: true, message: `Device ${state}` }
-    } else {
-      throw new Error(data.msg || 'Unknown error')
-    }
+      async () => {
+        await cubeSetPower(supabase, deviceId, state)
+      },
+    )
+    return { success: true, message: `Device ${state}` }
   } catch (error) {
     console.error('❌ eWeLink control error:', error)
     return { success: false, error: error.message }
@@ -257,31 +263,34 @@ async function controlEweLinkDevice(deviceId: string, state: 'on' | 'off') {
 
 async function controlEweLinkGate(deviceId: string, outlet: number) {
   try {
-    const token = await getValidToken()
-
     console.log(`🚪 Gate control - outlet: ${outlet}`)
 
-    const response = await fetch(`${EWELINK_API_URL}/v2/device/thing/status`, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${token}`,
-        'X-CK-Appid':    EWELINK_APPID,
+    await routed(
+      supabase,
+      async () => {
+        const token = await getValidToken()
+        const response = await fetch(`${EWELINK_API_URL}/v2/device/thing/status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${token}`,
+            'X-CK-Appid':    EWELINK_APPID,
+          },
+          body: JSON.stringify({
+            type: 1,
+            id:   deviceId,
+            params: { switches: [{ outlet, switch: 'on' }] },
+          }),
+        })
+
+        const data = await response.json()
+        if (data.error !== 0) throw new Error(data.msg || 'Unknown error')
       },
-      body: JSON.stringify({
-        type: 1,
-        id:   deviceId,
-        params: { switches: [{ outlet, switch: 'on' }] },
-      }),
-    })
-
-    const data = await response.json()
-
-    if (data.error === 0) {
-      return { success: true, message: `Gate outlet ${outlet} triggered` }
-    } else {
-      throw new Error(data.msg || 'Unknown error')
-    }
+      async () => {
+        await cubeSetPower(supabase, deviceId, 'on', outlet)
+      },
+    )
+    return { success: true, message: `Gate outlet ${outlet} triggered` }
   } catch (error) {
     console.error('❌ Gate control error:', error)
     return { success: false, error: error.message }

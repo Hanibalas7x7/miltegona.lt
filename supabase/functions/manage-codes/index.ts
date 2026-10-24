@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { backendStatus } from "../_shared/health.ts";
 
 // Rate limiting: 60 requests per hour per IP
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -258,14 +259,22 @@ serve(async (req) => {
       return jsonResponse({ success: true, message: "Kodas atnaujintas" });
     }
 
-    // TOKEN INFO - eWeLink token expiry
+    // TOKEN INFO - eWeLink token expiry plus CUBE token and backend health
     if (method === "POST" && body.action === "token_info") {
-      const { data: tokenData } = await supabase
+      const { data: tokens } = await supabase
         .from("app_tokens")
-        .select("expires_at")
-        .eq("service", "ewelink")
-        .single();
-      return jsonResponse({ success: true, expires_at: tokenData?.expires_at || null });
+        .select("service, expires_at, updated_at")
+        .in("service", ["ewelink", "cube"]);
+      const ewelinkToken = tokens?.find((t: { service: string }) => t.service === "ewelink");
+      const cubeToken = tokens?.find((t: { service: string }) => t.service === "cube");
+      const status = await backendStatus(supabase);
+      return jsonResponse({
+        success: true,
+        expires_at: ewelinkToken?.expires_at || null,
+        active: status.active,
+        ewelink: { expires_at: ewelinkToken?.expires_at || null, health: status.ewelink },
+        cube: { token_updated_at: cubeToken?.updated_at || null, health: status.cube },
+      });
     }
 
     return jsonResponse({ success: false, error: "Nežinomas veiksmas" }, 400);
