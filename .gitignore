@@ -8,3 +8,6 @@ replace-keys.ps1
 bfg.jar
 supabase.exe
 supabase.tar.gz
+
+# Never commit shell scripts (local scratch scripts may embed keys)
+*.sh
