@@ -59,13 +59,22 @@ function out(body: object, status = 200) {
  * of a multi-channel device) via eWeLink's GET /v2/device/thing.
  */
 async function getDeviceState(token: string, deviceId: string, outlet?: number): Promise<string> {
-  const r = await fetch(`${API_BASE}/v2/device/thing?id=${deviceId}`, {
-    headers: { "Authorization": `Bearer ${token}`, "X-CK-Appid": EWELINK_APPID },
-  });
+  const headers = { "Authorization": `Bearer ${token}`, "X-CK-Appid": EWELINK_APPID };
+  const find = (j: any) => j.data?.thingList?.find((item: any) => item.itemData?.deviceid === deviceId);
+
+  const r = await fetch(`${API_BASE}/v2/device/thing?id=${deviceId}`, { headers });
   const j = await r.json();
   if (j.error !== 0) throw new Error(j.msg || "Status failed");
 
-  const device = j.data?.thingList?.find((item: any) => item.itemData?.deviceid === deviceId);
+  let device = find(j);
+  if (!device) {
+    // `?id=` only searches the default home; devices in another home need a per-family lookup.
+    const families = await (await fetch(`${API_BASE}/v2/family`, { headers })).json();
+    for (const family of families.data?.familyList ?? []) {
+      device = find(await (await fetch(`${API_BASE}/v2/device/thing?familyid=${family.id}`, { headers })).json());
+      if (device) break;
+    }
+  }
   if (!device) throw new Error("Device not found");
 
   const params = device.itemData?.params;

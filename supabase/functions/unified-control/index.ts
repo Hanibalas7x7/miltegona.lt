@@ -175,23 +175,31 @@ async function getValidToken(): Promise<string> {
 // ── eWeLink API helpers ───────────────────────────────────────────────────────
 
 async function getEweLinkDeviceParams(deviceId: string, token: string): Promise<any> {
-  const response = await fetch(`${EWELINK_API_URL}/v2/device/thing?id=${deviceId}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      'X-CK-Appid': EWELINK_APPID,
-    },
-  })
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    'X-CK-Appid': EWELINK_APPID,
+  }
+  const find = (data: any) =>
+    data.data?.thingList?.find((item: any) => item.itemData?.deviceid === deviceId)
+
+  const response = await fetch(`${EWELINK_API_URL}/v2/device/thing?id=${deviceId}`, { method: 'GET', headers })
   const data = await response.json()
 
   if (data.error !== 0 || !data.data?.thingList) {
     throw new Error(data.msg || 'Nepavyko gauti irenginio busenos')
   }
 
-  const device = data.data.thingList.find((item: any) =>
-    item.itemData?.deviceid === deviceId
-  )
+  let device = find(data)
+  if (!device) {
+    // `?id=` only searches the default home; the building devices live in another one.
+    const families = await (await fetch(`${EWELINK_API_URL}/v2/family`, { headers })).json()
+    for (const family of families.data?.familyList ?? []) {
+      const inFamily = await (await fetch(`${EWELINK_API_URL}/v2/device/thing?familyid=${family.id}`, { headers })).json()
+      device = find(inFamily)
+      if (device) break
+    }
+  }
   if (!device) throw new Error('Irenginys nerastas eWeLink paskyroje')
 
   return device.itemData?.params || {}
