@@ -65,7 +65,11 @@
   Cache-Control: no-cache, must-revalidate
 /atidaryti/
   Cache-Control: no-cache, must-revalidate
+/en/open/
+  Cache-Control: no-cache, must-revalidate
 /darbuotojai/
+  Cache-Control: no-cache, must-revalidate
+/en/workers/
   Cache-Control: no-cache, must-revalidate
 /kontrole/
   Cache-Control: no-cache, must-revalidate

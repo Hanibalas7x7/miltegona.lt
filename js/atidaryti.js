@@ -22,6 +22,10 @@ let gateCodeNote = null; // employee name from gate code note field
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
 
+// Keep the code when switching language
+const langSwitchLink = document.getElementById('lang-switch');
+if (langSwitchLink) langSwitchLink.href += window.location.search;
+
 // Validate code on page load
 window.addEventListener('DOMContentLoaded', async () => {
     if (!code) {
@@ -361,9 +365,9 @@ async function autoClockIn() {
     }
 }
 
-// Format date to Lithuanian local time
+// Format date to local time (Vilnius)
 function formatDate(date) {
-    return date.toLocaleString('lt-LT', {
+    return date.toLocaleString(document.documentElement.lang === 'en' ? 'en-GB' : 'lt-LT', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',

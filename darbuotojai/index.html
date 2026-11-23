@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <script src="/js/lang-pref.js?v=1"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -12,13 +13,18 @@
     
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/darbuotojai.css?v=5">
+    <link rel="stylesheet" href="/css/darbuotojai.css?v=6">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=optional" rel="stylesheet"></noscript>
 </head>
 <body>
+    <div class="lang-switch">
+        <a href="/darbuotojai/" class="active" data-lang="lt">LT</a>
+        <a href="/en/workers/" data-lang="en">EN</a>
+    </div>
+
     <!-- Login Screen -->
     <div id="login-screen" class="auth-screen">
         <div class="auth-container">
@@ -54,7 +60,7 @@
                         <source srcset="/assets/miltegona-logo-white-optimized.webp" type="image/webp">
                         <img src="/assets/miltegona-logo-white-optimized.png" alt="Miltegona" class="header-logo" width="152" height="77">
                     </picture>
-                    <h1>Darbuotojų Portalas <span class="portal-version">v36</span></h1>
+                    <h1>Darbuotojų Portalas <span class="portal-version">v37</span></h1>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <button id="settings-btn" class="btn btn-secondary" title="Pakeisti slaptažodį / el. paštą">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Nustatymai
@@ -544,7 +550,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
-    <script src="/js/darbuotojai.js?v=36"></script>
+    <script src="/js/darbuotojai.js?v=37"></script>
     <script src="/js/paint-management-simple.js"></script>
 </body>
 </html>

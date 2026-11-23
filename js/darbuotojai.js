@@ -3,11 +3,18 @@
 
 const EDGE_FUNCTIONS_URL = 'https://main.miltegona.lt/functions/v1';
 
-// Lithuanian months
-const MONTHS_LT = [
+// Month and weekday names (English on /en/workers/, Lithuanian otherwise)
+const IS_EN = document.documentElement.lang === 'en';
+const MONTH_NAMES = IS_EN ? [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+] : [
     'Sausis', 'Vasaris', 'Kovas', 'Balandis', 'Gegužė', 'Birželis',
     'Liepa', 'Rugpjūtis', 'Rugsėjis', 'Spalis', 'Lapkritis', 'Gruodis'
 ];
+const DAY_NAMES = IS_EN
+    ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    : ['Sekmadienis', 'Pirmadienis', 'Antradienis', 'Trečiadienis', 'Ketvirtadienis', 'Penktadienis', 'Šeštadienis'];
 
 // State
 let currentUser = null;
@@ -378,7 +385,7 @@ async function loadSuvestine() {
     const monthTitle = document.getElementById('current-month-suvestine');
     
     // Update month title
-    monthTitle.textContent = `${MONTHS_LT[currentMonthSuvestine.getMonth()]} ${currentMonthSuvestine.getFullYear()}`;
+    monthTitle.textContent = `${MONTH_NAMES[currentMonthSuvestine.getMonth()]} ${currentMonthSuvestine.getFullYear()}`;
     
     // Show loading
     contentDiv.innerHTML = '<p class="loading-message">Kraunama...</p>';
@@ -478,7 +485,7 @@ async function loadAtlyginimai() {
     const monthTitle = document.getElementById('current-month-atlyginimai');
     
     // Update month title
-    monthTitle.textContent = `${MONTHS_LT[currentMonthAtlyginimai.getMonth()]} ${currentMonthAtlyginimai.getFullYear()}`;
+    monthTitle.textContent = `${MONTH_NAMES[currentMonthAtlyginimai.getMonth()]} ${currentMonthAtlyginimai.getFullYear()}`;
     
     // Show loading
     contentDiv.innerHTML = '<p class="loading-message">Kraunama...</p>';
@@ -536,7 +543,7 @@ function renderSalaryCard(salary) {
     
     const html = `
         <div class="atlyginimai-card">
-            <h3>${MONTHS_LT[currentMonthAtlyginimai.getMonth()]} ${currentMonthAtlyginimai.getFullYear()}</h3>
+            <h3>${MONTH_NAMES[currentMonthAtlyginimai.getMonth()]} ${currentMonthAtlyginimai.getFullYear()}</h3>
             <div class="salary-details">
                 <div class="salary-row">
                     <span class="salary-label">Norminės darbo dienos:</span>
@@ -666,14 +673,13 @@ function getLocalDateTime() {
 function startLiveClock() {
     const timeEl = document.getElementById('clock-live-time');
     const dateEl = document.getElementById('clock-live-date');
-    const DAYS_LT = ['Sekmadienis','Pirmadienis','Antradienis','Trečiadienis','Ketvirtadienis','Penktadienis','Šeštadienis'];
 
     function tick() {
         const now = new Date();
         const hh = String(now.getHours()).padStart(2, '0');
         const mm = String(now.getMinutes()).padStart(2, '0');
         timeEl.textContent = `${hh}:${mm}`;
-        dateEl.textContent = `${DAYS_LT[now.getDay()]}, ${now.getDate()} ${MONTHS_LT[now.getMonth()]} ${now.getFullYear()}`;
+        dateEl.textContent = `${DAY_NAMES[now.getDay()]}, ${now.getDate()} ${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`;
     }
     tick();
     if (clockLiveTimer) clearInterval(clockLiveTimer);

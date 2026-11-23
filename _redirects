@@ -16,6 +16,13 @@
 /en/price-calculator /en/price-calculator/ 301
 /en/paints /en/paints/ 301
 /en/tracking /en/tracking/ 301
+/en/workers /en/workers/ 301
+/en/open /en/open/ 301
+# Short English URLs
+/workers /en/workers/ 301
+/workers/ /en/workers/ 301
+/open /en/open/ 301
+/open/ /en/open/ 301
 
 # Trailing slash redirects (no-slash -> with slash)
 /apie-mus /apie-mus/ 301

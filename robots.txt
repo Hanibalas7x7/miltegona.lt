@@ -5,6 +5,8 @@ Allow: /
 Disallow: /kontrole/
 Disallow: /darbuotojai/
 Disallow: /atidaryti/
+Disallow: /en/workers/
+Disallow: /en/open/
 
 # Disallow API endpoints
 Disallow: /logImpressions

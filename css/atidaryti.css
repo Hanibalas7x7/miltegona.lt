@@ -198,3 +198,33 @@ body {
         height: 60px;
     }
 }
+
+/* Language switch (LT / EN) */
+.lang-switch {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(15, 17, 21, 0.85);
+    border-radius: 6px;
+    z-index: 1000;
+    display: flex;
+    gap: 2px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.lang-switch a {
+    padding: 0.25rem 0.5rem;
+    color: #9ca3af;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.lang-switch a:hover {
+    color: #FC9D17;
+}
+
+.lang-switch a.active {
+    color: #FC9D17;
+    pointer-events: none;
+}
