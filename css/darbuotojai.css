@@ -1384,26 +1384,30 @@ body {
     
     .scan-result-item {
         padding: 10px 16px;
+    }
+}
 
-/* Language switch (LT / EN) */
+/* Language switch (LT / EN): top-right pill, scrolls with the page */
 .lang-switch {
-    position: fixed;
-    bottom: 12px;
-    left: 12px;
-    background: rgba(15, 17, 21, 0.85);
-    border-radius: 6px;
+    position: absolute;
+    top: 8px;
+    right: 12px;
     z-index: 1000;
     display: flex;
     gap: 2px;
-    font-size: 0.82rem;
+    padding: 2px;
+    background: rgba(15, 17, 21, 0.95);
+    border: 1px solid #FC9D17;
+    border-radius: 999px;
+    font-size: 0.9rem;
     font-weight: 700;
 }
 
 .lang-switch a {
-    padding: 0.25rem 0.5rem;
-    color: #9ca3af;
+    padding: 0.3rem 0.8rem;
+    color: #e5e7eb;
     text-decoration: none;
-    border-radius: 4px;
+    border-radius: 999px;
 }
 
 .lang-switch a:hover {
@@ -1411,6 +1415,12 @@ body {
 }
 
 .lang-switch a.active {
-    color: #FC9D17;
+    background: #FC9D17;
+    color: #111;
     pointer-events: none;
+}
+
+/* Leave room above the dashboard header for the language switch */
+.dashboard-header {
+    padding-top: 40px;
 }
