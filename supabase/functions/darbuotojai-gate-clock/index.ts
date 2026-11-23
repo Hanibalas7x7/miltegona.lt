@@ -116,10 +116,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Clock out
+    // Clock out. Same rule as darbuotojai-clock / darbuotojai-suvestine: shifts under 4h get no lunch break
+    const toMs = (s: string) => Date.parse(/(Z|[+-]\d\d:?\d\d)$/i.test(s) ? s : `${s}Z`);
+    const rawHours = (toMs(clockDateTime) - toMs(existing.pradzios_laikas)) / 3600000;
+    const updateData: Record<string, unknown> = { pabaigos_laikas: clockDateTime };
+    if (rawHours < 4) updateData.pietu_pertrauka = 0;
+
     const { error: updateError } = await supabase
       .from("darbuotoju_darbo_valandos")
-      .update({ pabaigos_laikas: clockDateTime })
+      .update(updateData)
       .eq("id", existing.id);
 
     if (updateError) {
