@@ -242,6 +242,54 @@ async function performAction(action, buttonElement, successMessage) {
     }
 }
 
+// Waits until the phone reports the command as done. Resolves to
+// 'completed', 'failed' or 'timeout' (phone never picked it up - the command is cancelled).
+async function waitForGateCommand(commandId) {
+    const POLL_MS = 1000;
+    const MAX_WAIT_MS = 45000;
+    const started = Date.now();
+    let failedRequests = 0;
+
+    while (Date.now() - started < MAX_WAIT_MS) {
+        await new Promise(r => setTimeout(r, POLL_MS));
+        try {
+            const status = await requestCommandStatus(commandId, false);
+            failedRequests = 0;
+            if (status === 'completed' || status === 'failed') return status;
+        } catch (e) {
+            console.warn('Status check failed:', e);
+            failedRequests++;
+            if (failedRequests >= 10) break;
+        }
+    }
+
+    try {
+        const status = await requestCommandStatus(commandId, true);
+        return status === 'completed' || status === 'failed' ? status : 'timeout';
+    } catch (e) {
+        console.warn('Cancel request failed:', e);
+        return 'timeout';
+    }
+}
+
+async function requestCommandStatus(commandId, cancel) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+        const response = await fetch(`${EDGE_FUNCTIONS_URL}/gate-command-status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, commandId, cancel }),
+            signal: controller.signal
+        });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.error || 'Status check failed');
+        return result.status;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
 // Open territory gate button click - original functionality
 openTerritoryGateBtn.addEventListener('click', async () => {
     openTerritoryGateBtn.disabled = true;
@@ -282,24 +330,26 @@ openTerritoryGateBtn.addEventListener('click', async () => {
         gateStatus.textContent = 'Komanda išsiųsta. Tikrinama būsena...';
         gateStatus.className = 'gate-status sending';
         
-        // Auto clock-in employee if gate code belongs to them
-        autoClockIn();
+        const outcome = await waitForGateCommand(commandId);
         
-        // Poll for status change (check every 1 second for up to 30 seconds)
-        let attempts = 0;
-        const maxAttempts = 30;
-        const checkInterval = 1000; // 1 second
-        
-        // Start checking status - show success after short delay (no supabase client available)
-        setTimeout(() => {
-            gateStatus.textContent = '✅ Teritorijos vartai atidaryti sėkmingai!';
+        if (outcome === 'completed') {
+            gateStatus.textContent = '✅ Telefonas paskambino į vartus – teritorijos vartai atsidaro!';
             gateStatus.className = 'gate-status success';
-            openTerritoryGateBtn.disabled = false;
-            setTimeout(() => {
-                gateStatus.textContent = '';
-                gateStatus.className = 'gate-status';
-            }, 5000);
-        }, checkInterval);
+            // Auto clock-in employee only when the gate really was opened
+            autoClockIn();
+        } else if (outcome === 'failed') {
+            gateStatus.textContent = '❌ Telefonui nepavyko paskambinti į vartus. Vartai neatidaryti – bandykite dar kartą.';
+            gateStatus.className = 'gate-status error';
+        } else {
+            gateStatus.textContent = '❌ Telefonas neatsakė. Vartai neatidaryti – bandykite dar kartą.';
+            gateStatus.className = 'gate-status error';
+        }
+        
+        openTerritoryGateBtn.disabled = false;
+        setTimeout(() => {
+            gateStatus.textContent = '';
+            gateStatus.className = 'gate-status';
+        }, outcome === 'completed' ? 5000 : 10000);
         
     } catch (error) {
         console.error('Error sending command:', error);
